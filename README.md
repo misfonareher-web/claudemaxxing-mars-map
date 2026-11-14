@@ -48,7 +48,7 @@ Mars Trek WMTS basemaps (EPSG:4326-style, 2×1 tiles at z=0):
 
 ## Rebuild
 
-Python ≥ 3.11 with NumPy and Pillow (`pip install -r etl/requirements.txt`), plus `curl`.
+Python ≥ 3.11 with NumPy and Pillow (`pip install -r requirements.txt`), plus `curl`.
 
 ```
 python -m etl.build --all       # download from NASA archives (cached in data/raw/, ignored by git)
