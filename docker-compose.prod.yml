@@ -1,0 +1,11 @@
+# VPS-only override: container nginx terminates TLS itself (no host proxy).
+# Usage on the VPS:
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+# Certificates are copied into /certs on the host (fullchain.pem, privkey.pem);
+# after replacing them run: docker compose exec web nginx -s reload
+services:
+  web:
+    ports: ["80:80", "443:443"]
+    volumes:
+      - "./docker/nginx/prod.conf:/etc/nginx/conf.d/default.conf:ro"
+      - "/certs:/certs:ro"

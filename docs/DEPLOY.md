@@ -151,3 +151,21 @@ Return to the deployment branch before the next `git pull`.
 - Use Full (strict) if Cloudflare proxy is enabled; protect `.env` with mode 600.
 - Back up persistent DB state before future data/schema changes. Review public API
   load before wider release; this demo has no authentication or rate limiting.
+
+## Alternative used on the team VPS: TLS in container nginx
+
+The team VPS (`celc0r-realm.lol`) terminates TLS in the container nginx instead of host Caddy:
+
+```sh
+# certificates (e.g. from certbot) copied into /certs on the host
+cp -L /etc/letsencrypt/live/celc0r-realm.lol/{fullchain,privkey}.pem /certs/
+docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+# after renewing/replacing the certificate files:
+docker compose exec web nginx -s reload
+```
+
+`docker-compose.prod.yml` publishes 80/443 and mounts `docker/nginx/prod.conf` and `/certs`.
+Port 80 redirects to HTTPS (except `/.well-known/acme-challenge/`). The certificate must list
+every served name (`-d celc0r-realm.lol -d ares.celc0r-realm.lol`). The base port
+`127.0.0.1:8080` stays bound to loopback. Set `CORS_ALLOWED_ORIGINS` in `.env`; CORS lives in
+PHP only, so nginx must not add `Access-Control-*` headers.
