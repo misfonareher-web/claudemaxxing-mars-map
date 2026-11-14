@@ -38,7 +38,7 @@ def execute(command, request):
     return result
 
 def clean(value, coordinate=False):
-    if isinstance(value,dict): return {k:clean(v,k in ('coordinates','center','bbox','cell_size_deg')) for k,v in value.items()}
+    if isinstance(value,dict): return {k:clean(v,k in ('coordinates','center','bbox','cell_size_deg','start','end')) for k,v in value.items()}
     if isinstance(value,(list,tuple)): return [clean(v,coordinate) for v in value]
     if isinstance(value,(float,np.floating)): return round(float(value),6 if coordinate else 3) if math.isfinite(value) else None
     if isinstance(value,np.integer): return int(value)
