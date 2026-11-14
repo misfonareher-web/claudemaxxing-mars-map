@@ -59,7 +59,8 @@ def test_demo_routes_unchanged(mission):
     p = feature(mission)['properties']
     expected = ((4.2358642942785565, 145.552734375, 3.963078498840332)
                 if preset['id'] == 'jezero' else
-                (6.062109061672981, 68.8505859375, 2.611703872680664))
+                # methodology 0.2.0 (ice/thermal weight 0): Gale path shifts by ~28 m vs 0.1.0 (6.062109 km)
+                (6.062136926945228, 68.8505859375, 2.611703872680664))
     assert p['reachable']
     assert (p['distance_km'], p['elevation_gain_m'], p['max_slope_deg']) == pytest.approx(expected)
     assert 0.5 < p['max_snap_km'] < 0.7

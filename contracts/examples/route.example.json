@@ -38,7 +38,7 @@
         "elevation_gain_m": 145.553,
         "elevation_loss_m": 0.0,
         "max_slope_deg": 3.963,
-        "mean_score": 65.945,
+        "mean_score": 79.337,
         "steps": 7,
         "reachable": true,
         "requested": {
