@@ -67,7 +67,7 @@ def main():
     existing = json.loads(path.read_text(encoding='utf-8')) if path.exists() else None
     now = datetime.datetime.now(datetime.timezone.utc)
     record = dict(mola.PROVENANCE, access_date=existing['datasets'][0]['access_date'] if existing else now.date().isoformat())
-    write_json(path, dict(version=1, generated_at=existing['generated_at'] if existing else now.isoformat(), datasets=[record]+[dict(module.PROVENANCE,access_date=record['access_date']) for module in [themis_trek,ice,environment,rems,features,texture]]+[dict(r,access_date=record['access_date']) for r in (catalog.PROVENANCE_HISTORY,catalog.PROVENANCE_CNSA,catalog.PROVENANCE_ICE)]))
+    write_json(path, dict(version=1, generated_at=existing['generated_at'] if existing else now.isoformat(), datasets=[record]+[dict(module.PROVENANCE,access_date=record['access_date']) for module in [themis_trek,ice,environment,rems,features,texture]]+[dict(r,access_date=record['access_date']) for r in (catalog.PROVENANCE_HISTORY,catalog.PROVENANCE_CNSA,catalog.PROVENANCE_ICE,catalog.PROVENANCE_SEITAH,catalog.PROVENANCE_BAGNOLD)]))
     provenance=json.loads(path.read_text(encoding='utf-8'))
     lines=['# Data provenance','', '| Dataset | Mission / instrument | Source | Access date | Coverage | Resolution | Units | Format | Processing | Limitations |', '|---|---|---|---|---|---|---|---|---|---|']
     for r in provenance['datasets']:

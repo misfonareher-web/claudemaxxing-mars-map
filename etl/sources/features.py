@@ -1,4 +1,6 @@
 """Small cited approximate feature catalog and slope row-run polygons."""
+import json
+from pathlib import Path
 import numpy as np
 from etl.grid import CRS_NOTE, definition
 from etl.sources import catalog
@@ -40,4 +42,7 @@ def build(presets,slopes,thresholds,ice_grids):
  for id,name,geom,metric,depth,src,conf,cav in catalog.ICE_CONTEXT:
   f=feature(id,'ice',name,[0,0],[],ice_metric=metric,ice_value=None,depth_estimate_m=depth);f['geometry']=geom
   f['properties'].update(dataset_id='ice_literature',confidence=conf,source_ref=src,caveat=ICE+' '+cav);frozen.append(f)
+ preset_ids={p['id'] for p in presets}
+ outlines=json.loads(Path(__file__).with_name('hazard_outlines.geojson').read_text(encoding='utf-8'))
+ hazards.extend(f for f in outlines['features'] if preset_ids.intersection(f['properties']['preset_ids']))
  return dict(landing_sites=collection(land),science_targets=collection(science),hazards=collection(hazards),ice=collection(frozen))
