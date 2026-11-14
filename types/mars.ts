@@ -90,6 +90,7 @@ export interface MissionPreset {
     lat: number;
   };
   eva_max_radius_km: number;
+  eva_radius_note?: string;
   science_target_ids: string[];
   environment_dataset_id: string;
 }
@@ -125,6 +126,7 @@ export type ScoringProfileId =
   | "balanced"
   | "safety_first"
   | "science_first"
+  | "terrain_first"
   | "resource_first";
 
 export type ScoringFactorKey =
@@ -142,6 +144,8 @@ export interface ScoringFactorBreakdown {
   weight: number;
   contribution: number;
   available: boolean;
+  context_only?: boolean;
+  note?: string;
 }
 
 export interface BackendPointScoreResponse {
@@ -185,6 +189,38 @@ export interface BackendRouteProperties {
   mean_score: number | null;
   steps: number;
   reachable: boolean;
+  requested?: { start: [number, number]; end: [number, number] };
+  snapped?: { start: [number, number] | null; end: [number, number] | null };
+  snap_km?: { start: number | null; end: number | null };
+  max_snap_km?: number;
+  unreachable_reason?: string | null;
+  message?: string | null;
+}
+
+export interface CommsStatus {
+  date: string;
+  epoch_utc: string;
+  one_way_light_time_min: number;
+  round_trip_light_time_min_approx: number;
+  distance_km: number;
+  one_way_light_time_envelope_min: string;
+  solar_conjunction_near: boolean;
+  next_conjunction_approx: string;
+  relay_passes_per_sol_illustrative: [number, number];
+  relay_pass_duration_min_illustrative: [number, number];
+  relay_orbiters: string[];
+  next_relay_pass: string;
+  live_link_status: string;
+  ui_strings: {
+    delay: string;
+    round_trip: string;
+    relays: string;
+    next_pass: string;
+    duration: string;
+    conjunction: string;
+    link_state: string;
+  };
+  source: string;
 }
 
 export interface BackendRouteResponse {

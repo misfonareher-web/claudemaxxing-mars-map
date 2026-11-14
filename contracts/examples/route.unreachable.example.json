@@ -1,0 +1,58 @@
+{
+  "type": "FeatureCollection",
+  "crs_note": "Mars 2000 planetocentric, east-positive, degrees",
+  "meta": {
+    "preset_id": "jezero",
+    "profile": "balanced",
+    "label": "Heuristic least-cost EVA route",
+    "disclaimers": [
+      "The route is a heuristic least-cost path on a coarse grid, not a validated traverse plan.",
+      "The 0–100 index is a conditional heuristic methodology for comparison, not a safety certification or a validated model.",
+      "Absence of a mapped hazard does not mean the terrain is safe.",
+      "Mapped water-ice evidence indicates presence or likelihood, not extractability or accessibility."
+    ],
+    "data_flags": []
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": null,
+      "properties": {
+        "distance_km": null,
+        "elevation_gain_m": null,
+        "elevation_loss_m": null,
+        "max_slope_deg": null,
+        "mean_score": null,
+        "steps": 0,
+        "reachable": false,
+        "requested": {
+          "start": [
+            77.4508,
+            18.4447
+          ],
+          "end": [
+            77.2,
+            18.25
+          ]
+        },
+        "snapped": {
+          "start": [
+            77.451761,
+            18.447845
+          ],
+          "end": [
+            77.312324,
+            18.339224
+          ]
+        },
+        "snap_km": {
+          "start": 0.194076,
+          "end": 8.242045
+        },
+        "max_snap_km": 0.633,
+        "unreachable_reason": "end_too_far_from_valid_cell",
+        "message": "End is farther than the snap limit from the nearest valid cell."
+      }
+    }
+  ]
+}

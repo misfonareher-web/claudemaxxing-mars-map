@@ -1,13 +1,16 @@
 "use client";
 
-import React, { useEffect, useRef } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import {
+  ArrowsOutSimpleIcon,
   CrosshairIcon,
   DropIcon,
   FlaskIcon,
+  MinusIcon,
+  PlusIcon,
 } from "@phosphor-icons/react/ssr";
 import {
   MarsFeatureKind,
@@ -20,7 +23,7 @@ import {
   MarsBasemapLayer,
 } from "@/lib/mars-layers";
 import { KM_PER_DEG_LAT, normalizeLon } from "@/lib/geo";
-import { getCentroid, getSurvivalMetrics } from "@/lib/mars-scoring";
+import { getCentroid, getScoreAccent } from "@/lib/mars-scoring";
 
 export interface MarsMapProps {
   features: MarsGeoJSONFeature[];
@@ -28,9 +31,9 @@ export interface MarsMapProps {
   activeBasemapKey: string;
   visibleKinds: Record<MarsFeatureKind, boolean>;
   selectedFeature: MarsGeoJSONFeature | null;
+  markerScores?: Record<string, number | null>;
   routePointA?: MarsGeoJSONFeature | null;
   routePointB?: MarsGeoJSONFeature | null;
-  routeLine: { from: [number, number]; to: [number, number] } | null; // [lon, lat]
   routeCoordinates?: [number, number][] | null; // multi-vertex [lon, lat][]
   flyToTarget: {
     center: [number, number]; // [lon, lat]
@@ -119,11 +122,11 @@ function getMarkerPalette(kind: MarsFeatureKind, isSelected: boolean) {
 
 function createPointDivIcon(
   feature: MarsGeoJSONFeature,
-  isSelected: boolean
+  isSelected: boolean,
+  resolvedScore: number | null
 ): L.DivIcon {
   const { kind, name } = feature.properties;
   const palette = getMarkerPalette(kind, isSelected);
-  const { score } = getSurvivalMetrics(feature);
   const size = kind === "landing_site" ? 34 : 28;
 
   const iconSvg = renderToStaticMarkup(
@@ -137,12 +140,14 @@ function createPointDivIcon(
   );
 
   const shortName = escapeHtml(name.replace(/ \(.*\)$/, ""));
-  const scoreBadge =
-    kind === "landing_site"
-      ? `<span class="ml-1.5 font-mono text-[10px] font-semibold" style="color:${
-          score >= 80 ? "#34d399" : "#ff9b42"
-        }">${score}</span>`
-      : "";
+  const showScoreBadge = kind === "landing_site" || isSelected;
+  const scoreBadge = showScoreBadge
+    ? typeof resolvedScore === "number"
+      ? `<span class="ml-1.5 font-mono text-[10px] font-semibold" style="color:${getScoreAccent(
+          resolvedScore
+        )}">${resolvedScore}</span>`
+      : `<span class="ml-1.5 font-mono text-[10px] font-medium" style="color:#b59b8e">score unavailable</span>`
+    : "";
 
   return L.divIcon({
     className: "mars-custom-marker",
@@ -204,18 +209,25 @@ export default function MarsMap({
   activeBasemapKey,
   visibleKinds,
   selectedFeature,
+  markerScores,
   routePointA,
   routePointB,
-  routeLine,
   routeCoordinates,
   flyToTarget,
   onSelectFeature,
   onSelectPoint,
 }: MarsMapProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
+  const zoomControlRef = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<L.Map | null>(null);
   const tileLayerRef = useRef<L.TileLayer | null>(null);
   const overlayGroupRef = useRef<L.LayerGroup | null>(null);
+  const pendingZoomRef = useRef<number | null>(null);
+  const [zoomMetrics, setZoomMetrics] = useState({
+    zoom: 2.25,
+    minZoom: 1.5,
+    maxZoom: 10,
+  });
 
   const callbacksRef = useRef({
     onSelectFeature,
@@ -241,9 +253,11 @@ export default function MarsMap({
       center: [15, 70],
       zoom: Math.max(minZoom, 2.25),
       minZoom,
-      maxZoom: 12,
+      maxZoom: 10,
       zoomSnap: 0.25,
       zoomDelta: 0.5,
+      wheelPxPerZoomLevel: 120,
+      wheelDebounceTime: 40,
       worldCopyJump: true,
       maxBounds: VERTICAL_BOUNDS,
       maxBoundsViscosity: 1.0,
@@ -254,18 +268,42 @@ export default function MarsMap({
 
     const overlayGroup = L.layerGroup().addTo(map);
 
+    const syncZoomMetrics = () => {
+      setZoomMetrics({
+        zoom: map.getZoom(),
+        minZoom: map.getMinZoom(),
+        maxZoom: map.getMaxZoom(),
+      });
+    };
+
+    const handleZoomEnd = () => {
+      pendingZoomRef.current = null;
+      syncZoomMetrics();
+    };
+
     const handleResize = () => {
+      pendingZoomRef.current = null;
+      map.stop();
       map.invalidateSize({ animate: false });
       const nextMin = computeCoverMinZoom(el);
       map.setMinZoom(nextMin);
       if (map.getZoom() < nextMin) {
-        map.setZoom(nextMin);
+        map.setZoom(nextMin, { animate: false });
       }
       map.panInsideBounds(VERTICAL_BOUNDS, { animate: false });
+      syncZoomMetrics();
     };
 
     const resizeObserver = new ResizeObserver(handleResize);
     resizeObserver.observe(el);
+    map.on("zoom", syncZoomMetrics);
+    map.on("zoomend", handleZoomEnd);
+    map.on("resize", syncZoomMetrics);
+    Promise.resolve().then(() => {
+      if (mapRef.current === map) {
+        syncZoomMetrics();
+      }
+    });
 
     map.on("click", (e: L.LeafletMouseEvent) => {
       callbacksRef.current.onSelectPoint?.({
@@ -286,7 +324,7 @@ export default function MarsMap({
     };
   }, []);
 
-  // Mount & switch NASA Mars Trek basemap
+  // Mount & switch NASA Mars Trek basemap (retain previous layer until next loads to avoid flicker)
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
@@ -295,20 +333,53 @@ export default function MarsMap({
       MARS_BASEMAP_LAYERS.find((l) => l.key === activeBasemapKey) ??
       MARS_BASEMAP_LAYERS[0];
 
-    if (tileLayerRef.current) {
-      map.removeLayer(tileLayerRef.current);
-    }
+    const prevLayer = tileLayerRef.current;
 
     const nextTileLayer = L.tileLayer(getMarsTrekTileUrl(layerCfg), {
       minZoom: 0,
-      maxZoom: 12,
+      maxZoom: 10,
       maxNativeZoom: layerCfg.maxNativeZoom,
       noWrap: false,
+      keepBuffer: 4,
+      updateWhenZooming: false,
+      updateWhenIdle: true,
     }).addTo(map);
 
     nextTileLayer.bringToBack();
+    if (prevLayer) {
+      prevLayer.bringToBack();
+    }
     tileLayerRef.current = nextTileLayer;
+
+    let removed = false;
+    const cleanupPrev = () => {
+      if (removed) return;
+      removed = true;
+      if (prevLayer && map.hasLayer(prevLayer)) {
+        map.removeLayer(prevLayer);
+      }
+    };
+
+    let fallbackTimer: ReturnType<typeof setTimeout> | null = null;
+    if (prevLayer) {
+      nextTileLayer.once("load", cleanupPrev);
+      fallbackTimer = setTimeout(cleanupPrev, 1500);
+    }
+
+    return () => {
+      if (fallbackTimer) clearTimeout(fallbackTimer);
+      nextTileLayer.off("load", cleanupPrev);
+      cleanupPrev();
+    };
   }, [activeBasemapKey]);
+
+  // Prevent zoom HUD clicks and scrolls from propagating to the Leaflet map
+  useEffect(() => {
+    const panel = zoomControlRef.current;
+    if (!panel) return;
+    L.DomEvent.disableClickPropagation(panel);
+    L.DomEvent.disableScrollPropagation(panel);
+  }, []);
 
   // Camera flyTo (always fly to nearest horizontal world copy)
   useEffect(() => {
@@ -317,9 +388,49 @@ export default function MarsMap({
     const [lon, lat] = flyToTarget.center;
     const currentLng = map.getCenter().lng;
     const nearestLon = lon + Math.round((currentLng - lon) / 360) * 360;
-    const clampedZoom = Math.max(map.getMinZoom(), flyToTarget.zoom);
-    map.flyTo([lat, nearestLon], clampedZoom, { duration: 0.9 });
+    const clampedZoom = Math.min(
+      map.getMaxZoom(),
+      Math.max(map.getMinZoom(), flyToTarget.zoom)
+    );
+    pendingZoomRef.current = null;
+    map.stop();
+    map.flyTo([lat, nearestLon], clampedZoom, {
+      duration: 0.75,
+      easeLinearity: 0.25,
+    });
   }, [flyToTarget]);
+
+  const handleStepZoom = useCallback((delta: number) => {
+    const map = mapRef.current;
+    if (!map) return;
+    const minZ = map.getMinZoom();
+    const maxZ = map.getMaxZoom();
+    const base = pendingZoomRef.current ?? map.getZoom();
+    const clamped = Math.min(
+      maxZ,
+      Math.max(minZ, Math.round((base + delta) * 4) / 4)
+    );
+    map.stop();
+    pendingZoomRef.current = clamped;
+    map.setZoom(clamped, { animate: true });
+  }, []);
+
+  const handleResetZoom = useCallback(() => {
+    const map = mapRef.current;
+    if (!map) return;
+    const resetZoom = Math.min(
+      map.getMaxZoom(),
+      Math.max(map.getMinZoom(), 2.25)
+    );
+    const currentLng = map.getCenter().lng;
+    const nearestLon = 70 + Math.round((currentLng - 70) / 360) * 360;
+    pendingZoomRef.current = null;
+    map.stop();
+    map.flyTo([15, nearestLon], resetZoom, {
+      duration: 0.65,
+      easeLinearity: 0.25,
+    });
+  }, []);
 
   // Render GeoJSON overlays, EVA rings & active navigation route
   useEffect(() => {
@@ -328,14 +439,31 @@ export default function MarsMap({
 
     group.clearLayers();
 
-    // 10 km EVA rings (wrapped across world copies)
+    // Preset MOLA grid bboxes & 10 km EVA rings (wrapped across world copies)
     presets.forEach((preset) => {
+      const [w, s, e, n] = preset.bbox;
       const latRadius = preset.eva_max_radius_km / KM_PER_DEG_LAT;
       const lonRadius =
         latRadius /
         Math.max(0.2, Math.cos((preset.base_point.lat * Math.PI) / 180));
 
       WORLD_LNG_OFFSETS.forEach((offsetLng) => {
+        L.rectangle(
+          [
+            [s, w + offsetLng],
+            [n, e + offsetLng],
+          ],
+          {
+            color: "#ff8c4a",
+            weight: 1.2,
+            dashArray: "2 4",
+            fillColor: "#ff8c4a",
+            fillOpacity: 0.03,
+            opacity: 0.55,
+            interactive: false,
+          }
+        ).addTo(group);
+
         const pts: [number, number][] = [];
         for (let i = 0; i <= 64; i++) {
           const theta = (i / 64) * Math.PI * 2;
@@ -400,13 +528,11 @@ export default function MarsMap({
       });
     });
 
-    // Active navigation route preview line (multi-vertex A* path or geodesic line, wrapped)
+    // Active navigation route path (multi-vertex A* path, wrapped; no straight-line fallback)
     const activeCoords: [number, number][] | null =
       routeCoordinates && routeCoordinates.length >= 2
         ? routeCoordinates
-        : routeLine
-          ? [routeLine.from, routeLine.to]
-          : null;
+        : null;
 
     if (activeCoords && activeCoords.length >= 2) {
       // Unwrap consecutive longitudes so lines crossing ±180° stay continuous
@@ -467,7 +593,9 @@ export default function MarsMap({
 
       const [lon, lat] = getCentroid(feature);
       const isSelected = selectedFeature?.properties.id === id;
-      const markerIcon = createPointDivIcon(feature, isSelected);
+      const resolvedScore =
+        markerScores?.[id] ?? feature.properties.score ?? null;
+      const markerIcon = createPointDivIcon(feature, isSelected, resolvedScore);
       const zIndexOffset =
         (isSelected ? 400 : 0) +
         (kind === "landing_site"
@@ -514,11 +642,74 @@ export default function MarsMap({
     presets,
     visibleKinds,
     selectedFeature,
+    markerScores,
     routePointA,
     routePointB,
-    routeLine,
     routeCoordinates,
   ]);
 
-  return <div ref={containerRef} className="absolute inset-0 z-0" />;
+  const overviewZoom = Math.max(zoomMetrics.minZoom, 2.25);
+  const scalePercent = Math.round(
+    Math.pow(2, zoomMetrics.zoom - overviewZoom) * 100
+  );
+  const canZoomIn = zoomMetrics.zoom < zoomMetrics.maxZoom - 0.05;
+  const canZoomOut = zoomMetrics.zoom > zoomMetrics.minZoom + 0.05;
+  const isAtOverview = Math.abs(zoomMetrics.zoom - overviewZoom) < 0.1;
+
+  return (
+    <>
+      <div ref={containerRef} className="absolute inset-0 z-0" />
+      <div
+        ref={zoomControlRef}
+        aria-label="Map zoom controls"
+        className="fixed right-3 bottom-[84px] z-[950] flex w-[60px] flex-col items-center gap-1 rounded-2xl border border-ares-line/90 bg-ares-panel/90 p-1.5 text-ares-text shadow-[0_12px_32px_rgba(0,0,0,0.55)] backdrop-blur-md select-none md:top-[88px] md:right-auto md:bottom-auto md:left-[284px]"
+      >
+        <button
+          type="button"
+          onClick={() => handleStepZoom(0.5)}
+          disabled={!canZoomIn}
+          aria-label="Zoom in"
+          title="Zoom in (+)"
+          className="flex h-9 w-full items-center justify-center rounded-xl border border-transparent text-ares-text transition hover:border-ares-line hover:bg-ares-raised hover:text-ares-accent-soft active:scale-95 disabled:cursor-not-allowed disabled:opacity-35"
+        >
+          <PlusIcon size={16} weight="bold" />
+        </button>
+
+        <div
+          className="w-full py-0.5 text-center font-mono text-[10px] font-medium tabular-nums text-ares-mute"
+          title={`Zoom z${zoomMetrics.zoom.toFixed(2)} (${scalePercent}%)`}
+        >
+          {scalePercent}%
+        </div>
+
+        <button
+          type="button"
+          onClick={() => handleStepZoom(-0.5)}
+          disabled={!canZoomOut}
+          aria-label="Zoom out"
+          title="Zoom out (-)"
+          className="flex h-9 w-full items-center justify-center rounded-xl border border-transparent text-ares-text transition hover:border-ares-line hover:bg-ares-raised hover:text-ares-accent-soft active:scale-95 disabled:cursor-not-allowed disabled:opacity-35"
+        >
+          <MinusIcon size={16} weight="bold" />
+        </button>
+
+        <div className="my-0.5 h-px w-full bg-ares-line/80" />
+
+        <button
+          type="button"
+          onClick={handleResetZoom}
+          aria-label="Reset zoom to 100%"
+          title="Reset to 100% overview"
+          className={`flex h-8 w-full items-center justify-center gap-0.5 rounded-xl border font-mono text-[10px] font-semibold tracking-tight transition active:scale-95 ${
+            isAtOverview
+              ? "border-ares-line/60 bg-ares-raised/60 text-ares-mute"
+              : "border-ares-accent/40 bg-ares-accent/15 text-ares-accent-soft hover:border-ares-accent/70 hover:bg-ares-accent/25"
+          }`}
+        >
+          <ArrowsOutSimpleIcon size={10} weight="bold" />
+          <span>100%</span>
+        </button>
+      </div>
+    </>
+  );
 }

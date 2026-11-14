@@ -7,15 +7,68 @@
     "label": "Heuristic least-cost EVA route",
     "disclaimers": [
       "The route is a heuristic least-cost path on a coarse grid, not a validated traverse plan.",
-      "Absence of a mapped hazard does not mean the terrain is safe."
+      "The 0–100 index is a conditional heuristic methodology for comparison, not a safety certification or a validated model.",
+      "Absence of a mapped hazard does not mean the terrain is safe.",
+      "Mapped water-ice evidence indicates presence or likelihood, not extractability or accessibility."
     ],
     "data_flags": []
   },
   "features": [
     {
       "type": "Feature",
-      "geometry": {"type": "LineString", "coordinates": [[77.4508, 18.4447], [77.4430, 18.4510], [77.4010, 18.4980]]},
-      "properties": {"distance_km": 4.2, "elevation_gain_m": 120.0, "elevation_loss_m": 35.0, "max_slope_deg": 11.3, "mean_score": 64.0, "steps": 58, "reachable": true}
+      "geometry": {
+        "type": "LineString",
+        "coordinates": [
+          [
+            77.451761,
+            18.447845
+          ],
+          [
+            77.444014,
+            18.447845
+          ],
+          [
+            77.397535,
+            18.494397
+          ]
+        ]
+      },
+      "properties": {
+        "distance_km": 4.236,
+        "elevation_gain_m": 145.553,
+        "elevation_loss_m": 0.0,
+        "max_slope_deg": 3.963,
+        "mean_score": 79.337,
+        "steps": 7,
+        "reachable": true,
+        "requested": {
+          "start": [
+            77.4508,
+            18.4447
+          ],
+          "end": [
+            77.401,
+            18.498
+          ]
+        },
+        "snapped": {
+          "start": [
+            77.451761,
+            18.447845
+          ],
+          "end": [
+            77.397535,
+            18.494397
+          ]
+        },
+        "snap_km": {
+          "start": 0.194076,
+          "end": 0.28906
+        },
+        "max_snap_km": 0.633,
+        "unreachable_reason": null,
+        "message": null
+      }
     }
   ]
 }

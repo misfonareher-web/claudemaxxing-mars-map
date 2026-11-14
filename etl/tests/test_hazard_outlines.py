@@ -50,7 +50,8 @@ def test_hazard_outline(fid, preset_id, vertex_count):
     presets = read('config/mission_presets.json')['presets']
     preset = next(p for p in presets if p['id'] == preset_id)
     curated = {f['properties']['id']: f for f in read('etl/sources/hazard_outlines.geojson')['features']}
-    generated = read('data/hazards.geojson')
+    generated = build([preset], {preset_id: np.zeros((1, 1))},
+                      dict(ideal_max_deg=5, hard_max_deg=25), {preset_id: np.zeros((1, 1))})['hazards']
     matches = [f for f in generated['features'] if f['properties']['id'] == fid]
     assert len(matches) == 1
     f = matches[0]
@@ -61,6 +62,7 @@ def test_hazard_outline(fid, preset_id, vertex_count):
     assert props['preset_ids'] == [preset_id]
     assert props['dataset_id'] in generated['dataset_ids']
     assert 'Absence of a mapped hazard does not mean the terrain is safe.' in props['caveat']
+    assert 'approximate scoring penalty, not a navigation boundary' in props['caveat']
     assert f['geometry']['type'] == 'Polygon'
     assert len(f['geometry']['coordinates']) == 1
     ring = f['geometry']['coordinates'][0]
@@ -87,7 +89,10 @@ def test_hazard_outline(fid, preset_id, vertex_count):
         assert target['geometry']['coordinates'] == [137.3775, -4.6627]
         assert target['properties']['confidence'] == 'high'
         assert not covers(target['geometry']['coordinates'], ring)
-    # Exercise ETL preset filtering without the download cache or a full rebuild.
-    result = build([preset], {preset_id: np.zeros((1, 1))},
-                   dict(ideal_max_deg=5, hard_max_deg=25), {preset_id: np.zeros((1, 1))})
-    assert result['hazards']['features'] == [curated[fid]]
+    assert generated['features'] == [curated[fid]]
+    # Source-only wording fixes leave the committed generated caveat stale until rebuild.
+    committed = next(f for f in read('data/hazards.geojson')['features']
+                     if f['properties']['id'] == fid)
+    assert committed['geometry'] == f['geometry']
+    assert {k: v for k, v in committed['properties'].items() if k != 'caveat'} == {
+        k: v for k, v in props.items() if k != 'caveat'}

@@ -83,6 +83,55 @@ class ScoringTests(unittest.TestCase):
             self.assertEqual(process.stdout,'')
             self.shape(json.loads(process.stderr),json.loads((REPO/'contracts/examples/error.example.json').read_text()))
 
+    def test_profile_weights_and_context(self):
+        from decimal import Decimal
+        _, _, cfg = config.load()
+        for profile in cfg['profiles']:
+            with self.subTest(profile=profile):
+                w = cfg['profiles'][profile]['weights']
+                self.assertEqual(sum(Decimal(str(v)) for v in w.values()), Decimal('1'))
+                self.assertEqual(w['ice'], 0)
+                self.assertEqual(w['thermal'], 0)
+                result = cli.execute('score', dict(preset='jezero', profile=profile))
+                self.assertEqual(result['meta']['methodology_version'], '0.2.0')
+                for feature in result['features']:
+                    for name in ('ice', 'thermal'):
+                        factor = feature['properties']['factors'][name]
+                        self.assertTrue(factor['context_only'])
+                        self.assertTrue(factor['note'])
+                        self.assertTrue(factor['available'])
+                        self.assertEqual(factor['weight'], 0)
+                        self.assertEqual(factor['contribution'], 0)
+
+    def test_context_values_do_not_affect_score(self):
+        root, _, cfg = config.load()
+        for profile, data in cfg['profiles'].items():
+            with self.subTest(profile=profile):
+                w = config.weights(data['weights'])
+                before = index.compute(root, self.preset, cfg, w)
+                for value in (0.0, 1.0, np.nan):
+                    for name in ('ice_index', 'thermal_index'):
+                        np.save(root/'data/grids/jezero'/(name+'.npy'), np.full((8,8), value, dtype=np.float32))
+                    after = index.compute(root, self.preset, cfg, w)
+                    np.testing.assert_array_equal(before['score'], after['score'])
+
+    def test_resource_alias(self):
+        b = self.preset['base_point']
+        for command, extra in [('score', {}), ('point', dict(lon=b['lon'], lat=b['lat'])),
+                               ('route', {'from':[b['lon'],b['lat']], 'to':[b['lon']+.009,b['lat']+.009]})]:
+            alias = cli.execute(command, dict(preset='jezero', profile='resource_first', **extra))
+            canonical = cli.execute(command, dict(preset='jezero', profile='terrain_first', **extra))
+            self.assertEqual(alias['meta']['profile'], 'terrain_first')
+            alias['meta'].pop('generated_at', None)
+            canonical['meta'].pop('generated_at', None)
+            self.assertEqual(alias, canonical)
+
+    def test_custom_context_weights_rejected(self):
+        for name in ('ice', 'thermal'):
+            with self.subTest(factor=name), self.assertRaisesRegex(config.Error, 'context-only'):
+                config.weights({'slope': 1, name: .1})
+        self.assertEqual(config.weights({'slope': 1, 'ice': 0, 'thermal': 0})['slope'], 1)
+
     def test_factors(self):
         _,_,c = config.load()
         for name,values in [('slope',[5,25,30]),('roughness',[10,60,80])]:
@@ -115,7 +164,7 @@ class ScoringTests(unittest.TestCase):
 
     def test_config_and_imports(self):
         config.load()
-        self.assertAlmostEqual(sum(config.weights({'slope':2,'ice':1}).values()),1)
+        self.assertAlmostEqual(sum(config.weights({'slope':2,'roughness':1}).values()),1)
         for path in (REPO/'scoring').glob('*.py'):
             for node in ast.walk(ast.parse(path.read_text(encoding='utf-8-sig'))):
                 names = [a.name for a in node.names] if isinstance(node,ast.Import) else [node.module] if isinstance(node,ast.ImportFrom) and not node.level else []

@@ -30,9 +30,10 @@ import {
   formatDuration,
   greatCircleKm,
   pointInGeometry,
-  sampleRouteCoordinates,
 } from "@/lib/geo";
 import {
+  DEFAULT_DISCLAIMERS,
+  DEFAULT_ROUTE_DISCLAIMERS,
   getCentroid,
   getScoreAccent,
   getSurvivalMetrics,
@@ -53,13 +54,17 @@ interface LocationCardProps {
   pointA: MarsGeoJSONFeature | null;
   pointB: MarsGeoJSONFeature | null;
   pickingSlot: RouteSlot | null;
-  routeDistanceKm: number | null;
   distanceUnit?: DistanceUnit;
   routeCoordinates?: [number, number][] | null;
   routeProperties?: BackendRouteProperties | null;
+  routeDisclaimers?: string[] | null;
   isRouteLoading?: boolean;
   routeError?: string | null;
   onStartRouteFromHere: (feature: MarsGeoJSONFeature) => void;
+  onSelectPresetRoute?: (
+    presetId: "jezero" | "gale",
+    mode: "from_base" | "demo"
+  ) => void;
   onStartNewRoute: () => void;
   onStartPickSlot: (slot: RouteSlot) => void;
   onClearRoute: () => void;
@@ -112,8 +117,8 @@ function buildBackendInsights(
   }
 
   if (f.ice?.value !== null && f.ice.value >= 0.25) {
-    pros.push("Possible buried water-ice signature");
-    resources.push("Possible subsurface ice");
+    pros.push("Orbital water-ice proxy (context only)");
+    resources.push("Orbital ice proxy (unverified)");
   } else {
     resources.push("Basaltic regolith");
   }
@@ -177,13 +182,14 @@ export default function LocationCard({
   pointA,
   pointB,
   pickingSlot,
-  routeDistanceKm,
   distanceUnit = "km",
   routeCoordinates,
   routeProperties,
+  routeDisclaimers,
   isRouteLoading = false,
   routeError = null,
   onStartRouteFromHere,
+  onSelectPresetRoute,
   onStartNewRoute,
   onStartPickSlot,
   onClearRoute,
@@ -193,17 +199,27 @@ export default function LocationCard({
   const [failedTileUrl, setFailedTileUrl] = useState<string | null>(null);
 
   const isRouteMode = Boolean(pointA || pointB || pickingSlot);
-  const effectiveDistanceKm = routeProperties?.distance_km ?? routeDistanceKm;
+  const isUnreachable = Boolean(
+    pointA && pointB && routeProperties && routeProperties.reachable === false
+  );
+  const effectiveDistanceKm =
+    routeProperties?.reachable === true &&
+    typeof routeProperties.distance_km === "number"
+      ? routeProperties.distance_km
+      : null;
 
-  // Detect any hazard polygons intersected or approached along actual/geodesic path (±180° safe)
+  // Detect any hazard polygons intersected or approached along actual A* path (±180° safe)
   const routeHazards = useMemo(() => {
-    if (!pointA || !pointB) return [];
-    const coordsA = getCentroid(pointA);
-    const coordsB = getCentroid(pointB);
-    const samplePoints =
-      routeCoordinates && routeCoordinates.length >= 2
-        ? routeCoordinates
-        : sampleRouteCoordinates(coordsA, coordsB, 40);
+    if (
+      !pointA ||
+      !pointB ||
+      isUnreachable ||
+      !routeCoordinates ||
+      routeCoordinates.length < 2
+    ) {
+      return [];
+    }
+    const samplePoints = routeCoordinates;
 
     const hazards = allFeatures.filter((f) => f.properties.kind === "hazard");
     const matches: string[] = [];
@@ -243,7 +259,14 @@ export default function LocationCard({
     }
 
     return matches;
-  }, [pointA, pointB, allFeatures, routeCoordinates, routeProperties]);
+  }, [
+    pointA,
+    pointB,
+    isUnreachable,
+    allFeatures,
+    routeCoordinates,
+    routeProperties,
+  ]);
 
   // Nearest landing site for Location Features section
   const nearestLandingSite = useMemo(() => {
@@ -302,9 +325,15 @@ export default function LocationCard({
             <h2 className="mt-1.5 text-3xl leading-none font-bold tracking-tight text-white">
               {effectiveDistanceKm !== null
                 ? formatDistance(effectiveDistanceKm, distanceUnit)
-                : pickingSlot === "A"
-                  ? "Select Point A"
-                  : "Select Point B"}
+                : isUnreachable
+                  ? "Route unreachable"
+                  : routeError
+                    ? "Route unavailable"
+                    : pointA && pointB && isRouteLoading
+                      ? "Computing…"
+                      : pickingSlot === "A"
+                        ? "Select Point A"
+                        : "Select Point B"}
             </h2>
           </div>
 
@@ -385,15 +414,26 @@ export default function LocationCard({
             </div>
           </div>
 
-          {/* TRIP Section */}
-          {routeError && (
-            <div className="rounded-xl border border-rose-500/40 bg-rose-500/10 px-3 py-2 text-[11px] text-rose-300">
-              Backend route engine fallback: {routeError}
+          {/* TRIP / UNREACHABLE / PICKING Section */}
+          {isUnreachable ? (
+            <div className="rounded-xl border border-rose-500/40 bg-rose-500/10 px-3.5 py-3 text-xs leading-relaxed text-rose-200">
+              {routeProperties?.message ||
+                "No passable route found between the selected endpoints."}
             </div>
-          )}
-
-          {pointA && pointB && effectiveDistanceKm !== null ? (
+          ) : routeError ? (
+            <div className="rounded-xl border border-rose-500/40 bg-rose-500/10 px-3.5 py-3 text-xs leading-relaxed text-rose-300">
+              {routeError}
+            </div>
+          ) : pointA && pointB && effectiveDistanceKm !== null ? (
             <>
+              {routeDisclaimers?.some((d) =>
+                d.includes("No local MOLA grid")
+              ) && (
+                <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-[11px] leading-relaxed text-amber-200">
+                  Conditional planetary estimate (outside Jezero/Gale MOLA
+                  grids) — great-circle path without local terrain A*.
+                </div>
+              )}
               <div className="space-y-2">
                 <h3 className="text-[11px] font-semibold tracking-wider text-ares-mute uppercase">
                   Trip
@@ -402,9 +442,11 @@ export default function LocationCard({
                   <li className="flex items-start gap-2">
                     <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-ares-accent" />
                     <span>
-                      {routeProperties && routeProperties.steps > 2
-                        ? "Terrain-aware least-cost path over MOLA grid"
-                        : "Shortest path over the surface (great circle)"}
+                      {routeDisclaimers?.some((d) =>
+                        d.includes("No local MOLA grid")
+                      )
+                        ? "Conditional great-circle estimate (no local MOLA A* grid)"
+                        : "Terrain-aware least-cost path over MOLA grid"}
                     </span>
                   </li>
                   {roverSols !== null && (
@@ -470,6 +512,10 @@ export default function LocationCard({
                 )}
               </div>
             </>
+          ) : pointA && pointB && isRouteLoading ? (
+            <div className="rounded-xl border border-ares-accent/40 bg-ares-accent/10 px-3.5 py-3 text-xs text-ares-text">
+              Calculating terrain-aware route…
+            </div>
           ) : (
             <div className="rounded-xl border border-ares-accent/40 bg-ares-accent/10 px-3.5 py-3 text-xs text-ares-text">
               Click any marker or arbitrary point on the Mars map to set{" "}
@@ -477,11 +523,58 @@ export default function LocationCard({
             </div>
           )}
 
-          {/* Note */}
-          <p className="border-t border-ares-line/70 pt-3 text-[11px] leading-relaxed text-ares-mute">
-            Terrain-aware routing evaluates MOLA elevation, local slope, and
-            known orbital hazard polygons along the corridor.
-          </p>
+          {/* Quick Preset Routes inside MOLA Grids (Jezero & Gale) */}
+          {onSelectPresetRoute &&
+            (routeError || isUnreachable || pickingSlot || !pointA || !pointB) && (
+              <div className="space-y-2 border-t border-ares-line/70 pt-3">
+                <h3 className="text-[11px] font-semibold tracking-wider text-ares-mute uppercase">
+                  Preset Routes (MOLA Grid)
+                </h3>
+                <div className="grid grid-cols-2 gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => onSelectPresetRoute("jezero", "demo")}
+                    className="cursor-pointer rounded-lg border border-ares-accent/50 bg-ares-accent/15 px-2.5 py-1.5 text-[11px] font-semibold text-white transition-colors hover:bg-ares-accent/25"
+                  >
+                    Jezero Demo
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onSelectPresetRoute("gale", "demo")}
+                    className="cursor-pointer rounded-lg border border-ares-accent/50 bg-ares-accent/15 px-2.5 py-1.5 text-[11px] font-semibold text-white transition-colors hover:bg-ares-accent/25"
+                  >
+                    Gale Demo
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onSelectPresetRoute("jezero", "from_base")}
+                    className="cursor-pointer rounded-lg border border-ares-line bg-ares-raised/80 px-2.5 py-1.5 text-[11px] font-medium text-ares-text transition-colors hover:border-ares-accent/60 hover:text-white"
+                  >
+                    Pick in Jezero
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onSelectPresetRoute("gale", "from_base")}
+                    className="cursor-pointer rounded-lg border border-ares-line bg-ares-raised/80 px-2.5 py-1.5 text-[11px] font-medium text-ares-text transition-colors hover:border-ares-accent/60 hover:text-white"
+                  >
+                    Pick in Gale
+                  </button>
+                </div>
+              </div>
+            )}
+
+          {/* Disclaimers */}
+          <ul className="space-y-1 border-t border-ares-line/70 pt-3 text-[10.5px] leading-relaxed text-ares-mute">
+            {(routeDisclaimers?.length
+              ? routeDisclaimers
+              : DEFAULT_ROUTE_DISCLAIMERS
+            ).map((disclaimer, idx) => (
+              <li key={idx} className="flex items-start gap-1.5">
+                <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-ares-mute/70" />
+                <span>{disclaimer}</span>
+              </li>
+            ))}
+          </ul>
 
           {/* Actions: New route + Clear */}
           <div className="grid grid-cols-2 gap-2.5 pt-1">
@@ -524,7 +617,7 @@ export default function LocationCard({
   const activeScore =
     typeof backendScore?.properties.score === "number"
       ? backendScore.properties.score
-      : fallbackMetrics.score;
+      : null;
 
   const activeElevation =
     backendScore?.properties.elevation_m !== undefined &&
@@ -567,12 +660,25 @@ export default function LocationCard({
                 · scoring…
               </span>
             )}
+            {!isScoringLoading &&
+              !scoreError &&
+              (backendScore?.meta.preset_id === "global" ||
+                backendScore?.meta.data_flags?.includes(
+                  "global_conditional_estimate"
+                )) && (
+                <span
+                  title="Outside Jezero and Gale MOLA grids — evaluated from planetary datasets"
+                  className="ml-1 font-mono text-[10px] font-normal text-amber-300 lowercase"
+                >
+                  · conditional estimate
+                </span>
+              )}
             {scoreError && (
               <span
                 title={scoreError}
                 className="ml-1 font-mono text-[10px] font-normal text-amber-400 lowercase"
               >
-                · offline heuristic
+                · score unavailable
               </span>
             )}
           </div>
@@ -634,8 +740,14 @@ export default function LocationCard({
               {verdict}
             </div>
             <p className="mt-0.5 text-[11px] leading-snug text-ares-mute">
-              Concept score, not a safety rating
+              {backendScore?.meta.label ??
+                "Conditional heuristic EVA suitability index (0–100)"}
             </p>
+            {scoreError && activeScore === null && (
+              <p className="mt-1 text-[10.5px] leading-snug text-amber-300/90">
+                {scoreError}
+              </p>
+            )}
           </div>
         </div>
 
@@ -761,11 +873,17 @@ export default function LocationCard({
             <span>{isSaved ? "Location Saved" : "Save Location"}</span>
           </button>
 
-          <p className="pt-1 text-[10.5px] leading-relaxed text-ares-mute">
-            Scores use latitude, region elevation, distance to known ice and
-            hazard zones. Data: NASA Mars Trek MOLA, landing-site coordinates,
-            SWIM ice maps.
-          </p>
+          <ul className="space-y-1 pt-1.5 text-[10px] leading-relaxed text-ares-mute">
+            {(backendScore?.meta.disclaimers?.length
+              ? backendScore.meta.disclaimers
+              : DEFAULT_DISCLAIMERS
+            ).map((disclaimer, idx) => (
+              <li key={idx} className="flex items-start gap-1.5">
+                <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-ares-mute/70" />
+                <span>{disclaimer}</span>
+              </li>
+            ))}
+          </ul>
 
           {feature.properties.source_ref &&
             feature.properties.source_ref.startsWith("http") && (

@@ -1,4 +1,4 @@
-"""Small cited approximate feature catalog and slope row-run polygons."""
+"""Small cited approximate feature catalog and dissolved slope polygons."""
 import json
 from pathlib import Path
 import numpy as np
@@ -12,6 +12,73 @@ def feature(id,kind,name,coords,presets,**extra):
  return dict(type='Feature',geometry=dict(type='Point',coordinates=coords),properties=dict(id=id,kind=kind,name=name,description=name,dataset_id='mission_features',preset_ids=presets,confidence='low',caveat='Approximate hand-transcribed coordinates from published mission context maps.',source_ref=SOURCE,synthetic=False,**extra))
 def collection(features):
  return dict(type='FeatureCollection',crs_note=CRS_NOTE,dataset_ids=sorted({f['properties']['dataset_id'] for f in features}),features=features)
+def slope_polygons(mask, west, north, dx, dy):
+    """Dissolve cells on an integer lattice before converting to degrees."""
+    edges = set()
+    for r, c in zip(*np.nonzero(mask)):
+        x, y = int(c), -int(r)
+        corners = [(x,y-1), (x+1,y-1), (x+1,y), (x,y)]
+        for a, b in zip(corners, corners[1:]+corners[:1]):
+            if (b, a) in edges:
+                edges.remove((b, a))
+            else:
+                edges.add((a, b))
+    outgoing = {}
+    for a, b in sorted(edges):
+        outgoing.setdefault(a, set()).add(b)
+    rings = []
+    while outgoing:
+        start = next(iter(outgoing))
+        a, b = start, min(outgoing[start])
+        path = [a]
+        positions = {a: 0}
+        while True:
+            outgoing[a].remove(b)
+            if not outgoing[a]:
+                del outgoing[a]
+            if b in positions:
+                # Split a pinch into simple rings, including touching holes.
+                i = positions[b]
+                rings.append(path[i:])
+                for v in path[i+1:]:
+                    del positions[v]
+                path = path[:i+1]
+                if b == start:
+                    break
+            else:
+                positions[b] = len(path)
+                path.append(b)
+            vx, vy = b[0]-a[0], b[1]-a[1]
+            def turn(c):
+                wx, wy = c[0]-b[0], c[1]-b[1]
+                cross, dot = vx*wy-vy*wx, vx*wx+vy*wy
+                return (0 if cross > 0 else 1 if dot > 0 else 2 if cross < 0 else 3, c)
+            a, b = b, min(outgoing[b], key=turn)
+    shells, holes = [], []
+    for ring in rings:
+        ring = [b for a,b,c in zip(ring[-1:]+ring[:-1], ring, ring[1:]+ring[:1])
+                if (b[0]-a[0])*(c[1]-b[1]) != (b[1]-a[1])*(c[0]-b[0])]
+        area = sum(a[0]*b[1]-b[0]*a[1] for a,b in zip(ring,ring[1:]+ring[:1]))
+        (shells if area > 0 else holes).append(ring)
+    # The smallest containing shell owns a hole inside nested islands.
+    shells.sort(key=lambda ring: sum(a[0]*b[1]-b[0]*a[1] for a,b in zip(ring,ring[1:]+ring[:1])))
+    polygons = [[shell] for shell in shells]
+    for hole in holes:
+        a, b = hole[:2]
+        # The left of a boundary edge is filled, even at a touching vertex.
+        x = (a[0]+b[0])/2 - np.sign(b[1]-a[1])*.25
+        y = (a[1]+b[1])/2 + np.sign(b[0]-a[0])*.25
+        for polygon in polygons:
+            shell = polygon[0]
+            if sum((a[1]>y) != (b[1]>y) and x < (b[0]-a[0])*(y-a[1])/(b[1]-a[1])+a[0]
+                   for a,b in zip(shell,shell[1:]+shell[:1])) % 2:
+                polygon.append(hole)
+                break
+        else:
+            raise ValueError('Slope hole has no exterior')
+    return [[[[west+x*dx, north+y*dy] for x,y in ring+ring[:1]]
+             for ring in polygon] for polygon in polygons]
+
 def build(presets,slopes,thresholds,ice_grids):
  land=[];science=[];hazards=[];frozen=[]
  for id,name,mission,agency,date,status,lat,lon,src,conf,note in catalog.LANDING_SITES:
@@ -21,7 +88,7 @@ def build(presets,slopes,thresholds,ice_grids):
  for p in presets:
   id=p['id'];b=p['base_point'];src,mission,date=catalog.BASE_SOURCES[b['id']]
   f=feature(b['id'],'landing_site',b['name'],[b['lon'],b['lat']],[id],mission=mission,agency='NASA',landing_date=date,status='active')
-  f['properties'].update(confidence='high',source_ref=src,caveat='Official landing coordinates (planetocentric, east-positive), copied from config/mission_presets.json.')
+  f['properties'].update(confidence='high',source_ref=src,caveat='Historical landing-site coordinates (planetocentric, east-positive), copied from config/mission_presets.json; used as a stand-in for a hypothetical habitat in the EVA demo, not an existing crew habitat.')
   land.append(f)
   for target in p['science_target_ids']:
    name,lon,lat,conf,src,cav,goal=catalog.SCIENCE_TARGETS[target]
@@ -30,12 +97,7 @@ def build(presets,slopes,thresholds,ice_grids):
    science.append(f)
   shape,(dy,dx)=definition(p['bbox']);west,south,east,north=p['bbox']
   for severity,mask in [(2,(slopes[id]>thresholds['ideal_max_deg'])&(slopes[id]<=thresholds['hard_max_deg'])),(3,slopes[id]>thresholds['hard_max_deg'])]:
-   polygons=[]
-   for r,row in enumerate(mask):
-    edges=np.diff(np.r_[False,row,False].astype(int));starts=np.flatnonzero(edges==1);ends=np.flatnonzero(edges==-1)
-    for c,end in zip(starts,ends):
-     x0,x1=west+c*dx,west+end*dx;y1,y0=north-r*dy,north-(r+1)*dy
-     polygons.append([[[x0,y0],[x1,y0],[x1,y1],[x0,y1],[x0,y0]]])
+   polygons=slope_polygons(mask,west,north,dx,dy)
    if polygons:
     f=feature(f'hz-{id}-slope-{severity}','hazard','Coarse MOLA slope',[0,0],[id],hazard_kind='steep_slope',severity=severity,derived=True);f['geometry']=dict(type='MultiPolygon',coordinates=polygons);f['properties'].update(dataset_id='mola_megdr',caveat=DISCLAIMER,source_ref='https://pds-geosciences.wustl.edu/missions/mgs/mola.html');hazards.append(f)
   f=feature('ice-'+id+'-neutrons','ice','Regional neutron suppression context',[b['lon'],b['lat']],[id],ice_metric='relative neutron suppression',ice_value=float(np.mean(ice_grids[id])),depth_estimate_m=None);f['properties'].update(dataset_id='ody_ns_epithermal',caveat=ICE+' Coarse hydrogen-sensitive evidence; not proof of ice.',source_ref='https://pds-geosciences.wustl.edu/missions/odyssey/grsspecial.html');frozen.append(f)

@@ -8,6 +8,9 @@ const nextConfig: NextConfig = {
   },
   cacheComponents: true,
   partialPrefetching: true,
+  outputFileTracingIncludes: {
+    "/api/**/*": ["./config/**/*", "./data/**/*"],
+  },
   outputFileTracingExcludes: {
     "/*": ["./.venv/**/*"],
   },

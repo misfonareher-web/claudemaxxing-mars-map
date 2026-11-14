@@ -16,7 +16,7 @@ export const MARS_BASEMAP_LAYERS: MarsBasemapLayer[] = [
     category: "imagery",
     layerId: "Mars_Viking_MDIM21_ClrMosaic_global_232m",
     extension: "jpg",
-    maxNativeZoom: 8,
+    maxNativeZoom: 7,
   },
   {
     key: "mola",
@@ -61,7 +61,7 @@ export const MARS_BASEMAP_LAYERS: MarsBasemapLayer[] = [
     category: "terrain",
     layerId: "mola_roughness",
     extension: "png",
-    maxNativeZoom: 6,
+    maxNativeZoom: 1,
   },
   {
     key: "thermal",
@@ -70,7 +70,7 @@ export const MARS_BASEMAP_LAYERS: MarsBasemapLayer[] = [
     category: "atmosphere",
     layerId: "TES_Thermal_Inertia",
     extension: "png",
-    maxNativeZoom: 5,
+    maxNativeZoom: 1,
   },
   {
     key: "dust",
@@ -79,11 +79,22 @@ export const MARS_BASEMAP_LAYERS: MarsBasemapLayer[] = [
     category: "atmosphere",
     layerId: "TES_Dust",
     extension: "png",
-    maxNativeZoom: 5,
+    maxNativeZoom: 1,
   },
 ];
 
 export function getMarsTrekTileUrl(layer: MarsBasemapLayer): string {
   return `https://trek.nasa.gov/tiles/Mars/EQ/${layer.layerId}/1.0.0/default/default028mm/{z}/{y}/{x}.${layer.extension}`;
+}
+
+export function getSafePresetZoom(
+  presetDefaultZoom: number,
+  basemapKey: string
+): number {
+  const layer = MARS_BASEMAP_LAYERS.find((l) => l.key === basemapKey);
+  const nativeMax = layer?.maxNativeZoom ?? 7;
+  // Keep upscaling minimal so Mars imagery stays crisp inside Jezero/Gale
+  const sharpCap = nativeMax >= 9 ? 9 : Math.max(5.5, nativeMax + 0.75);
+  return Math.min(presetDefaultZoom, sharpCap);
 }
 

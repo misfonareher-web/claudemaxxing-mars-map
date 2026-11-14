@@ -4,16 +4,25 @@ import React, { useEffect, useRef, useState } from "react";
 import { getScoreAccent } from "@/lib/mars-scoring";
 
 interface ScoreRingProps {
-  score: number;
+  score: number | null;
   size?: number;
 }
 
 export default function ScoreRing({ score, size = 84 }: ScoreRingProps) {
-  const target = Math.max(0, Math.min(100, Math.round(score)));
+  const isAvailable = typeof score === "number" && Number.isFinite(score);
+  const target = isAvailable
+    ? Math.max(0, Math.min(100, Math.round(score)))
+    : null;
+
   const [progress, setProgress] = useState<number>(0);
   const progressRef = useRef<number>(0);
 
   useEffect(() => {
+    if (target === null) {
+      progressRef.current = 0;
+      return;
+    }
+
     let rafId = 0;
     const durationMs = 720;
     const startVal = progressRef.current;
@@ -35,13 +44,14 @@ export default function ScoreRing({ score, size = 84 }: ScoreRingProps) {
     return () => cancelAnimationFrame(rafId);
   }, [target]);
 
-  const displayScore = Math.round(progress);
-  const color = getScoreAccent(target);
+  const effectiveProgress = target === null ? 0 : progress;
+  const displayScore = Math.round(effectiveProgress);
+  const color = target === null ? "#6b5347" : getScoreAccent(target);
 
   const strokeWidth = 6;
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
-  const dashOffset = circumference * (1 - progress / 100);
+  const dashOffset = circumference * (1 - effectiveProgress / 100);
 
   return (
     <div
@@ -49,13 +59,17 @@ export default function ScoreRing({ score, size = 84 }: ScoreRingProps) {
       style={{
         width: size,
         height: size,
-        filter: `drop-shadow(0 0 10px ${color}40)`,
+        filter: target === null ? undefined : `drop-shadow(0 0 10px ${color}40)`,
       }}
       role="meter"
-      aria-valuenow={target}
+      aria-valuenow={target ?? undefined}
       aria-valuemin={0}
       aria-valuemax={100}
-      aria-label={`Survival score ${target} out of 100`}
+      aria-label={
+        target !== null
+          ? `Relative suitability index ${target} out of 100`
+          : "Score unavailable"
+      }
     >
       <svg
         width={size}
@@ -86,16 +100,22 @@ export default function ScoreRing({ score, size = 84 }: ScoreRingProps) {
         />
       </svg>
 
-      {/* Counting number in center */}
+      {/* Center value */}
       <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
-        <div className="flex items-baseline leading-none">
-          <span className="font-mono text-2xl font-bold tracking-tight text-ares-text tabular-nums">
-            {displayScore}
+        {target === null ? (
+          <span className="font-mono text-base font-semibold tracking-wider text-ares-mute">
+            N/A
           </span>
-          <span className="ml-0.5 font-mono text-[10px] text-ares-mute">
-            /100
-          </span>
-        </div>
+        ) : (
+          <div className="flex items-baseline leading-none">
+            <span className="font-mono text-2xl font-bold tracking-tight text-ares-text tabular-nums">
+              {displayScore}
+            </span>
+            <span className="ml-0.5 font-mono text-[10px] text-ares-mute">
+              /100
+            </span>
+          </div>
+        )}
       </div>
     </div>
   );

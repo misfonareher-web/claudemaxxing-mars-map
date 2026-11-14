@@ -1,12 +1,15 @@
 import { NextRequest } from "next/server";
-import { BackendEngineError, runPythonScoringCli } from "@/lib/backend-engine";
+import { BackendEngineError, scorePreset } from "@/lib/backend-engine";
+import { ScoringProfileId } from "@/types/mars";
 
 export async function GET(request: NextRequest) {
   try {
     const sp = request.nextUrl.searchParams;
-    const preset = sp.get("preset") ?? "jezero";
-    const profile = sp.get("profile") ?? "balanced";
-    const result = await runPythonScoringCli("score", { preset, profile });
+    const preset = sp.get("preset") ?? undefined;
+    const profile = (sp.get("profile") ?? undefined) as
+      | ScoringProfileId
+      | undefined;
+    const result = await scorePreset({ preset, profile });
     return Response.json(result);
   } catch (err) {
     if (err instanceof BackendEngineError) {
