@@ -3,7 +3,7 @@ ini_set('display_errors','0');
 final class ApiError extends RuntimeException { public function __construct(public int $status,string $message) { parent::__construct($message); } }
 function root(): string { return getenv('CLAUDEMAXXING_ROOT') ?: dirname(__DIR__,2); }
 function readJson(string $path): array { if (!is_file($path)) throw new ApiError(404,'Data unavailable'); return json_decode(file_get_contents($path),true,512,JSON_THROW_ON_ERROR); }
-function db(): ?PDO { try { return new PDO(getenv('DB_DSN') ?: 'pgsql:host=db;dbname=mars;connect_timeout=2',getenv('DB_USER') ?: 'mars',getenv('DB_PASSWORD') ?: '',[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]); } catch(Throwable $e) { return null; } }
+function db(): ?PDO { try { return new PDO(getenv('DB_DSN') ?: 'pgsql:host=db;dbname=mars;connect_timeout=2',getenv('DB_USER') ?: 'mars',getenv('DB_PASSWORD') ?: '',[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]); } catch(Throwable $e) { error_log('db(): ' . $e->getMessage()); return null; } }
 function corsHeaders(?string $origin): array {
  $headers=['Vary'=>'Origin','Access-Control-Allow-Methods'=>'GET, POST, OPTIONS','Access-Control-Allow-Headers'=>'Content-Type'];
  $allowed=array_map('trim',explode(',',getenv('CORS_ALLOWED_ORIGINS') ?: ''));
