@@ -30,6 +30,8 @@ docker compose -p ares ps
 curl -fsS http://127.0.0.1:8080/api/health
 ```
 
+The container port binds to `HTTP_BIND` (default `127.0.0.1`). While DNS/HTTPS is not ready you can set `HTTP_BIND=0.0.0.0` for a temporary public `http://<ip>:8080`; switch back to `127.0.0.1` and close 8080 in the firewall once Caddy serves HTTPS.
+
 Keep HTTP_PORT=8080 unless changing the proxy target below. Compose rejects an
 unset/empty DB_PASSWORD. Compose configuration alone cannot reject example strings:
 the PHP startup script refuses the shipped placeholder and old `local-demo-only`
