@@ -6,6 +6,10 @@ from .config import FACTORS, read
 CRS = 'Mars 2000 planetocentric, east-positive, degrees'
 DISCLAIMERS = ['The 0–100 index is a conditional heuristic methodology for comparison, not a safety certification or a validated model.', 'Absence of a mapped hazard does not mean the terrain is safe.', 'Mapped water-ice evidence indicates presence or likelihood, not extractability or accessibility.']
 LAYERS = dict(zip(FACTORS[:4], ('slope_deg', 'roughness_m', 'thermal_index', 'ice_index')))
+CONTEXT_NOTES = {
+    'ice': 'Regional neutron-flux proxy constant within each preset; no local ice discrimination or accessibility evidence.',
+    'thermal': 'THEMIS day-IR image brightness (contrast), not temperature or thermal inertia.',
+}
 UNITS = ('deg', 'm', 'unitless 0-1', 'unitless 0-1', 'km', 'km')
 
 def compute(root, preset, config, weights):
@@ -101,6 +105,8 @@ def response(state, preset, config, weights, profile):
             for f,units in zip(FACTORS, UNITS):
                 is_available = available[f][r][c]
                 breakdown[f] = dict(value=aggregated['values'][f][r][c], units=units, subscore=aggregated['subs'][f][r][c], weight=aggregated['effective'][f][r][c], contribution=aggregated['contributions'][f][r][c], available=is_available)
+                if f in CONTEXT_NOTES:
+                    breakdown[f].update(context_only=True, note=CONTEXT_NOTES[f])
             score = scores[r,c]
             features.append(dict(type='Feature', id=ident, geometry=dict(type='Polygon', coordinates=[[[left,bottom],[right,bottom],[right,top],[left,top],[left,bottom]]]), properties=dict(cell_id=ident,row=r,col=c,center=[(left+right)/2,(bottom+top)/2],score=0 if reasons else int(round(score)) if np.isfinite(score) else None,excluded=bool(reasons),exclusion_reasons=reasons,factors=breakdown,hazard_ids=ids,data_flags=state['flags'])))
     finite = [f['properties']['score'] for f in features if f['properties']['score'] is not None]

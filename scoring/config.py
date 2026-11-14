@@ -23,6 +23,8 @@ def weights(value):
         raise Error('Unknown or empty factor weights')
     if any(isinstance(v, bool) or not isinstance(v, (float, int)) or not math.isfinite(v) or v < 0 for v in value.values()) or sum(value.values()) <= 0:
         raise Error('Weights must be finite, nonnegative and not all zero')
+    if any(value.get(f, 0) != 0 for f in ('ice', 'thermal')):
+        raise Error('Ice and thermal are context-only; their weights must be zero')
     total = sum(value.values())
     return {f: value.get(f, 0) / total for f in FACTORS}
 

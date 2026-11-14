@@ -4,41 +4,154 @@
   "meta": {
     "preset_id": "jezero",
     "profile": "balanced",
-    "weights": {"slope": 0.30, "roughness": 0.10, "thermal": 0.15, "ice": 0.15, "science": 0.20, "base_distance": 0.10},
-    "effective_weights": {"slope": 0.30, "roughness": 0.10, "thermal": 0.15, "ice": 0.15, "science": 0.20, "base_distance": 0.10},
-    "methodology_version": "0.1.0",
-    "label": "Conditional heuristic EVA suitability index (0–100)",
+    "weights": {
+      "slope": 0.428,
+      "roughness": 0.143,
+      "thermal": 0.0,
+      "ice": 0.0,
+      "science": 0.286,
+      "base_distance": 0.143
+    },
+    "effective_weights": {
+      "slope": 0.428,
+      "roughness": 0.143,
+      "thermal": 0.0,
+      "ice": 0.0,
+      "science": 0.286,
+      "base_distance": 0.143
+    },
+    "methodology_version": "0.2.0",
+    "label": "Conditional heuristic EVA suitability index (0\u2013100)",
     "disclaimers": [
-      "The 0–100 index is a conditional heuristic methodology for comparison, not a safety certification or a validated model.",
+      "The 0\u2013100 index is a conditional heuristic methodology for comparison, not a safety certification or a validated model.",
       "Absence of a mapped hazard does not mean the terrain is safe.",
       "Mapped water-ice evidence indicates presence or likelihood, not extractability or accessibility."
     ],
-    "datasets": ["mola_megdr", "trek_themis_ir_day", "ody_grs_weh"],
+    "datasets": [
+      "m2020_photogeologic_map",
+      "mission_features",
+      "mola_megdr",
+      "ody_ns_epithermal",
+      "trek_themis_ir_day"
+    ],
     "data_flags": [],
-    "grid": {"rows": 1, "cols": 1, "cell_size_deg": [0.0078125, 0.0078125], "bbox": [77.2, 18.25, 77.75, 18.7]},
-    "stats": {"min": 67, "max": 67, "mean": 67.2, "excluded_cells": 0},
-    "generated_at": "2026-11-14T12:00:00Z"
+    "grid": {
+      "rows": 58,
+      "cols": 71,
+      "cell_size_deg": [
+        0.007759,
+        0.007746
+      ],
+      "bbox": [
+        77.2,
+        18.25,
+        77.75,
+        18.7
+      ]
+    },
+    "stats": {
+      "min": 0,
+      "max": 96,
+      "mean": 23.607,
+      "excluded_cells": 2548
+    },
+    "generated_at": "2026-11-14T17:38:07Z"
   },
   "features": [
     {
       "type": "Feature",
-      "id": "r0c0",
-      "geometry": {"type": "Polygon", "coordinates": [[[77.2, 18.6921875], [77.2078125, 18.6921875], [77.2078125, 18.7], [77.2, 18.7], [77.2, 18.6921875]]]},
+      "id": "r11c28",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              77.416901,
+              18.606897
+            ],
+            [
+              77.424648,
+              18.606897
+            ],
+            [
+              77.424648,
+              18.614655
+            ],
+            [
+              77.416901,
+              18.614655
+            ],
+            [
+              77.416901,
+              18.606897
+            ]
+          ]
+        ]
+      },
       "properties": {
-        "cell_id": "r0c0",
-        "row": 0,
-        "col": 0,
-        "center": [77.20390625, 18.69609375],
-        "score": 67,
+        "cell_id": "r11c28",
+        "row": 11,
+        "col": 28,
+        "center": [
+          77.420775,
+          18.610776
+        ],
+        "score": 59,
         "excluded": false,
         "exclusion_reasons": [],
         "factors": {
-          "slope":         {"value": 3.2,  "units": "deg",          "subscore": 1.0,  "weight": 0.30, "contribution": 30.0, "available": true},
-          "roughness":     {"value": 14.0, "units": "m",            "subscore": 0.92, "weight": 0.10, "contribution": 9.2,  "available": true},
-          "thermal":       {"value": 0.55, "units": "unitless 0-1", "subscore": 0.58, "weight": 0.15, "contribution": 8.7,  "available": true},
-          "ice":           {"value": 0.10, "units": "unitless 0-1", "subscore": 0.10, "weight": 0.15, "contribution": 1.5,  "available": true},
-          "science":       {"value": 1.9,  "units": "km",           "subscore": 0.53, "weight": 0.20, "contribution": 10.6, "available": true},
-          "base_distance": {"value": 2.8,  "units": "km",           "subscore": 0.72, "weight": 0.10, "contribution": 7.2,  "available": true}
+          "slope": {
+            "value": 1.665,
+            "units": "deg",
+            "subscore": 1.0,
+            "weight": 0.428,
+            "contribution": 42.8,
+            "available": true
+          },
+          "roughness": {
+            "value": 12.145,
+            "units": "m",
+            "subscore": 0.957,
+            "weight": 0.143,
+            "contribution": 13.687,
+            "available": true
+          },
+          "thermal": {
+            "value": 0.424,
+            "units": "unitless 0-1",
+            "subscore": 0.373,
+            "weight": 0.0,
+            "contribution": 0.0,
+            "available": true,
+            "context_only": true,
+            "note": "THEMIS day-IR image brightness (contrast), not temperature or thermal inertia."
+          },
+          "ice": {
+            "value": 0.122,
+            "units": "unitless 0-1",
+            "subscore": 0.122,
+            "weight": 0.0,
+            "contribution": 0.0,
+            "available": true,
+            "context_only": true,
+            "note": "Regional neutron-flux proxy constant within each preset; no local ice discrimination or accessibility evidence."
+          },
+          "science": {
+            "value": 6.776,
+            "units": "km",
+            "subscore": 0.104,
+            "weight": 0.286,
+            "contribution": 2.988,
+            "available": true
+          },
+          "base_distance": {
+            "value": 9.988,
+            "units": "km",
+            "subscore": 0.001,
+            "weight": 0.143,
+            "contribution": 0.018,
+            "available": true
+          }
         },
         "hazard_ids": [],
         "data_flags": []

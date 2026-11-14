@@ -19,7 +19,9 @@ def execute(command, request):
     preset = next((p for p in missions['presets'] if p['id']==request.get('preset')),None)
     if preset is None: raise Error('Unknown preset','not_found')
     profile = request.get('profile',cfg['active_profile'])
-    if not isinstance(profile,str) or profile not in cfg['profiles']: raise Error('Unknown profile')
+    if not isinstance(profile,str): raise Error('Unknown profile')
+    profile = cfg.get('profile_aliases', {}).get(profile, profile)
+    if profile not in cfg['profiles']: raise Error('Unknown profile')
     weights = config.weights(request.get('weights',cfg['profiles'][profile]['weights']))
     if command == 'point': location = point([request.get('lon'),request.get('lat')],preset['bbox'])
     if command == 'route':
