@@ -59,6 +59,9 @@ feature properties include `distance_km`, `elevation_gain_m`, `elevation_loss_m`
 fields are `requested: {start: [lon,lat], end: [lon,lat]}`,
 `snapped: {start: [lon,lat]|null, end: [lon,lat]|null}` (nearest valid cell centers),
 `snap_km: {start: number|null, end: number|null}`, and `max_snap_km: number`.
+`eva_max_radius_km` and `base_distance_km: {start: number, end: number}` report
+the preset EVA radius and requested endpoint distances from its base, in km.
+The radius comes from `config/mission_presets.json`.
 Coordinates use east-positive Mars degrees; distances use the Mars haversine.
 The default limit is one grid-cell diagonal measured at the grid bbox midpoint
 (about 0.63 km in Jezero and 0.64 km in Gale). Set `route.max_snap_km` in
@@ -68,14 +71,22 @@ an absent or null value uses the diagonal. This is not a request parameter.
 An over-limit endpoint returns a normal route response with `reachable: false`,
 `geometry: null`, null distance/elevation/slope/score metrics, and `steps: 0`.
 `unreachable_reason` is `start_too_far_from_valid_cell`,
-`end_too_far_from_valid_cell`, `no_valid_cells`, or `no_path`, with a human-readable
-`message`. Both fields are null on success. When both endpoints exceed the limit,
+`end_too_far_from_valid_cell`, `beyond_eva_radius`, `no_valid_cells`, or `no_path`, with a human-readable
+`message`. An endpoint that exceeds the snap limit and is itself outside the EVA
+radius reports `beyond_eva_radius`, for example "Start is 12.1 km from base; EVA limit is 10 km."
+No valid cells takes precedence, followed by start rejection, then end rejection.
+Both fields are null on success. When both endpoints exceed the limit,
 the start reason takes precedence. Nearest candidate centers and snap distances
 remain reported even when rejected; they are null only when no valid cells exist.
 Endpoints accepted within the limit can still be disconnected (`no_path`).
 Bbox validation still applies after preset inference: points outside the preset
 bbox remain bad requests. Reachability describes a coarse heuristic grid path,
 not a validated EVA traverse.
+
+Point scores already report radius exclusions through `properties.excluded: true`
+and `properties.exclusion_reasons` containing `beyond_eva_radius`; the cell distance
+is in `properties.factors.base_distance.value` (km). These describe the returned
+grid cell, rather than the exact requested coordinates.
 
 The API skips its PostgreSQL score cache when the database is down and reads
 vector files directly. Cache keys include the canonical request and config/grid

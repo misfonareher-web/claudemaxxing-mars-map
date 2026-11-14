@@ -46,7 +46,7 @@ def test_southwest_corner_rejected(mission, endpoint):
     _, preset, _, base, _ = mission
     corner = preset['bbox'][:2]
     f = feature(mission, **{endpoint: corner})
-    assert_unreachable(f, endpoint + '_too_far_from_valid_cell')
+    assert_unreachable(f, 'beyond_eva_radius')
     p = f['properties']
     expected = 8.2420450713 if preset['id'] == 'jezero' else 13.3429185526
     assert p['snap_km'][endpoint] == pytest.approx(expected, abs=1e-6)

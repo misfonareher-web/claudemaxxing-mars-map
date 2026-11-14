@@ -66,6 +66,11 @@
           "end": 0.28906
         },
         "max_snap_km": 0.633,
+        "eva_max_radius_km": 10,
+        "base_distance_km": {
+          "start": 0.0,
+          "end": 4.221415
+        },
         "unreachable_reason": null,
         "message": null
       }

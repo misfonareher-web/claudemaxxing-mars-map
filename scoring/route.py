@@ -15,6 +15,10 @@ def response(state, preset, config, profile, start, end):
     if max_snap is None:
         max_snap = distance(lon-dx/2, lat-dy/2, lon+dx/2, lat+dy/2)
     max_snap = float(max_snap)
+    base = preset['base_point']
+    eva_max = preset['eva_max_radius_km']
+    base_km = {name: float(distance(*point, base['lon'], base['lat']))
+               for name, point in (('start', start), ('end', end))}
     def snap(point):
         if not np.any(valid):
             return None, None, None
@@ -28,8 +32,12 @@ def response(state, preset, config, profile, start, end):
         reason, message = 'no_valid_cells', 'No finite, nonexcluded route cells are available.'
     elif start_km > max_snap:
         reason, message = 'start_too_far_from_valid_cell', 'Start is farther than the snap limit from the nearest valid cell.'
+        if base_km['start'] > eva_max:
+            reason, message = 'beyond_eva_radius', f"Start is {base_km['start']:.1f} km from base; EVA limit is {eva_max:g} km."
     elif end_km > max_snap:
         reason, message = 'end_too_far_from_valid_cell', 'End is farther than the snap limit from the nearest valid cell.'
+        if base_km['end'] > eva_max:
+            reason, message = 'beyond_eva_radius', f"End is {base_km['end']:.1f} km from base; EVA limit is {eva_max:g} km."
     path = []
     if reason is None:
         k = config.get('route',{}).get('score_cost_factor',2.0)
@@ -40,7 +48,8 @@ def response(state, preset, config, profile, start, end):
     properties = dict(distance_km=None,elevation_gain_m=None,elevation_loss_m=None,max_slope_deg=None,mean_score=None,steps=0,reachable=bool(path))
     properties.update(requested=dict(start=[float(v) for v in start], end=[float(v) for v in end]),
                       snapped=dict(start=start_xy, end=end_xy), snap_km=dict(start=start_km, end=end_km),
-                      max_snap_km=max_snap, unreachable_reason=reason, message=message)
+                      max_snap_km=max_snap, eva_max_radius_km=eva_max, base_distance_km=base_km,
+                      unreachable_reason=reason, message=message)
     geometry = None
     if path:
         rr,cc = np.array(path).T
