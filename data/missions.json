@@ -1,0 +1,366 @@
+{
+  "version": 1,
+  "missions": [
+    {
+      "id": "viking-1",
+      "name": "Viking 1",
+      "agency": "NASA",
+      "mission_type": "lander",
+      "launch_date": "1975-08-20",
+      "landing_date": "1976-07-20",
+      "end_date": "1982-11-11",
+      "status": "ended",
+      "landing_site_id": "ls-viking1",
+      "instruments": [
+        "cameras",
+        "biology experiments",
+        "GCMS",
+        "meteorology",
+        "seismometer"
+      ],
+      "key_results": [
+        {
+          "text": "First US spacecraft to land successfully on Mars and return surface images.",
+          "source_url": "https://science.nasa.gov/mission/viking-1/"
+        },
+        {
+          "text": "Biology experiments returned results that remain debated; no organics were detected by the GCMS.",
+          "source_url": "https://science.nasa.gov/mission/viking-1/"
+        }
+      ],
+      "source_url": "https://science.nasa.gov/mission/viking-1/",
+      "dataset_id": "mission_history"
+    },
+    {
+      "id": "viking-2",
+      "name": "Viking 2",
+      "agency": "NASA",
+      "mission_type": "lander",
+      "launch_date": "1975-09-09",
+      "landing_date": "1976-09-03",
+      "end_date": "1980-04-11",
+      "status": "ended",
+      "landing_site_id": "ls-viking2",
+      "instruments": [
+        "cameras",
+        "biology experiments",
+        "GCMS",
+        "meteorology",
+        "seismometer"
+      ],
+      "key_results": [
+        {
+          "text": "Landed in Utopia Planitia and recorded seasonal surface frost at the landing site.",
+          "source_url": "https://science.nasa.gov/mission/viking-2/"
+        },
+        {
+          "text": "Returned multi-year meteorological records of pressure and temperature.",
+          "source_url": "https://science.nasa.gov/mission/viking-2/"
+        }
+      ],
+      "source_url": "https://science.nasa.gov/mission/viking-2/",
+      "dataset_id": "mission_history"
+    },
+    {
+      "id": "mars-pathfinder",
+      "name": "Mars Pathfinder / Sojourner",
+      "agency": "NASA",
+      "mission_type": "lander",
+      "launch_date": "1996-12-04",
+      "landing_date": "1997-07-04",
+      "end_date": "1997-09-27",
+      "status": "ended",
+      "landing_site_id": "ls-pathfinder",
+      "instruments": [
+        "IMP camera",
+        "APXS",
+        "ASI/MET",
+        "Sojourner rover"
+      ],
+      "key_results": [
+        {
+          "text": "Demonstrated airbag landing and deployed Sojourner, the first rover on Mars.",
+          "source_url": "https://science.nasa.gov/mission/mars-pathfinder/"
+        },
+        {
+          "text": "Returned surface weather and rock-composition data from Ares Vallis.",
+          "source_url": "https://science.nasa.gov/mission/mars-pathfinder/"
+        }
+      ],
+      "source_url": "https://science.nasa.gov/mission/mars-pathfinder/",
+      "dataset_id": "mission_history"
+    },
+    {
+      "id": "mer-spirit",
+      "name": "Spirit (MER-A)",
+      "agency": "NASA",
+      "mission_type": "rover",
+      "launch_date": "2003-06-10",
+      "landing_date": "2004-01-04",
+      "end_date": "2010-03-22",
+      "status": "ended",
+      "landing_site_id": "ls-spirit",
+      "instruments": [
+        "Pancam",
+        "Mini-TES",
+        "APXS",
+        "Mossbauer",
+        "MI",
+        "RAT"
+      ],
+      "key_results": [
+        {
+          "text": "Found silica-rich deposits near Home Plate pointing to past hydrothermal activity.",
+          "source_url": "https://science.nasa.gov/mission/mer-spirit/"
+        },
+        {
+          "text": "Became embedded in soft soil in 2009; last communication in March 2010.",
+          "source_url": "https://science.nasa.gov/mission/mer-spirit/"
+        }
+      ],
+      "source_url": "https://science.nasa.gov/mission/mer-spirit/",
+      "dataset_id": "mission_history"
+    },
+    {
+      "id": "mer-opportunity",
+      "name": "Opportunity (MER-B)",
+      "agency": "NASA",
+      "mission_type": "rover",
+      "launch_date": "2003-07-07",
+      "landing_date": "2004-01-25",
+      "end_date": "2018-06-10",
+      "status": "ended",
+      "landing_site_id": "ls-opportunity",
+      "instruments": [
+        "Pancam",
+        "Mini-TES",
+        "APXS",
+        "Mossbauer",
+        "MI",
+        "RAT"
+      ],
+      "key_results": [
+        {
+          "text": "Found hematite spherules and sulfate-rich rocks indicating past liquid water at Meridiani Planum.",
+          "source_url": "https://science.nasa.gov/mission/mer-opportunity/"
+        },
+        {
+          "text": "Drove more than a marathon distance before a global dust storm ended the mission in 2018.",
+          "source_url": "https://science.nasa.gov/mission/mer-opportunity/"
+        }
+      ],
+      "source_url": "https://science.nasa.gov/mission/mer-opportunity/",
+      "dataset_id": "mission_history"
+    },
+    {
+      "id": "phoenix",
+      "name": "Phoenix",
+      "agency": "NASA",
+      "mission_type": "lander",
+      "launch_date": "2007-08-04",
+      "landing_date": "2008-05-25",
+      "end_date": "2008-11-02",
+      "status": "ended",
+      "landing_site_id": "ls-phoenix",
+      "instruments": [
+        "robotic arm",
+        "TEGA",
+        "MECA",
+        "SSI camera",
+        "MET station"
+      ],
+      "key_results": [
+        {
+          "text": "Confirmed water ice just below the surface in the northern plains.",
+          "source_url": "https://science.nasa.gov/mission/phoenix/"
+        },
+        {
+          "text": "Detected perchlorate in the soil.",
+          "source_url": "https://science.nasa.gov/mission/phoenix/"
+        }
+      ],
+      "source_url": "https://science.nasa.gov/mission/phoenix/",
+      "dataset_id": "mission_history"
+    },
+    {
+      "id": "msl-curiosity",
+      "name": "Curiosity (MSL)",
+      "agency": "NASA",
+      "mission_type": "rover",
+      "launch_date": "2011-11-26",
+      "landing_date": "2012-08-06",
+      "end_date": null,
+      "status": "active",
+      "landing_site_id": "ls-msl",
+      "instruments": [
+        "Mastcam",
+        "ChemCam",
+        "SAM",
+        "CheMin",
+        "APXS",
+        "MAHLI",
+        "REMS",
+        "RAD",
+        "DAN"
+      ],
+      "key_results": [
+        {
+          "text": "Showed that Gale crater once hosted a lake environment habitable for microbes.",
+          "source_url": "https://science.nasa.gov/mission/msl-curiosity/"
+        },
+        {
+          "text": "Measured surface radiation (RAD) and long-term weather (REMS) relevant to crew safety.",
+          "source_url": "https://science.nasa.gov/mission/msl-curiosity/"
+        }
+      ],
+      "source_url": "https://science.nasa.gov/mission/msl-curiosity/",
+      "dataset_id": "mission_history"
+    },
+    {
+      "id": "insight",
+      "name": "InSight",
+      "agency": "NASA",
+      "mission_type": "lander",
+      "launch_date": "2018-05-05",
+      "landing_date": "2018-11-26",
+      "end_date": "2022-12-21",
+      "status": "ended",
+      "landing_site_id": "ls-insight",
+      "instruments": [
+        "SEIS seismometer",
+        "HP3 heat probe",
+        "RISE",
+        "TWINS/APSS weather"
+      ],
+      "key_results": [
+        {
+          "text": "Recorded more than 1,300 marsquakes and constrained the size of the Martian core.",
+          "source_url": "https://science.nasa.gov/mission/insight/"
+        },
+        {
+          "text": "Mission ended in December 2022 as dust reduced solar power.",
+          "source_url": "https://science.nasa.gov/mission/insight/"
+        }
+      ],
+      "source_url": "https://science.nasa.gov/mission/insight/",
+      "dataset_id": "mission_history"
+    },
+    {
+      "id": "mars-2020-perseverance",
+      "name": "Perseverance (Mars 2020)",
+      "agency": "NASA",
+      "mission_type": "rover",
+      "launch_date": "2020-07-30",
+      "landing_date": "2021-02-18",
+      "end_date": null,
+      "status": "active",
+      "landing_site_id": "ls-mars2020",
+      "instruments": [
+        "Mastcam-Z",
+        "SuperCam",
+        "PIXL",
+        "SHERLOC",
+        "MOXIE",
+        "MEDA",
+        "RIMFAX"
+      ],
+      "key_results": [
+        {
+          "text": "Collecting and caching rock cores from Jezero crater for possible return to Earth.",
+          "source_url": "https://science.nasa.gov/mission/mars-2020-perseverance/"
+        },
+        {
+          "text": "MOXIE produced oxygen from atmospheric CO2, an in-situ resource demonstration.",
+          "source_url": "https://science.nasa.gov/mission/mars-2020-perseverance/"
+        }
+      ],
+      "source_url": "https://science.nasa.gov/mission/mars-2020-perseverance/",
+      "dataset_id": "mission_history"
+    },
+    {
+      "id": "mars-global-surveyor",
+      "name": "Mars Global Surveyor",
+      "agency": "NASA",
+      "mission_type": "orbiter",
+      "launch_date": "1996-11-07",
+      "landing_date": null,
+      "end_date": "2006-11-02",
+      "status": "ended",
+      "landing_site_id": null,
+      "instruments": [
+        "MOLA",
+        "MOC",
+        "TES",
+        "MAG/ER"
+      ],
+      "key_results": [
+        {
+          "text": "MOLA mapped global topography used for slope and route analysis in ARES.",
+          "source_url": "https://science.nasa.gov/mission/mars-global-surveyor/"
+        },
+        {
+          "text": "TES mapped global thermal inertia and mineralogy.",
+          "source_url": "https://science.nasa.gov/mission/mars-global-surveyor/"
+        }
+      ],
+      "source_url": "https://science.nasa.gov/mission/mars-global-surveyor/",
+      "dataset_id": "mission_history"
+    },
+    {
+      "id": "mars-odyssey",
+      "name": "2001 Mars Odyssey",
+      "agency": "NASA",
+      "mission_type": "orbiter",
+      "launch_date": "2001-04-07",
+      "landing_date": null,
+      "end_date": null,
+      "status": "active",
+      "landing_site_id": null,
+      "instruments": [
+        "THEMIS",
+        "GRS/NS/HEND"
+      ],
+      "key_results": [
+        {
+          "text": "GRS detected abundant near-surface hydrogen (water ice) at high latitudes.",
+          "source_url": "https://science.nasa.gov/mission/odyssey/"
+        },
+        {
+          "text": "THEMIS produced global day and night infrared mosaics used in ARES.",
+          "source_url": "https://science.nasa.gov/mission/odyssey/"
+        }
+      ],
+      "source_url": "https://science.nasa.gov/mission/odyssey/",
+      "dataset_id": "mission_history"
+    },
+    {
+      "id": "tianwen-1-zhurong",
+      "name": "Tianwen-1 / Zhurong",
+      "agency": "CNSA",
+      "mission_type": "rover",
+      "launch_date": "2020-07-23",
+      "landing_date": "2021-05-14",
+      "end_date": null,
+      "status": "ended",
+      "landing_site_id": "ls-zhurong",
+      "instruments": [
+        "NaTeCam",
+        "MarSCoDe",
+        "RoPeR radar",
+        "MCS"
+      ],
+      "key_results": [
+        {
+          "text": "First Chinese rover on Mars, operating in southern Utopia Planitia.",
+          "source_url": "https://doi.org/10.1038/s41550-021-01519-5"
+        },
+        {
+          "text": "Entered hibernation in May 2022 and has not resumed operations.",
+          "source_url": "https://doi.org/10.1038/s41550-021-01519-5"
+        }
+      ],
+      "source_url": "https://doi.org/10.1038/s41550-021-01519-5",
+      "dataset_id": "cnsa_mission_records"
+    }
+  ]
+}

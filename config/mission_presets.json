@@ -1,0 +1,34 @@
+{
+  "version": 1,
+  "default_preset": "jezero",
+  "presets": [
+    {
+      "id": "jezero",
+      "name": "Jezero Crater — Perseverance",
+      "mission": "Mars 2020 / Perseverance",
+      "status": "candidate",
+      "scenario": "Crewed EVA from a habitat near the Mars 2020 landing site toward the western delta front and Seitah to sample ancient lake sediments. Scenario not yet confirmed by the team.",
+      "bbox": [77.2, 18.25, 77.75, 18.7],
+      "center": [77.45, 18.45],
+      "default_zoom": 11,
+      "base_point": {"id": "ls-mars2020", "name": "Octavia E. Butler Landing (Mars 2020)", "lon": 77.4508, "lat": 18.4447},
+      "eva_max_radius_km": 10,
+      "science_target_ids": ["st-jezero-delta-front", "st-jezero-seitah"],
+      "environment_dataset_id": "meda_derived_daily"
+    },
+    {
+      "id": "gale",
+      "name": "Gale Crater, Mount Sharp — Curiosity",
+      "mission": "Mars Science Laboratory / Curiosity",
+      "status": "candidate",
+      "scenario": "Crewed EVA from Bradbury Landing toward the lower slopes of Mount Sharp (Aeolis Mons) along the Curiosity traverse corridor. Scenario not yet confirmed by the team.",
+      "bbox": [137.2, -4.9, 137.6, -4.5],
+      "center": [137.4, -4.7],
+      "default_zoom": 11,
+      "base_point": {"id": "ls-msl", "name": "Bradbury Landing (MSL)", "lon": 137.4417, "lat": -4.5895},
+      "eva_max_radius_km": 10,
+      "science_target_ids": ["st-gale-pahrump-hills"],
+      "environment_dataset_id": "rems_derived_daily"
+    }
+  ]
+}

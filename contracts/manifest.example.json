@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "preset_id": "jezero",
+  "bbox": [77.2, 18.25, 77.75, 18.7],
+  "shape": [58, 70],
+  "cell_size_deg": [0.0078125, 0.0078125],
+  "origin": "north_west",
+  "crs_note": "Mars 2000 planetocentric, east-positive, degrees",
+  "layers": {
+    "elevation_m":   {"file": "elevation_m.npy",   "units": "m",            "dataset_id": "mola_megdr",         "synthetic": false},
+    "slope_deg":     {"file": "slope_deg.npy",     "units": "deg",          "dataset_id": "mola_megdr",         "synthetic": false},
+    "roughness_m":   {"file": "roughness_m.npy",   "units": "m",            "dataset_id": "mola_megdr",         "synthetic": false},
+    "thermal_index": {"file": "thermal_index.npy", "units": "unitless 0-1", "dataset_id": "trek_themis_ir_day", "synthetic": false, "notes": "Relative brightness of JPEG tiles, not physical thermal inertia."},
+    "ice_index":     {"file": "ice_index.npy",     "units": "unitless 0-1", "dataset_id": "ody_grs_weh",        "synthetic": false}
+  }
+}

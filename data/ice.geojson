@@ -1,0 +1,314 @@
+{
+  "type": "FeatureCollection",
+  "crs_note": "Mars 2000 planetocentric, east-positive, degrees",
+  "dataset_ids": [
+    "ice_literature",
+    "ody_ns_epithermal"
+  ],
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          77.4508,
+          18.4447
+        ]
+      },
+      "properties": {
+        "id": "ice-jezero-neutrons",
+        "kind": "ice",
+        "name": "Regional neutron suppression context",
+        "description": "Regional neutron suppression context",
+        "dataset_id": "ody_ns_epithermal",
+        "preset_ids": [
+          "jezero"
+        ],
+        "confidence": "low",
+        "caveat": "Mapped water-ice evidence indicates presence or likelihood, not extractability or accessibility. Coarse hydrogen-sensitive evidence; not proof of ice.",
+        "source_ref": "https://pds-geosciences.wustl.edu/missions/odyssey/grsspecial.html",
+        "synthetic": false,
+        "ice_metric": "relative neutron suppression",
+        "ice_value": 0.1223212406039238,
+        "depth_estimate_m": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          137.4417,
+          -4.5895
+        ]
+      },
+      "properties": {
+        "id": "ice-gale-neutrons",
+        "kind": "ice",
+        "name": "Regional neutron suppression context",
+        "description": "Regional neutron suppression context",
+        "dataset_id": "ody_ns_epithermal",
+        "preset_ids": [
+          "gale"
+        ],
+        "confidence": "low",
+        "caveat": "Mapped water-ice evidence indicates presence or likelihood, not extractability or accessibility. Coarse hydrogen-sensitive evidence; not proof of ice.",
+        "source_ref": "https://pds-geosciences.wustl.edu/missions/odyssey/grsspecial.html",
+        "synthetic": false,
+        "ice_metric": "relative neutron suppression",
+        "ice_value": 0.3720560073852539,
+        "depth_estimate_m": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -180,
+              60
+            ],
+            [
+              180,
+              60
+            ],
+            [
+              180,
+              88
+            ],
+            [
+              -180,
+              88
+            ],
+            [
+              -180,
+              60
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "id": "ice-grs-north-60",
+        "kind": "ice",
+        "name": "High-latitude near-surface ground ice (north, >60 deg)",
+        "description": "High-latitude near-surface ground ice (north, >60 deg)",
+        "dataset_id": "ice_literature",
+        "preset_ids": [],
+        "confidence": "medium",
+        "caveat": "Mapped water-ice evidence indicates presence or likelihood, not extractability or accessibility. Boynton et al. (2002), Mars Odyssey GRS: hydrogen-rich ice-bearing layer within decimeters of the surface poleward of about 60 deg. Band boundary is generalized.",
+        "source_ref": "https://doi.org/10.1126/science.1073722",
+        "synthetic": false,
+        "ice_metric": "GRS/NS hydrogen-rich layer",
+        "ice_value": null,
+        "depth_estimate_m": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -180,
+              -88
+            ],
+            [
+              180,
+              -88
+            ],
+            [
+              180,
+              -60
+            ],
+            [
+              -180,
+              -60
+            ],
+            [
+              -180,
+              -88
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "id": "ice-grs-south-60",
+        "kind": "ice",
+        "name": "High-latitude near-surface ground ice (south, >60 deg)",
+        "description": "High-latitude near-surface ground ice (south, >60 deg)",
+        "dataset_id": "ice_literature",
+        "preset_ids": [],
+        "confidence": "medium",
+        "caveat": "Mapped water-ice evidence indicates presence or likelihood, not extractability or accessibility. Boynton et al. (2002), Mars Odyssey GRS: hydrogen-rich ice-bearing layer poleward of about 60 deg S. Band boundary is generalized.",
+        "source_ref": "https://doi.org/10.1126/science.1073722",
+        "synthetic": false,
+        "ice_metric": "GRS/NS hydrogen-rich layer",
+        "ice_value": null,
+        "depth_estimate_m": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -180,
+              55
+            ],
+            [
+              180,
+              55
+            ],
+            [
+              180,
+              58
+            ],
+            [
+              -180,
+              58
+            ],
+            [
+              -180,
+              55
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "id": "ice-scarps-north-55",
+        "kind": "ice",
+        "name": "Ice-exposing scarps latitude band (north, 55-58 deg)",
+        "description": "Ice-exposing scarps latitude band (north, 55-58 deg)",
+        "dataset_id": "ice_literature",
+        "preset_ids": [],
+        "confidence": "low",
+        "caveat": "Mapped water-ice evidence indicates presence or likelihood, not extractability or accessibility. Dundas et al. (2018): eight scarps expose ice sheets starting 1-2 m below the surface at about 55-58 deg latitude. The band marks where such sites occur, not continuous ice.",
+        "source_ref": "https://doi.org/10.1126/science.aao1619",
+        "synthetic": false,
+        "ice_metric": "exposed ice sheets at scarps",
+        "ice_value": null,
+        "depth_estimate_m": 1.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -180,
+              -58
+            ],
+            [
+              180,
+              -58
+            ],
+            [
+              180,
+              -55
+            ],
+            [
+              -180,
+              -55
+            ],
+            [
+              -180,
+              -58
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "id": "ice-scarps-south-55",
+        "kind": "ice",
+        "name": "Ice-exposing scarps latitude band (south, 55-58 deg)",
+        "description": "Ice-exposing scarps latitude band (south, 55-58 deg)",
+        "dataset_id": "ice_literature",
+        "preset_ids": [],
+        "confidence": "low",
+        "caveat": "Mapped water-ice evidence indicates presence or likelihood, not extractability or accessibility. Dundas et al. (2018): scarps in both hemispheres at about 55-58 deg latitude. The band marks where such sites occur, not continuous ice.",
+        "source_ref": "https://doi.org/10.1126/science.aao1619",
+        "synthetic": false,
+        "ice_metric": "exposed ice sheets at scarps",
+        "ice_value": null,
+        "depth_estimate_m": 1.0
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [
+          [
+            [
+              -180,
+              80
+            ],
+            [
+              180,
+              80
+            ],
+            [
+              180,
+              90
+            ],
+            [
+              -180,
+              90
+            ],
+            [
+              -180,
+              80
+            ]
+          ]
+        ]
+      },
+      "properties": {
+        "id": "ice-north-polar-cap",
+        "kind": "ice",
+        "name": "North polar layered deposits and residual ice cap",
+        "description": "North polar layered deposits and residual ice cap",
+        "dataset_id": "ice_literature",
+        "preset_ids": [],
+        "confidence": "medium",
+        "caveat": "Mapped water-ice evidence indicates presence or likelihood, not extractability or accessibility. Generalized as everything poleward of 80 deg N; the real cap boundary is irregular.",
+        "source_ref": "https://science.nasa.gov/mission/mars-global-surveyor/",
+        "synthetic": false,
+        "ice_metric": "polar water-ice deposits",
+        "ice_value": null,
+        "depth_estimate_m": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -125.75,
+          68.22
+        ]
+      },
+      "properties": {
+        "id": "ice-phoenix-context",
+        "kind": "ice",
+        "name": "Phoenix ground ice (excavated)",
+        "description": "Phoenix ground ice (excavated)",
+        "dataset_id": "ice_literature",
+        "preset_ids": [],
+        "confidence": "high",
+        "caveat": "Mapped water-ice evidence indicates presence or likelihood, not extractability or accessibility. Phoenix exposed and observed water ice a few centimeters below the surface at its landing site.",
+        "source_ref": "https://science.nasa.gov/mission/phoenix/",
+        "synthetic": false,
+        "ice_metric": "ground ice observed",
+        "ice_value": null,
+        "depth_estimate_m": 0.05
+      }
+    }
+  ]
+}

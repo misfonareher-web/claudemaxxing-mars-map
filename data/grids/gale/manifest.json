@@ -1,0 +1,62 @@
+{
+  "version": 1,
+  "preset_id": "gale",
+  "bbox": [
+    137.2,
+    -4.9,
+    137.6,
+    -4.5
+  ],
+  "shape": [
+    52,
+    52
+  ],
+  "cell_size_deg": [
+    0.007692307692307699,
+    0.007692307692307802
+  ],
+  "origin": "north_west",
+  "crs_note": "Mars 2000 planetocentric, east-positive, degrees",
+  "layers": {
+    "elevation_m": {
+      "file": "elevation_m.npy",
+      "units": "m",
+      "dataset_id": "mola_megdr",
+      "synthetic": false,
+      "min": -4596.55859375,
+      "max": -1258.800537109375
+    },
+    "slope_deg": {
+      "file": "slope_deg.npy",
+      "units": "deg",
+      "dataset_id": "mola_megdr",
+      "synthetic": false,
+      "min": 0.01616845652461052,
+      "max": 21.930246353149414
+    },
+    "roughness_m": {
+      "file": "roughness_m.npy",
+      "units": "m",
+      "dataset_id": "mola_megdr",
+      "synthetic": false,
+      "min": 0.30632132291793823,
+      "max": 148.84971618652344
+    },
+    "thermal_index": {
+      "file": "thermal_index.npy",
+      "units": "unitless 0-1",
+      "dataset_id": "trek_themis_ir_day",
+      "synthetic": false,
+      "min": 0.19607843458652496,
+      "max": 1.0
+    },
+    "ice_index": {
+      "file": "ice_index.npy",
+      "units": "unitless 0-1",
+      "dataset_id": "ody_ns_epithermal",
+      "synthetic": false,
+      "min": 0.3720560073852539,
+      "max": 0.3720560073852539
+    }
+  }
+}
