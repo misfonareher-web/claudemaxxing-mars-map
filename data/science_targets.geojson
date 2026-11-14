@@ -1,0 +1,87 @@
+{
+  "type": "FeatureCollection",
+  "crs_note": "Mars 2000 planetocentric, east-positive, degrees",
+  "dataset_ids": [
+    "mission_features"
+  ],
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          77.401,
+          18.498
+        ]
+      },
+      "properties": {
+        "id": "st-jezero-delta-front",
+        "kind": "science_target",
+        "name": "Jezero western delta front",
+        "description": "Lake-deposited delta sediments with high biosignature-preservation potential",
+        "dataset_id": "mission_features",
+        "preset_ids": [
+          "jezero"
+        ],
+        "confidence": "low",
+        "caveat": "Approximate position of the western fan-delta front, digitized from NASA mission context maps; verify against the Perseverance traverse map before use.",
+        "source_ref": "https://science.nasa.gov/mission/mars-2020-perseverance/",
+        "synthetic": false,
+        "priority": 1,
+        "science_goal": "Lake-deposited delta sediments with high biosignature-preservation potential"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          77.433,
+          18.43
+        ]
+      },
+      "properties": {
+        "id": "st-jezero-seitah",
+        "kind": "science_target",
+        "name": "Seitah (crater floor, olivine-rich layered rocks)",
+        "description": "Olivine-rich igneous layers, possibly the oldest exposed rocks in Jezero",
+        "dataset_id": "mission_features",
+        "preset_ids": [
+          "jezero"
+        ],
+        "confidence": "low",
+        "caveat": "Approximate position; NASA describes Seitah as a sandy, rocky crater-floor unit west of the landing site. Verify against the Perseverance traverse map.",
+        "source_ref": "https://science.nasa.gov/photojournal/flight-12-view-of-south-seitah/",
+        "synthetic": false,
+        "priority": 1,
+        "science_goal": "Olivine-rich igneous layers, possibly the oldest exposed rocks in Jezero"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          137.379,
+          -4.676
+        ]
+      },
+      "properties": {
+        "id": "st-gale-pahrump-hills",
+        "kind": "science_target",
+        "name": "Pahrump Hills (base of Mount Sharp)",
+        "description": "Murray formation mudstones at the base of Mount Sharp (ancient lake deposits)",
+        "dataset_id": "mission_features",
+        "preset_ids": [
+          "gale"
+        ],
+        "confidence": "medium",
+        "caveat": "Center of HiRISE image ESP_039280_1755 acquired while Curiosity was at Pahrump Hills (13 Dec 2014); the outcrop lies within that frame, not exactly at its center.",
+        "source_ref": "https://www.uahirise.org/ESP_039280_1755",
+        "synthetic": false,
+        "priority": 1,
+        "science_goal": "Murray formation mudstones at the base of Mount Sharp (ancient lake deposits)"
+      }
+    }
+  ]
+}

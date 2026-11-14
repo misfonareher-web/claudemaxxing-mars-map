@@ -39,3 +39,9 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# python & NASA raw ETL cache
+data/raw/
+__pycache__/
+*.pyc
+.venv/
