@@ -1,0 +1,158 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mars Explorer | NASA</title>
+
+    <script src=js/cursor.js defer></script>
+    <link rel="stylesheet" href="css/styles.css">
+    <script type="module" src=js/main.js></script>
+</head>
+<body>
+
+    <header id="header">
+        <strong>MARS EXPLORER</strong>
+        <button id="reset-view" type="button">Reset view</button>
+    </header>
+
+    <aside id="sidebar" aria-label="Map layers">
+        <div id="sidebar-header">
+            <h2>MAP LAYERS</h2>
+            <p>Select a dataset to explore Mars</p>
+        </div>
+
+        <nav id="layer-list" aria-label="Available map layers">
+
+            <div class="section-title">Global elevation &amp; terrain</div>
+
+            <button class="layer selected" type="button"
+                    data-layer="mola" aria-pressed="true">
+                <span class="layer-icon">🌋</span>
+                <span>
+                    <span class="layer-name">MOLA Color Hillshade</span>
+                    <span class="layer-description">Global elevation and terrain</span>
+                </span>
+            </button>
+
+            <button class="layer" type="button"
+                    data-layer="roughness" aria-pressed="false">
+                <span class="layer-icon">⛰</span>
+                <span>
+                    <span class="layer-name">Surface Roughness</span>
+                    <span class="layer-description">Terrain roughness data</span>
+                </span>
+            </button>
+
+            <button class="layer" type="button"
+                    data-layer="hrsc" aria-pressed="false">
+                <span class="layer-icon">🗺</span>
+                <span>
+                    <span class="layer-name">MOLA + HRSC Blend</span>
+                    <span class="layer-description">Combined color hillshade</span>
+                </span>
+            </button>
+
+            <div class="section-title">Orbital imagery</div>
+
+            <button class="layer" type="button"
+                    data-layer="viking" aria-pressed="false">
+                <span class="layer-icon">🛰</span>
+                <span>
+                    <span class="layer-name">Viking Global Mosaic</span>
+                    <span class="layer-description">Visible-light global imagery</span>
+                </span>
+            </button>
+
+            <button class="layer" type="button"
+                    data-layer="atlas" aria-pressed="false">
+                <span class="layer-icon">🌍</span>
+                <span>
+                    <span class="layer-name">MGS MOC Atlas</span>
+                    <span class="layer-description">Mars Orbiter Camera mosaic</span>
+                </span>
+            </button>
+
+            <div class="section-title">Thermal imagery</div>
+
+            <button class="layer" type="button"
+                    data-layer="themis-day" aria-pressed="false">
+                <span class="layer-icon">☀</span>
+                <span>
+                    <span class="layer-name">THEMIS Infrared Day</span>
+                    <span class="layer-description">Daytime thermal imagery</span>
+                </span>
+            </button>
+
+            <button class="layer" type="button"
+                    data-layer="themis-night" aria-pressed="false">
+                <span class="layer-icon">🌙</span>
+                <span>
+                    <span class="layer-name">THEMIS Infrared Night</span>
+                    <span class="layer-description">Nighttime thermal imagery</span>
+                </span>
+            </button>
+
+            <div class="section-title">Atmosphere &amp; composition</div>
+
+            <button class="layer" type="button"
+                    data-layer="dust" aria-pressed="false">
+                <span class="layer-icon">🌫</span>
+                <span>
+                    <span class="layer-name">TES Global Dust</span>
+                    <span class="layer-description">Atmospheric dust distribution</span>
+                </span>
+            </button>
+
+            <button class="layer" type="button"
+                    data-layer="dust-index" aria-pressed="false">
+                <span class="layer-icon">🔬</span>
+                <span>
+                    <span class="layer-name">TES Dust Index</span>
+                    <span class="layer-description">Dust index measurements</span>
+                </span>
+            </button>
+
+            <button class="layer" type="button"
+                    data-layer="thermal" aria-pressed="false">
+                <span class="layer-icon">🌡</span>
+                <span>
+                    <span class="layer-name">Thermal Inertia</span>
+                    <span class="layer-description">Surface thermal properties</span>
+                </span>
+            </button>
+
+            <button class="layer" type="button"
+                    data-layer="pyroxene" aria-pressed="false">
+                <span class="layer-icon">🧪</span>
+                <span>
+                    <span class="layer-name">High-Ca Pyroxene</span>
+                    <span class="layer-description">Mineral abundance mapping</span>
+                </span>
+            </button>
+
+        </nav>
+    </aside>
+
+    <button id="sidebar-toggle" type="button"
+            aria-label="Toggle layer menu"
+            aria-expanded="false">
+        <span aria-hidden="true">›</span>
+    </button>
+
+    <main id="map-container">
+        <canvas id="map" aria-label="Interactive map of Mars"></canvas>
+    </main>
+
+    <div id="info" aria-live="polite">
+        NASA Mars Trek · <span id="current-layer">MOLA Color Hillshade</span>
+        <br>
+        <span id="zoom-info">Zoom: 1x</span>
+        <br>
+        <span id="loading-status">Loading tiles...</span>
+    </div>
+
+</body>
+</html>
+
