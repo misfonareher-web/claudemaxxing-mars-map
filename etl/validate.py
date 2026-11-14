@@ -83,8 +83,11 @@ def validate(root=ROOT):
                 if geometry['type'] in ['Polygon','MultiPolygon']:
                     polygons=[geometry['coordinates']] if geometry['type']=='Polygon' else geometry['coordinates']
                     for polygon in polygons:
-                        for ring in polygon:
+                        for i, ring in enumerate(polygon):
                             require(len(ring)>=4 and ring[0]==ring[-1], 'Unclosed polygon')
+                            require(all(a != b for a,b in zip(ring,ring[1:])), 'Repeated consecutive polygon point')
+                            area = sum((a[0]-ring[0][0])*(b[1]-ring[0][1]) - (b[0]-ring[0][0])*(a[1]-ring[0][1]) for a,b in zip(ring,ring[1:]))
+                            require(area > 0 if i == 0 else area < 0, 'Incorrect polygon orientation')
                 if properties['kind']=='ice':
                     require('Mapped water-ice evidence indicates presence or likelihood, not extractability or accessibility.' in properties['caveat'], 'Missing ice caveat')
                 if properties['kind']=='hazard':
