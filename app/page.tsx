@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import MarsExplorer from "@/components/MarsExplorer";
 import {
+  CommsStatus,
   EnvironmentSummary,
   MarsGeoJSONCollection,
   MarsGeoJSONFeature,
@@ -26,6 +27,7 @@ export default function HomePage() {
   const presetsData = readJsonFile<{ presets: MissionPreset[] }>(
     "config/mission_presets.json"
   );
+  const commsStatus = readJsonFile<CommsStatus>("data/comms_status.json");
 
   const jezeroEnv = readJsonFile<EnvironmentSummary>(
     "data/environment/jezero.json"
@@ -43,6 +45,7 @@ export default function HomePage() {
     <MarsExplorer
       features={allFeatures}
       presets={presetsData.presets}
+      commsStatus={commsStatus}
       environments={{
         jezero: jezeroEnv,
         gale: galeEnv,

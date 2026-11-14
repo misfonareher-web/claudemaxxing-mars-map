@@ -62,7 +62,7 @@ feature = {
         'severity': 2,
         'confidence': 'medium',
         'source_ref': SOURCE,
-        'caveat': 'Absence of a mapped hazard does not mean the terrain is safe. The outline is a simplified exterior of connected published large-aeolian-bedform polygons over Séítah-associated bedrock, including internal bedrock islands and adjoining dune tongues, with estimated overview-scale uncertainty of 250–500 m; it is not for navigation.'
+        'caveat': 'Absence of a mapped hazard does not mean the terrain is safe. The outline is a simplified exterior of connected published large-aeolian-bedform polygons over Séítah-associated bedrock, including internal bedrock islands and adjoining dune tongues, with estimated overview-scale uncertainty of 250–500 m; it is used as an approximate scoring penalty, not a navigation boundary.'
     },
     'geometry': mapping(polygon)
 }

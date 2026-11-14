@@ -18,8 +18,6 @@ interface BottomNavBarProps {
   selectedFeature: MarsGeoJSONFeature | null;
   pointA: MarsGeoJSONFeature | null;
   pointB: MarsGeoJSONFeature | null;
-  distanceKm: number | null;
-  estimatedHours: number | null;
   distanceUnit?: DistanceUnit;
   routeProperties?: BackendRouteProperties | null;
   isRouteLoading?: boolean;
@@ -31,8 +29,6 @@ export default function BottomNavBar({
   selectedFeature,
   pointA,
   pointB,
-  distanceKm,
-  estimatedHours,
   distanceUnit = "km",
   routeProperties,
   isRouteLoading = false,
@@ -40,14 +36,20 @@ export default function BottomNavBar({
   onEndNavigation,
 }: BottomNavBarProps) {
   const hasTwoPoints = Boolean(pointA && pointB);
-  const effectiveDistanceKm = routeProperties?.distance_km ?? distanceKm;
+  const isReachable =
+    hasTwoPoints &&
+    routeProperties?.reachable === true &&
+    typeof routeProperties.distance_km === "number";
+  const isUnreachable = hasTwoPoints && routeProperties?.reachable === false;
+
+  const effectiveDistanceKm = isReachable ? routeProperties!.distance_km! : null;
   const effectiveHours =
-    effectiveDistanceKm !== null
-      ? effectiveDistanceKm / 10
-      : estimatedHours;
+    effectiveDistanceKm !== null ? effectiveDistanceKm / 10 : null;
 
   const destinationTitle = hasTwoPoints
-    ? `${pointA!.properties.name} → ${pointB!.properties.name}`
+    ? isUnreachable
+      ? "Route unreachable"
+      : `${pointA!.properties.name} → ${pointB!.properties.name}`
     : pointA
       ? `From ${pointA.properties.name} → Select Point B`
       : selectedFeature
@@ -83,7 +85,11 @@ export default function BottomNavBar({
 
           {/* Destination & Distance/Time */}
           <div className="min-w-[190px] max-w-[300px]">
-            <div className="truncate text-xs font-medium tracking-wide text-ares-mute">
+            <div
+              className={`truncate text-xs font-medium tracking-wide ${
+                isUnreachable ? "text-rose-300" : "text-ares-mute"
+              }`}
+            >
               {destinationTitle}
             </div>
 
@@ -110,7 +116,7 @@ export default function BottomNavBar({
           </div>
         </div>
 
-        {/* Right Hexagonal Button: "Start Navigation" or "End Navigation" when 2 points are selected */}
+        {/* Right Hexagonal Button: "Start Navigation" or "End Navigation" when 2 points are chosen */}
         <button
           type="button"
           onClick={hasTwoPoints ? onEndNavigation : onStartNavigation}

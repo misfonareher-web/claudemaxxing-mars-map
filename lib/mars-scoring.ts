@@ -1,7 +1,38 @@
-import { MarsGeoJSONFeature } from "@/types/mars";
+import { MarsGeoJSONFeature, MissionPreset } from "@/types/mars";
+
+export const DEFAULT_DISCLAIMERS: string[] = [
+  "The 0–100 index is a conditional heuristic methodology for comparison, not a safety certification or a validated model.",
+  "Absence of a mapped hazard does not mean the terrain is safe.",
+  "Mapped water-ice evidence indicates presence or likelihood, not extractability or accessibility.",
+];
+
+export const DEFAULT_ROUTE_DISCLAIMERS: string[] = [
+  "The route is a heuristic least-cost path on a coarse grid, not a validated traverse plan.",
+  ...DEFAULT_DISCLAIMERS,
+];
+
+export function buildApiUrl(apiPath: string): string {
+  const base = (process.env.NEXT_PUBLIC_API_URL ?? "").trim().replace(/\/+$/, "");
+  if (!base) return apiPath;
+  return `${base}${apiPath.startsWith("/") ? apiPath : `/${apiPath}`}`;
+}
+
+export function findPresetForPoint(
+  lon: number,
+  lat: number,
+  presets: MissionPreset[]
+): MissionPreset | null {
+  for (const preset of presets) {
+    const [w, s, e, n] = preset.bbox;
+    if (lon >= w && lon <= e && lat >= s && lat <= n) {
+      return preset;
+    }
+  }
+  return null;
+}
 
 export interface SurvivalMetrics {
-  score: number;
+  score: number | null;
   verdict: string;
   elevation_m: number | null;
   summary: string;
@@ -12,10 +43,9 @@ export interface SurvivalMetrics {
 
 const KNOWN_SITE_METRICS: Record<string, Partial<SurvivalMetrics>> = {
   "ls-mars2020": {
-    score: 84,
     elevation_m: -2500,
     summary:
-      "Ancient lake-delta basin with hydrated clay minerals, dense low-altitude atmosphere, and reliable near-equatorial solar flux.",
+      "Ancient lake-delta basin with hydrated clay minerals, low-altitude atmosphere, and near-equatorial solar geometry.",
     pros: [
       "Ancient water evidence",
       "Low elevation (-2.5 km)",
@@ -24,18 +54,17 @@ const KNOWN_SITE_METRICS: Record<string, Partial<SurvivalMetrics>> = {
     risks: [
       "Steep delta scarps",
       "Séítah sand dunes",
-      "Low bulk surface ice",
+      "Context-only ice proxy",
     ],
     resources: ["Hydrated clay minerals", "Solar energy", "Basaltic regolith"],
   },
   "ls-msl": {
-    score: 81,
     elevation_m: -4500,
     summary:
-      "Deep equatorial crater basin with dense atmosphere, confirmed hydrated sulfates, and multi-year rover weather records.",
+      "Deep equatorial crater basin with dense atmosphere, hydrated sulfates, and multi-year REMS rover weather records.",
     pros: [
       "Dense atmosphere (-4.5 km)",
-      "Equatorial warmth & solar",
+      "Equatorial solar geometry",
       "Bound water in sulfates",
     ],
     risks: [
@@ -46,10 +75,9 @@ const KNOWN_SITE_METRICS: Record<string, Partial<SurvivalMetrics>> = {
     resources: ["Solar energy", "Clay & sulfate beds", "Dense CO2 air"],
   },
   "ls-insight": {
-    score: 77,
     elevation_m: -2655,
     summary:
-      "Exceptionally flat equatorial plains in Elysium Planitia offering safe landing geometry and deep excavatable regolith.",
+      "Flat equatorial plains in Elysium Planitia offering smooth landing terrain and deep regolith.",
     pros: [
       "Flat landing terrain",
       "Equatorial sunlight",
@@ -63,12 +91,11 @@ const KNOWN_SITE_METRICS: Record<string, Partial<SurvivalMetrics>> = {
     resources: ["Solar energy", "Unconsolidated regolith"],
   },
   "ls-phoenix": {
-    score: 69,
     elevation_m: -4100,
     summary:
-      "Northern permafrost plains where shallow water ice was directly excavated centimeters beneath the soil.",
+      "Northern permafrost plains where shallow water ice was observed beneath the regolith.",
     pros: [
-      "Confirmed shallow ice",
+      "Observed shallow ice",
       "Low northern basin",
       "Flat polygon plains",
     ],
@@ -80,24 +107,22 @@ const KNOWN_SITE_METRICS: Record<string, Partial<SurvivalMetrics>> = {
     resources: ["Shallow water ice", "Dense CO2 air"],
   },
   "ls-zhurong": {
-    score: 79,
     elevation_m: -4000,
     summary:
-      "Southern Utopia Planitia volcanic-sedimentary plains with high atmospheric density and regional subsurface ice evidence.",
+      "Southern Utopia Planitia volcanic-sedimentary plains with low elevation and regional neutron proxy context.",
     pros: [
       "Deep basin air density",
       "Smooth volcanic plains",
-      "Subsurface ice nearby",
+      "Low northern elevation",
     ],
     risks: [
       "Winter dust storms",
       "Lower winter solar angle",
       "Seasonal frost",
     ],
-    resources: ["Subsurface ice proxy", "Basaltic plains"],
+    resources: ["Regional hydrogen proxy", "Basaltic plains"],
   },
   "ls-viking1": {
-    score: 74,
     elevation_m: -3600,
     summary:
       "Low-lying Chryse Planitia outflow basin with proven landing history and sub-tropical solar conditions.",
@@ -108,19 +133,18 @@ const KNOWN_SITE_METRICS: Record<string, Partial<SurvivalMetrics>> = {
     ],
     risks: [
       "Scattered rock fields",
-      "No shallow pure ice",
+      "Limited ice evidence",
       "Regional dust events",
     ],
     resources: ["Iron-rich regolith", "Solar energy"],
   },
   "ls-viking2": {
-    score: 72,
     elevation_m: -4500,
     summary:
-      "Deep northern Utopia Planitia site with seasonal water-ice frost and thick atmospheric braking column.",
+      "Deep northern Utopia Planitia site with seasonal water-ice frost and thick atmospheric column.",
     pros: [
       "Very low elevation (-4.5 km)",
-      "Seasonal frost & ice",
+      "Seasonal frost observations",
     ],
     risks: [
       "Cold mid-latitude winters",
@@ -130,10 +154,9 @@ const KNOWN_SITE_METRICS: Record<string, Partial<SurvivalMetrics>> = {
     resources: ["Seasonal frost", "Dense CO2 air"],
   },
   "ls-pathfinder": {
-    score: 73,
     elevation_m: -3680,
     summary:
-      "Ares Vallis outflow channel confluence delivering diverse crustal rocks at low elevation and warm latitude.",
+      "Ares Vallis outflow channel confluence delivering diverse crustal rocks at low elevation.",
     pros: [
       "Low elevation (-3.7 km)",
       "Strong solar irradiance",
@@ -147,10 +170,9 @@ const KNOWN_SITE_METRICS: Record<string, Partial<SurvivalMetrics>> = {
     resources: ["Solar energy", "Diverse mineral suite"],
   },
   "ls-spirit": {
-    score: 75,
     elevation_m: -1940,
     summary:
-      "Gusev Crater plains containing ancient hydrothermal silica deposits and frequent dust-devil solar cleaning.",
+      "Gusev Crater plains containing ancient hydrothermal silica deposits and dust-devil wind cleaning.",
     pros: [
       "Hydrothermal silica beds",
       "Low-latitude solar flux",
@@ -164,10 +186,9 @@ const KNOWN_SITE_METRICS: Record<string, Partial<SurvivalMetrics>> = {
     resources: ["Amorphous silica", "Solar energy"],
   },
   "ls-opportunity": {
-    score: 78,
     elevation_m: -1400,
     summary:
-      "Ultra-flat equatorial Meridiani Planum plains rich in hematite and water-altered sulfate bedrock.",
+      "Flat equatorial Meridiani Planum plains rich in hematite and water-altered sulfate bedrock.",
     pros: [
       "Ultra-flat plains",
       "Peak equatorial solar",
@@ -208,18 +229,23 @@ export function getCentroid(feature: MarsGeoJSONFeature): [number, number] {
   return [0, 0];
 }
 
-export function getScoreAccent(score: number): string {
+export function getScoreAccent(score: number | null | undefined): string {
+  if (score === null || score === undefined) return "#7c685e";
   if (score >= 70) return "#34d399";
   if (score >= 50) return "#f06423";
   return "#ef4444";
 }
 
-export function getVerdictLabel(score: number, excluded?: boolean): string {
-  if (excluded) return "Excluded — Unsafe Terrain";
-  if (score >= 70) return "Good place to settle";
-  if (score >= 50) return "Potential to settle";
-  if (score >= 32) return "Challenging · Caution advised";
-  return "High-risk zone · Avoid";
+export function getVerdictLabel(
+  score: number | null | undefined,
+  excluded?: boolean
+): string {
+  if (score === null || score === undefined) return "Score unavailable";
+  if (excluded) return "Excluded — Outside EVA / Terrain Constraints";
+  if (score >= 70) return "Higher relative suitability (comparison only)";
+  if (score >= 50) return "Moderate relative suitability (comparison only)";
+  if (score >= 32) return "Lower relative suitability (comparison only)";
+  return "Low relative suitability (comparison only)";
 }
 
 export function getSurvivalMetrics(
@@ -229,9 +255,9 @@ export function getSurvivalMetrics(
   const known = KNOWN_SITE_METRICS[props.id];
   const [, lat] = getCentroid(feature);
   const absLat = Math.abs(lat);
+  const score = props.score ?? null;
 
   if (known) {
-    const score = props.score ?? known.score ?? 75;
     return {
       score,
       verdict: getVerdictLabel(score),
@@ -246,15 +272,14 @@ export function getSurvivalMetrics(
   if (props.kind === "hazard") {
     const isDunes = props.hazard_kind === "sand_dunes";
     const sev = props.severity ?? 2;
-    const score = props.score ?? (sev >= 3 ? 22 : isDunes ? 42 : 36);
     return {
       score,
       verdict: getVerdictLabel(score),
       elevation_m: props.elevation_m ?? null,
       summary: props.description,
       pros: props.pros ?? [
-        isDunes ? "Accessible aeolian study area" : "Exposed bedrock strata",
-        "Inside mission EVA footprint",
+        isDunes ? "Aeolian morphology study area" : "Exposed bedrock strata",
+        "Mapped orbital hazard unit",
       ],
       risks: props.risks ?? [
         isDunes
@@ -269,15 +294,6 @@ export function getSurvivalMetrics(
   }
 
   if (props.kind === "ice") {
-    const solar = Math.round(Math.max(20, 95 - absLat * 1.05));
-    const water =
-      props.depth_estimate_m !== null && props.depth_estimate_m !== undefined
-        ? 95
-        : props.ice_value && props.ice_value > 0.3
-          ? 82
-          : 72;
-    const score =
-      props.score ?? Math.round(water * 0.35 + solar * 0.25 + 80 * 0.4);
     return {
       score,
       verdict: getVerdictLabel(score),
@@ -287,13 +303,13 @@ export function getSurvivalMetrics(
         "Water/hydrogen detection",
         props.depth_estimate_m
           ? `Shallow ice (~${props.depth_estimate_m} m)`
-          : "ISRU fuel candidate",
+          : "Orbital hydrogen proxy",
       ],
       risks: props.risks ?? [
         absLat > 50
           ? `Extreme polar cold (${lat.toFixed(1)}°)`
           : "Coarse orbital footprint",
-        "Presence ≠ easy extraction",
+        "Presence ≠ extractability",
       ],
       resources: props.resources ?? [
         props.ice_metric ?? "Hydrogen proxy",
@@ -303,7 +319,6 @@ export function getSurvivalMetrics(
   }
 
   if (props.kind === "science_target") {
-    const score = props.score ?? (props.priority === 1 ? 82 : 76);
     return {
       score,
       verdict: getVerdictLabel(score),
@@ -311,7 +326,7 @@ export function getSurvivalMetrics(
       summary: props.science_goal ?? props.description,
       pros: props.pros ?? [
         `Priority ${props.priority ?? 1} science site`,
-        "Within 10 km EVA range",
+        "Within preset scenario bbox",
       ],
       risks: props.risks ?? [
         "Slope hazards on approach",
@@ -324,10 +339,9 @@ export function getSurvivalMetrics(
     };
   }
 
-  const defaultScore = props.score ?? 75;
   return {
-    score: defaultScore,
-    verdict: getVerdictLabel(defaultScore),
+    score,
+    verdict: getVerdictLabel(score),
     elevation_m: props.elevation_m ?? null,
     summary: props.description,
     pros: props.pros ?? [props.description],
@@ -335,4 +349,3 @@ export function getSurvivalMetrics(
     resources: props.resources ?? ["Solar energy", "Basaltic regolith"],
   };
 }
-

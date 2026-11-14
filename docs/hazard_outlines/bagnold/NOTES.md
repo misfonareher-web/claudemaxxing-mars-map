@@ -118,3 +118,7 @@ Dependencies used by the final builder are NumPy, Shapely and Pillow under `scri
 ## Repository integration
 
 The production input is `../../../etl/sources/hazard_outlines.geojson`; the ETL reads it without GIS dependencies. The copied builder is an archival derivation script, run from this directory only after restoring the documented research inputs. Raw downloads, imagery, extracted GIS files, QA products, fetch scripts and local dependency directories are intentionally omitted from the repository. References above to those files describe the original research workspace; the builder is not part of the offline ETL rebuild. The hand-picked pixel vertices and affine controls are retained in `raw/digitization.json`. Restore `raw/tile_manifest.json`, `raw/MSL_waypoints.json`, `raw/ctx_mosaic.png` and NumPy/Shapely/Pillow to reproduce the archival build.
+
+## Scoring use
+
+ARES uses this outline as an approximate scoring penalty, not a navigation boundary. Severity 2 receives the configured hazard penalty (currently a multiplier of 0.70). The uncertainty and included bedrock gaps described above still apply.

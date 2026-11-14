@@ -1,0 +1,35 @@
+{
+  "date": "2026-11-15",
+  "epoch_utc": "2026-11-15T00:00:00Z",
+  "one_way_light_time_min": 10.94,
+  "round_trip_light_time_min_approx": 21.9,
+  "distance_km": 196849012,
+  "one_way_light_time_envelope_min": "~3-22",
+  "solar_conjunction_near": false,
+  "next_conjunction_approx": "2028-03-21",
+  "relay_passes_per_sol_illustrative": [
+    2,
+    4
+  ],
+  "relay_pass_duration_min_illustrative": [
+    8,
+    15
+  ],
+  "relay_orbiters": [
+    "MRO",
+    "TGO"
+  ],
+  "next_relay_pass": "illustrative",
+  "live_link_status": "unknown",
+  "ui_strings": {
+    "delay": "Signal delay to Earth: 10.9 min one way (15 Nov 2026, 00:00 UTC)",
+    "round_trip": "Earth reply: ~21.9 min propagation round trip, plus relay and processing wait",
+    "relays": "Relay passes: ~2-4 per sol via MRO/TGO (illustrative, not a schedule)",
+    "next_pass": "Next relay pass: unavailable - illustrative model",
+    "duration": "Illustrative pass duration: ~8-15 min",
+    "conjunction": "No solar conjunction near demo date; next around 21 Mar 2028",
+    "link_state": "Live link status unavailable"
+  },
+  "source": "JPL Horizons (Mars 499 from geocenter), NASA Mars Relay Network, ESA TGO"
+}
+

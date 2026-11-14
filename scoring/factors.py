@@ -7,6 +7,7 @@ def roughness(value, params):
     return np.clip((params['poor_m']-value)/(params['poor_m']-params['ideal_max_m']), 0, 1)
 
 def thermal(value, params):
+    # Retain a normalized context value; image brightness does not imply suitability.
     result = np.clip((value-params['low'])/(params['high']-params['low']), 0, 1)
     return 1-result if params.get('mode') == 'prefer_low' else result
 

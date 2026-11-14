@@ -8,16 +8,39 @@ def response(state, preset, config, profile, start, end):
     scores = state['score']
     valid = ~state['excluded'] & np.isfinite(scores)
     rows, cols = scores.shape
+    dy, dx = state['manifest']['cell_size_deg']
+    w, s, e, n = state['manifest']['bbox']
+    lon, lat = (w+e)/2, (s+n)/2
+    max_snap = config.get('route', {}).get('max_snap_km')
+    if max_snap is None:
+        max_snap = distance(lon-dx/2, lat-dy/2, lon+dx/2, lat+dy/2)
+    max_snap = float(max_snap)
     def snap(point):
+        if not np.any(valid):
+            return None, None, None
         d = np.where(valid, distance(state['x'],state['y'],*point), np.inf)
-        return np.unravel_index(np.argmin(d), d.shape) if np.any(valid) else None
-    source, target = snap(start), snap(end)
+        cell = np.unravel_index(np.argmin(d), d.shape)
+        return cell, [float(state['x'][cell]), float(state['y'][cell])], float(d[cell])
+    source, start_xy, start_km = snap(start)
+    target, end_xy, end_km = snap(end)
+    reason, message = None, None
+    if source is None:
+        reason, message = 'no_valid_cells', 'No finite, nonexcluded route cells are available.'
+    elif start_km > max_snap:
+        reason, message = 'start_too_far_from_valid_cell', 'Start is farther than the snap limit from the nearest valid cell.'
+    elif end_km > max_snap:
+        reason, message = 'end_too_far_from_valid_cell', 'End is farther than the snap limit from the nearest valid cell.'
     path = []
-    if source is not None:
+    if reason is None:
         k = config.get('route',{}).get('score_cost_factor',2.0)
         path = _search(valid, scores, state['y'][:,0], abs(float(state['x'][0,1]-state['x'][0,0])) if cols > 1 else 0.0,
                        abs(float(state['y'][0,0]-state['y'][1,0])) if rows > 1 else 0.0, source, target, k)
+        if not path:
+            reason, message = 'no_path', 'No traversable path connects the snapped endpoints.'
     properties = dict(distance_km=None,elevation_gain_m=None,elevation_loss_m=None,max_slope_deg=None,mean_score=None,steps=0,reachable=bool(path))
+    properties.update(requested=dict(start=[float(v) for v in start], end=[float(v) for v in end]),
+                      snapped=dict(start=start_xy, end=end_xy), snap_km=dict(start=start_km, end=end_km),
+                      max_snap_km=max_snap, unreachable_reason=reason, message=message)
     geometry = None
     if path:
         rr,cc = np.array(path).T

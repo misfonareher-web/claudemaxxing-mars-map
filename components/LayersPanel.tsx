@@ -18,10 +18,13 @@ import {
   WarningIcon,
   WindIcon,
 } from "@phosphor-icons/react/ssr";
-import { MarsFeatureKind } from "@/types/mars";
+import { MarsFeatureKind, MissionPreset } from "@/types/mars";
 import { MARS_BASEMAP_LAYERS, MarsBasemapLayer } from "@/lib/mars-layers";
 
 export interface LayersPanelProps {
+  presets: MissionPreset[];
+  activePresetId: string | null;
+  onSelectPreset: (presetId: string | null) => void;
   activeBasemapKey: string;
   onSelectBasemap: (key: string) => void;
   visibleKinds: Record<MarsFeatureKind, boolean>;
@@ -105,6 +108,9 @@ function HudToggle({ checked }: { checked: boolean }) {
 }
 
 export default function LayersPanel({
+  presets,
+  activePresetId,
+  onSelectPreset,
   activeBasemapKey,
   onSelectBasemap,
   visibleKinds,
@@ -138,6 +144,57 @@ export default function LayersPanel({
 
       {!collapsed && (
         <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-4 pb-4 pt-1">
+          {/* Mission Presets (MOLA Grids for Scoring & Routing) */}
+          <div>
+            <div className="mb-2 flex items-baseline justify-between gap-2">
+              <h3 className="text-[13px] font-semibold text-[#f7efe8]">
+                Mission Presets
+              </h3>
+              <span className="font-mono text-[10px] text-[#9b847a]">
+                MOLA Grid
+              </span>
+            </div>
+            <div className="space-y-1.5">
+              {presets.map((preset) => {
+                const isActive = activePresetId === preset.id;
+                const shortLabel = preset.name.split(" — ")[0];
+                return (
+                  <button
+                    key={preset.id}
+                    type="button"
+                    onClick={() => onSelectPreset(preset.id)}
+                    className={`flex w-full cursor-pointer items-center justify-between gap-2 rounded-lg border px-2.5 py-1.5 text-left text-[12px] font-medium transition-colors ${
+                      isActive
+                        ? "border-[#ff6924] bg-[#ff6924]/18 text-white"
+                        : "border-[#542613]/70 bg-[#180c07]/80 text-[#d8c4b8] hover:border-[#f06423]/60 hover:text-white"
+                    }`}
+                  >
+                    <span className="truncate">{shortLabel}</span>
+                    <span className="font-mono text-[9.5px] text-[#ff9b66] uppercase">
+                      {preset.id}
+                    </span>
+                  </button>
+                );
+              })}
+              <button
+                type="button"
+                onClick={() => onSelectPreset(null)}
+                className={`flex w-full cursor-pointer items-center justify-between gap-2 rounded-lg border px-2.5 py-1.5 text-left text-[12px] font-medium transition-colors ${
+                  activePresetId === null
+                    ? "border-[#ff6924] bg-[#ff6924]/18 text-white"
+                    : "border-[#542613]/70 bg-[#180c07]/80 text-[#d8c4b8] hover:border-[#f06423]/60 hover:text-white"
+                }`}
+              >
+                <span className="truncate">Global Map</span>
+                <span className="font-mono text-[9.5px] text-[#9b847a] uppercase">
+                  overview
+                </span>
+              </button>
+            </div>
+          </div>
+
+          <div className="h-px bg-[#542613]/65" />
+
           {/* Survival Essentials (Overlay toggles) */}
           <div>
             <h3 className="mb-2.5 text-[13px] font-semibold text-[#f7efe8]">

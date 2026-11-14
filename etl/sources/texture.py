@@ -5,6 +5,12 @@ from etl.download import fetch
 BASE = 'https://trek.nasa.gov/tiles/Mars/EQ/Mars_MGS_MOLA_ClrShade_merge_global_463m/1.0.0/'
 PROVENANCE = dict(dataset_id='trek_mola_globe', title='Mars Trek MOLA color shaded relief', mission='Mars Global Surveyor', instrument='MOLA', data_type='texture', source_url=BASE+'WMTSCapabilities.xml', temporal_coverage='MGS mapping mission', spatial_coverage='Global', resolution='2048 x 1024; zoom 2', units='rendered RGB', format='JPEG', processing='Stitch 8 x 4 zoom-2 JPEG tiles without resampling; north at top, east-positive longitude -180 at left to +180 at right.', limitations=['Color encodes elevation and shaded relief; not true-color surface imagery.'], license='NASA/JPL-Caltech/GSFC, Mars Trek', synthetic=False, used_for=['globe context'])
 
+BASEMAP_PROVENANCE = dict(PROVENANCE, dataset_id='trek_mola_clrshade',
+    title='Mars Trek MOLA ClrShade WMTS basemap', data_type='basemap',
+    resolution='463 m source product; WMTS zoom levels 0-7', format='WMTS JPEG tiles',
+    processing='Mars Trek color shaded relief tiles served directly to the map; no ARES stitching or resampling.',
+    used_for=['map basemap'])
+
 
 def build(raw_dir, output, offline=False, force=False):
     image = Image.new('RGB', (2048, 1024))

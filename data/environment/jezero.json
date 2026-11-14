@@ -27,7 +27,7 @@
       "max": 99.98,
       "mean": 4.43
     },
-    "notes": "49 sampled sols (every 36th sol 10-1850); complete daily files; ATS mean of sensors 1-3; no rover-heating correction."
+    "notes": "49 sampled sols (every 36th sol 10-1850); observed samples only; ATS mean of sensors 1-3; no rover-heating correction."
   },
   "series": [
     {
@@ -35,7 +35,26 @@
       "air_temp_min_c": -31.44,
       "air_temp_max_c": -20.3,
       "air_temp_min_ltst": "14:05:01",
-      "air_temp_max_ltst": "14:20:16"
+      "air_temp_max_ltst": "14:20:16",
+      "samples_air": 2685,
+      "observations": {
+        "air": {
+          "n_samples": 2685,
+          "ltst_span": null
+        },
+        "pressure": {
+          "n_samples": null,
+          "ltst_span": null
+        },
+        "rh": {
+          "n_samples": null,
+          "ltst_span": null
+        }
+      },
+      "air_temp_mean_c": null,
+      "relative_humidity_min_pct": null,
+      "partial_coverage": true,
+      "quality_note": "Fewer than 3600 valid ATS samples: insufficient to establish full-sol extrema."
     },
     {
       "sol": 46,
@@ -43,9 +62,28 @@
       "air_temp_max_c": -20.34,
       "air_temp_min_ltst": "04:43:18",
       "air_temp_max_ltst": "14:17:44",
+      "samples_air": 105215,
       "pressure_mean_pa": 747.57,
       "pressure_min_pa": 738.3,
-      "pressure_max_pa": 758.39
+      "pressure_max_pa": 758.39,
+      "observations": {
+        "air": {
+          "n_samples": 105215,
+          "ltst_span": null
+        },
+        "pressure": {
+          "n_samples": null,
+          "ltst_span": null
+        },
+        "rh": {
+          "n_samples": null,
+          "ltst_span": null
+        }
+      },
+      "air_temp_mean_c": null,
+      "relative_humidity_min_pct": null,
+      "partial_coverage": null,
+      "quality_note": "Full-sol coverage unknown; counts or extrema times cannot establish continuous coverage."
     },
     {
       "sol": 82,
@@ -53,11 +91,30 @@
       "air_temp_max_c": -19.9,
       "air_temp_min_ltst": "04:40:00",
       "air_temp_max_ltst": "14:31:58",
+      "samples_air": 95932,
       "pressure_mean_pa": 757.19,
       "pressure_min_pa": 743.48,
       "pressure_max_pa": 767.33,
       "relative_humidity_mean_pct": 1.8,
-      "relative_humidity_max_pct": 9.93
+      "relative_humidity_max_pct": 9.93,
+      "observations": {
+        "air": {
+          "n_samples": 95932,
+          "ltst_span": null
+        },
+        "pressure": {
+          "n_samples": null,
+          "ltst_span": null
+        },
+        "rh": {
+          "n_samples": null,
+          "ltst_span": null
+        }
+      },
+      "air_temp_mean_c": null,
+      "relative_humidity_min_pct": null,
+      "partial_coverage": null,
+      "quality_note": "Full-sol coverage unknown; counts or extrema times cannot establish continuous coverage."
     },
     {
       "sol": 118,
@@ -65,11 +122,30 @@
       "air_temp_max_c": -17.92,
       "air_temp_min_ltst": "04:37:44",
       "air_temp_max_ltst": "14:45:49",
+      "samples_air": 96855,
       "pressure_mean_pa": 758.64,
       "pressure_min_pa": 751.67,
       "pressure_max_pa": 767.62,
       "relative_humidity_mean_pct": 1.21,
-      "relative_humidity_max_pct": 11.87
+      "relative_humidity_max_pct": 11.87,
+      "observations": {
+        "air": {
+          "n_samples": 96855,
+          "ltst_span": null
+        },
+        "pressure": {
+          "n_samples": null,
+          "ltst_span": null
+        },
+        "rh": {
+          "n_samples": null,
+          "ltst_span": null
+        }
+      },
+      "air_temp_mean_c": null,
+      "relative_humidity_min_pct": null,
+      "partial_coverage": null,
+      "quality_note": "Full-sol coverage unknown; counts or extrema times cannot establish continuous coverage."
     },
     {
       "sol": 154,
@@ -77,11 +153,30 @@
       "air_temp_max_c": -18.98,
       "air_temp_min_ltst": "04:18:06",
       "air_temp_max_ltst": "14:43:53",
+      "samples_air": 48507,
       "pressure_mean_pa": 743.39,
       "pressure_min_pa": 736.33,
       "pressure_max_pa": 755.86,
       "relative_humidity_mean_pct": 1.2,
-      "relative_humidity_max_pct": 9.37
+      "relative_humidity_max_pct": 9.37,
+      "observations": {
+        "air": {
+          "n_samples": 48507,
+          "ltst_span": null
+        },
+        "pressure": {
+          "n_samples": null,
+          "ltst_span": null
+        },
+        "rh": {
+          "n_samples": null,
+          "ltst_span": null
+        }
+      },
+      "air_temp_mean_c": null,
+      "relative_humidity_min_pct": null,
+      "partial_coverage": null,
+      "quality_note": "Full-sol coverage unknown; counts or extrema times cannot establish continuous coverage."
     },
     {
       "sol": 190,
@@ -89,11 +184,30 @@
       "air_temp_max_c": -17.68,
       "air_temp_min_ltst": "04:49:41",
       "air_temp_max_ltst": "14:18:01",
+      "samples_air": 51338,
       "pressure_mean_pa": 707.21,
       "pressure_min_pa": 699.4,
       "pressure_max_pa": 719.02,
       "relative_humidity_mean_pct": 0.47,
-      "relative_humidity_max_pct": 9.19
+      "relative_humidity_max_pct": 9.19,
+      "observations": {
+        "air": {
+          "n_samples": 51338,
+          "ltst_span": null
+        },
+        "pressure": {
+          "n_samples": null,
+          "ltst_span": null
+        },
+        "rh": {
+          "n_samples": null,
+          "ltst_span": null
+        }
+      },
+      "air_temp_mean_c": null,
+      "relative_humidity_min_pct": null,
+      "partial_coverage": null,
+      "quality_note": "Full-sol coverage unknown; counts or extrema times cannot establish continuous coverage."
     },
     {
       "sol": 226,
@@ -101,11 +215,30 @@
       "air_temp_max_c": -16.79,
       "air_temp_min_ltst": "04:22:25",
       "air_temp_max_ltst": "15:08:06",
+      "samples_air": 48024,
       "pressure_mean_pa": 669.22,
       "pressure_min_pa": 659.37,
       "pressure_max_pa": 682.16,
       "relative_humidity_mean_pct": 1.49,
-      "relative_humidity_max_pct": 6.31
+      "relative_humidity_max_pct": 6.31,
+      "observations": {
+        "air": {
+          "n_samples": 48024,
+          "ltst_span": null
+        },
+        "pressure": {
+          "n_samples": null,
+          "ltst_span": null
+        },
+        "rh": {
+          "n_samples": null,
+          "ltst_span": null
+        }
+      },
+      "air_temp_mean_c": null,
+      "relative_humidity_min_pct": null,
+      "partial_coverage": null,
+      "quality_note": "Full-sol coverage unknown; counts or extrema times cannot establish continuous coverage."
     },
     {
       "sol": 262,
@@ -113,11 +246,30 @@
       "air_temp_max_c": -18.87,
       "air_temp_min_ltst": "23:27:51",
       "air_temp_max_ltst": "14:29:20",
+      "samples_air": 13660,
       "pressure_mean_pa": 639.84,
       "pressure_min_pa": 636.12,
       "pressure_max_pa": 644.89,
       "relative_humidity_mean_pct": 1.01,
-      "relative_humidity_max_pct": 3.92
+      "relative_humidity_max_pct": 3.92,
+      "observations": {
+        "air": {
+          "n_samples": 13660,
+          "ltst_span": null
+        },
+        "pressure": {
+          "n_samples": null,
+          "ltst_span": null
+        },
+        "rh": {
+          "n_samples": null,
+          "ltst_span": null
+        }
+      },
+      "air_temp_mean_c": null,
+      "relative_humidity_min_pct": null,
+      "partial_coverage": null,
+      "quality_note": "Full-sol coverage unknown; counts or extrema times cannot establish continuous coverage."
     },
     {
       "sol": 298,
@@ -125,11 +277,30 @@
       "air_temp_max_c": -5.43,
       "air_temp_min_ltst": "05:28:09",
       "air_temp_max_ltst": "14:42:58",
+      "samples_air": 47990,
       "pressure_mean_pa": 625.08,
       "pressure_min_pa": 607.11,
       "pressure_max_pa": 641.12,
       "relative_humidity_mean_pct": 1.31,
-      "relative_humidity_max_pct": 17.28
+      "relative_humidity_max_pct": 17.28,
+      "observations": {
+        "air": {
+          "n_samples": 47990,
+          "ltst_span": null
+        },
+        "pressure": {
+          "n_samples": null,
+          "ltst_span": null
+        },
+        "rh": {
+          "n_samples": null,
+          "ltst_span": null
+        }
+      },
+      "air_temp_mean_c": null,
+      "relative_humidity_min_pct": null,
+      "partial_coverage": null,
+      "quality_note": "Full-sol coverage unknown; counts or extrema times cannot establish continuous coverage."
     },
     {
       "sol": 334,
@@ -137,11 +308,30 @@
       "air_temp_max_c": -7.65,
       "air_temp_min_ltst": "05:20:46",
       "air_temp_max_ltst": "14:18:26",
+      "samples_air": 78635,
       "pressure_mean_pa": 633.74,
       "pressure_min_pa": 615.8,
       "pressure_max_pa": 651.0,
       "relative_humidity_mean_pct": 6.95,
-      "relative_humidity_max_pct": 21.26
+      "relative_humidity_max_pct": 21.26,
+      "observations": {
+        "air": {
+          "n_samples": 78635,
+          "ltst_span": null
+        },
+        "pressure": {
+          "n_samples": null,
+          "ltst_span": null
+        },
+        "rh": {
+          "n_samples": null,
+          "ltst_span": null
+        }
+      },
+      "air_temp_mean_c": null,
+      "relative_humidity_min_pct": null,
+      "partial_coverage": null,
+      "quality_note": "Full-sol coverage unknown; counts or extrema times cannot establish continuous coverage."
     },
     {
       "sol": 370,
@@ -149,11 +339,30 @@
       "air_temp_max_c": -5.44,
       "air_temp_min_ltst": "05:43:42",
       "air_temp_max_ltst": "13:41:28",
+      "samples_air": 50380,
       "pressure_mean_pa": 662.27,
       "pressure_min_pa": 639.19,
       "pressure_max_pa": 689.08,
       "relative_humidity_mean_pct": 0.63,
-      "relative_humidity_max_pct": 11.39
+      "relative_humidity_max_pct": 11.39,
+      "observations": {
+        "air": {
+          "n_samples": 50380,
+          "ltst_span": null
+        },
+        "pressure": {
+          "n_samples": null,
+          "ltst_span": null
+        },
+        "rh": {
+          "n_samples": null,
+          "ltst_span": null
+        }
+      },
+      "air_temp_mean_c": null,
+      "relative_humidity_min_pct": null,
+      "partial_coverage": null,
+      "quality_note": "Full-sol coverage unknown; counts or extrema times cannot establish continuous coverage."
     },
     {
       "sol": 406,
@@ -161,11 +370,30 @@
       "air_temp_max_c": -6.98,
       "air_temp_min_ltst": "05:42:53",
       "air_temp_max_ltst": "13:34:31",
+      "samples_air": 48565,
       "pressure_mean_pa": 712.08,
       "pressure_min_pa": 688.17,
       "pressure_max_pa": 738.02,
       "relative_humidity_mean_pct": 3.11,
-      "relative_humidity_max_pct": 15.41
+      "relative_humidity_max_pct": 15.41,
+      "observations": {
+        "air": {
+          "n_samples": 48565,
+          "ltst_span": null
+        },
+        "pressure": {
+          "n_samples": null,
+          "ltst_span": null
+        },
+        "rh": {
+          "n_samples": null,
+          "ltst_span": null
+        }
+      },
+      "air_temp_mean_c": null,
+      "relative_humidity_min_pct": null,
+      "partial_coverage": null,
+      "quality_note": "Full-sol coverage unknown; counts or extrema times cannot establish continuous coverage."
     },
     {
       "sol": 442,
@@ -173,11 +401,30 @@
       "air_temp_max_c": -12.17,
       "air_temp_min_ltst": "05:14:52",
       "air_temp_max_ltst": "13:27:30",
+      "samples_air": 49070,
       "pressure_mean_pa": 767.24,
       "pressure_min_pa": 737.51,
       "pressure_max_pa": 789.77,
       "relative_humidity_mean_pct": 0.96,
-      "relative_humidity_max_pct": 20.59
+      "relative_humidity_max_pct": 20.59,
+      "observations": {
+        "air": {
+          "n_samples": 49070,
+          "ltst_span": null
+        },
+        "pressure": {
+          "n_samples": null,
+          "ltst_span": null
+        },
+        "rh": {
+          "n_samples": null,
+          "ltst_span": null
+        }
+      },
+      "air_temp_mean_c": null,
+      "relative_humidity_min_pct": null,
+      "partial_coverage": null,
+      "quality_note": "Full-sol coverage unknown; counts or extrema times cannot establish continuous coverage."
     },
     {
       "sol": 478,
@@ -185,11 +432,30 @@
       "air_temp_max_c": -16.54,
       "air_temp_min_ltst": "05:06:24",
       "air_temp_max_ltst": "13:14:57",
+      "samples_air": 30960,
       "pressure_mean_pa": 792.29,
       "pressure_min_pa": 769.85,
       "pressure_max_pa": 810.93,
       "relative_humidity_mean_pct": 4.92,
-      "relative_humidity_max_pct": 20.85
+      "relative_humidity_max_pct": 20.85,
+      "observations": {
+        "air": {
+          "n_samples": 30960,
+          "ltst_span": null
+        },
+        "pressure": {
+          "n_samples": null,
+          "ltst_span": null
+        },
+        "rh": {
+          "n_samples": null,
+          "ltst_span": null
+        }
+      },
+      "air_temp_mean_c": null,
+      "relative_humidity_min_pct": null,
+      "partial_coverage": null,
+      "quality_note": "Full-sol coverage unknown; counts or extrema times cannot establish continuous coverage."
     },
     {
       "sol": 514,
@@ -197,11 +463,30 @@
       "air_temp_max_c": -25.74,
       "air_temp_min_ltst": "05:44:28",
       "air_temp_max_ltst": "14:41:17",
+      "samples_air": 8051,
       "pressure_mean_pa": 790.59,
       "pressure_min_pa": 766.8,
       "pressure_max_pa": 807.18,
       "relative_humidity_mean_pct": 15.48,
-      "relative_humidity_max_pct": 75.38
+      "relative_humidity_max_pct": 75.38,
+      "observations": {
+        "air": {
+          "n_samples": 8051,
+          "ltst_span": null
+        },
+        "pressure": {
+          "n_samples": null,
+          "ltst_span": null
+        },
+        "rh": {
+          "n_samples": null,
+          "ltst_span": null
+        }
+      },
+      "air_temp_mean_c": null,
+      "relative_humidity_min_pct": null,
+      "partial_coverage": null,
+      "quality_note": "Full-sol coverage unknown; counts or extrema times cannot establish continuous coverage."
     },
     {
       "sol": 550,
@@ -209,11 +494,30 @@
       "air_temp_max_c": -18.86,
       "air_temp_min_ltst": "05:57:50",
       "air_temp_max_ltst": "14:12:50",
+      "samples_air": 50053,
       "pressure_mean_pa": 757.45,
       "pressure_min_pa": 738.65,
       "pressure_max_pa": 775.74,
       "relative_humidity_mean_pct": 11.72,
-      "relative_humidity_max_pct": 70.78
+      "relative_humidity_max_pct": 70.78,
+      "observations": {
+        "air": {
+          "n_samples": 50053,
+          "ltst_span": null
+        },
+        "pressure": {
+          "n_samples": null,
+          "ltst_span": null
+        },
+        "rh": {
+          "n_samples": null,
+          "ltst_span": null
+        }
+      },
+      "air_temp_mean_c": null,
+      "relative_humidity_min_pct": null,
+      "partial_coverage": null,
+      "quality_note": "Full-sol coverage unknown; counts or extrema times cannot establish continuous coverage."
     },
     {
       "sol": 586,
@@ -221,11 +525,30 @@
       "air_temp_max_c": -21.31,
       "air_temp_min_ltst": "05:16:05",
       "air_temp_max_ltst": "14:14:32",
+      "samples_air": 27373,
       "pressure_mean_pa": 734.31,
       "pressure_min_pa": 702.44,
       "pressure_max_pa": 753.75,
       "relative_humidity_mean_pct": 1.86,
-      "relative_humidity_max_pct": 27.83
+      "relative_humidity_max_pct": 27.83,
+      "observations": {
+        "air": {
+          "n_samples": 27373,
+          "ltst_span": null
+        },
+        "pressure": {
+          "n_samples": null,
+          "ltst_span": null
+        },
+        "rh": {
+          "n_samples": null,
+          "ltst_span": null
+        }
+      },
+      "air_temp_mean_c": null,
+      "relative_humidity_min_pct": null,
+      "partial_coverage": null,
+      "quality_note": "Full-sol coverage unknown; counts or extrema times cannot establish continuous coverage."
     },
     {
       "sol": 622,
@@ -233,11 +556,30 @@
       "air_temp_max_c": -14.72,
       "air_temp_min_ltst": "05:25:57",
       "air_temp_max_ltst": "14:24:17",
+      "samples_air": 33404,
       "pressure_mean_pa": 721.38,
       "pressure_min_pa": 703.35,
       "pressure_max_pa": 741.05,
       "relative_humidity_mean_pct": 1.3,
-      "relative_humidity_max_pct": 28.0
+      "relative_humidity_max_pct": 28.0,
+      "observations": {
+        "air": {
+          "n_samples": 33404,
+          "ltst_span": null
+        },
+        "pressure": {
+          "n_samples": null,
+          "ltst_span": null
+        },
+        "rh": {
+          "n_samples": null,
+          "ltst_span": null
+        }
+      },
+      "air_temp_mean_c": null,
+      "relative_humidity_min_pct": null,
+      "partial_coverage": null,
+      "quality_note": "Full-sol coverage unknown; counts or extrema times cannot establish continuous coverage."
     },
     {
       "sol": 658,
@@ -245,11 +587,30 @@
       "air_temp_max_c": -10.67,
       "air_temp_min_ltst": "04:19:39",
       "air_temp_max_ltst": "15:11:30",
+      "samples_air": 72270,
       "pressure_mean_pa": 726.54,
       "pressure_min_pa": 706.63,
       "pressure_max_pa": 754.96,
       "relative_humidity_mean_pct": 2.08,
-      "relative_humidity_max_pct": 29.83
+      "relative_humidity_max_pct": 29.83,
+      "observations": {
+        "air": {
+          "n_samples": 72270,
+          "ltst_span": null
+        },
+        "pressure": {
+          "n_samples": null,
+          "ltst_span": null
+        },
+        "rh": {
+          "n_samples": null,
+          "ltst_span": null
+        }
+      },
+      "air_temp_mean_c": null,
+      "relative_humidity_min_pct": null,
+      "partial_coverage": null,
+      "quality_note": "Full-sol coverage unknown; counts or extrema times cannot establish continuous coverage."
     },
     {
       "sol": 694,
@@ -257,11 +618,30 @@
       "air_temp_max_c": -11.63,
       "air_temp_min_ltst": "05:35:42",
       "air_temp_max_ltst": "14:20:51",
+      "samples_air": 50395,
       "pressure_mean_pa": 732.07,
       "pressure_min_pa": 718.67,
       "pressure_max_pa": 746.38,
       "relative_humidity_mean_pct": 6.37,
-      "relative_humidity_max_pct": 36.35
+      "relative_humidity_max_pct": 36.35,
+      "observations": {
+        "air": {
+          "n_samples": 50395,
+          "ltst_span": null
+        },
+        "pressure": {
+          "n_samples": null,
+          "ltst_span": null
+        },
+        "rh": {
+          "n_samples": null,
+          "ltst_span": null
+        }
+      },
+      "air_temp_mean_c": null,
+      "relative_humidity_min_pct": null,
+      "partial_coverage": null,
+      "quality_note": "Full-sol coverage unknown; counts or extrema times cannot establish continuous coverage."
     },
     {
       "sol": 730,
@@ -269,11 +649,30 @@
       "air_temp_max_c": -17.69,
       "air_temp_min_ltst": "05:46:13",
       "air_temp_max_ltst": "14:37:46",
+      "samples_air": 69914,
       "pressure_mean_pa": 740.92,
       "pressure_min_pa": 731.72,
       "pressure_max_pa": 752.19,
       "relative_humidity_mean_pct": 1.29,
-      "relative_humidity_max_pct": 24.48
+      "relative_humidity_max_pct": 24.48,
+      "observations": {
+        "air": {
+          "n_samples": 69914,
+          "ltst_span": null
+        },
+        "pressure": {
+          "n_samples": null,
+          "ltst_span": null
+        },
+        "rh": {
+          "n_samples": null,
+          "ltst_span": null
+        }
+      },
+      "air_temp_mean_c": null,
+      "relative_humidity_min_pct": null,
+      "partial_coverage": null,
+      "quality_note": "Full-sol coverage unknown; counts or extrema times cannot establish continuous coverage."
     },
     {
       "sol": 766,
@@ -281,11 +680,30 @@
       "air_temp_max_c": -20.63,
       "air_temp_min_ltst": "04:33:00",
       "air_temp_max_ltst": "14:44:56",
+      "samples_air": 51495,
       "pressure_mean_pa": 747.06,
       "pressure_min_pa": 740.32,
       "pressure_max_pa": 756.77,
       "relative_humidity_mean_pct": 0.97,
-      "relative_humidity_max_pct": 25.44
+      "relative_humidity_max_pct": 25.44,
+      "observations": {
+        "air": {
+          "n_samples": 51495,
+          "ltst_span": null
+        },
+        "pressure": {
+          "n_samples": null,
+          "ltst_span": null
+        },
+        "rh": {
+          "n_samples": null,
+          "ltst_span": null
+        }
+      },
+      "air_temp_mean_c": null,
+      "relative_humidity_min_pct": null,
+      "partial_coverage": null,
+      "quality_note": "Full-sol coverage unknown; counts or extrema times cannot establish continuous coverage."
     },
     {
       "sol": 802,
@@ -293,11 +711,30 @@
       "air_temp_max_c": -15.78,
       "air_temp_min_ltst": "04:24:03",
       "air_temp_max_ltst": "14:51:57",
+      "samples_air": 48650,
       "pressure_mean_pa": 740.85,
       "pressure_min_pa": 733.9,
       "pressure_max_pa": 750.0,
       "relative_humidity_mean_pct": 3.37,
-      "relative_humidity_max_pct": 11.83
+      "relative_humidity_max_pct": 11.83,
+      "observations": {
+        "air": {
+          "n_samples": 48650,
+          "ltst_span": null
+        },
+        "pressure": {
+          "n_samples": null,
+          "ltst_span": null
+        },
+        "rh": {
+          "n_samples": null,
+          "ltst_span": null
+        }
+      },
+      "air_temp_mean_c": null,
+      "relative_humidity_min_pct": null,
+      "partial_coverage": null,
+      "quality_note": "Full-sol coverage unknown; counts or extrema times cannot establish continuous coverage."
     },
     {
       "sol": 838,
@@ -305,11 +742,30 @@
       "air_temp_max_c": -16.54,
       "air_temp_min_ltst": "05:05:41",
       "air_temp_max_ltst": "15:05:15",
+      "samples_air": 48651,
       "pressure_mean_pa": 716.83,
       "pressure_min_pa": 707.68,
       "pressure_max_pa": 728.84,
       "relative_humidity_mean_pct": 0.63,
-      "relative_humidity_max_pct": 19.27
+      "relative_humidity_max_pct": 19.27,
+      "observations": {
+        "air": {
+          "n_samples": 48651,
+          "ltst_span": null
+        },
+        "pressure": {
+          "n_samples": null,
+          "ltst_span": null
+        },
+        "rh": {
+          "n_samples": null,
+          "ltst_span": null
+        }
+      },
+      "air_temp_mean_c": null,
+      "relative_humidity_min_pct": null,
+      "partial_coverage": null,
+      "quality_note": "Full-sol coverage unknown; counts or extrema times cannot establish continuous coverage."
     },
     {
       "sol": 874,
@@ -317,11 +773,30 @@
       "air_temp_max_c": -14.86,
       "air_temp_min_ltst": "05:10:27",
       "air_temp_max_ltst": "15:23:11",
+      "samples_air": 33264,
       "pressure_mean_pa": 678.99,
       "pressure_min_pa": 669.47,
       "pressure_max_pa": 690.02,
       "relative_humidity_mean_pct": 5.87,
-      "relative_humidity_max_pct": 17.05
+      "relative_humidity_max_pct": 17.05,
+      "observations": {
+        "air": {
+          "n_samples": 33264,
+          "ltst_span": null
+        },
+        "pressure": {
+          "n_samples": null,
+          "ltst_span": null
+        },
+        "rh": {
+          "n_samples": null,
+          "ltst_span": null
+        }
+      },
+      "air_temp_mean_c": null,
+      "relative_humidity_min_pct": null,
+      "partial_coverage": null,
+      "quality_note": "Full-sol coverage unknown; counts or extrema times cannot establish continuous coverage."
     },
     {
       "sol": 910,
@@ -329,11 +804,30 @@
       "air_temp_max_c": -15.64,
       "air_temp_min_ltst": "05:17:56",
       "air_temp_max_ltst": "14:43:27",
+      "samples_air": 50494,
       "pressure_mean_pa": 642.3,
       "pressure_min_pa": 632.58,
       "pressure_max_pa": 656.7,
       "relative_humidity_mean_pct": 3.15,
-      "relative_humidity_max_pct": 16.57
+      "relative_humidity_max_pct": 16.57,
+      "observations": {
+        "air": {
+          "n_samples": 50494,
+          "ltst_span": null
+        },
+        "pressure": {
+          "n_samples": null,
+          "ltst_span": null
+        },
+        "rh": {
+          "n_samples": null,
+          "ltst_span": null
+        }
+      },
+      "air_temp_mean_c": null,
+      "relative_humidity_min_pct": null,
+      "partial_coverage": null,
+      "quality_note": "Full-sol coverage unknown; counts or extrema times cannot establish continuous coverage."
     },
     {
       "sol": 946,
@@ -341,11 +835,30 @@
       "air_temp_max_c": -14.91,
       "air_temp_min_ltst": "04:57:03",
       "air_temp_max_ltst": "14:36:30",
+      "samples_air": 65371,
       "pressure_mean_pa": 622.48,
       "pressure_min_pa": 610.76,
       "pressure_max_pa": 635.99,
       "relative_humidity_mean_pct": 1.33,
-      "relative_humidity_max_pct": 14.2
+      "relative_humidity_max_pct": 14.2,
+      "observations": {
+        "air": {
+          "n_samples": 65371,
+          "ltst_span": null
+        },
+        "pressure": {
+          "n_samples": null,
+          "ltst_span": null
+        },
+        "rh": {
+          "n_samples": null,
+          "ltst_span": null
+        }
+      },
+      "air_temp_mean_c": null,
+      "relative_humidity_min_pct": null,
+      "partial_coverage": null,
+      "quality_note": "Full-sol coverage unknown; counts or extrema times cannot establish continuous coverage."
     },
     {
       "sol": 982,
@@ -353,11 +866,30 @@
       "air_temp_max_c": -8.86,
       "air_temp_min_ltst": "05:27:34",
       "air_temp_max_ltst": "15:11:03",
+      "samples_air": 88165,
       "pressure_mean_pa": 618.48,
       "pressure_min_pa": 602.24,
       "pressure_max_pa": 633.88,
       "relative_humidity_mean_pct": 3.24,
-      "relative_humidity_max_pct": 45.95
+      "relative_humidity_max_pct": 45.95,
+      "observations": {
+        "air": {
+          "n_samples": 88165,
+          "ltst_span": null
+        },
+        "pressure": {
+          "n_samples": null,
+          "ltst_span": null
+        },
+        "rh": {
+          "n_samples": null,
+          "ltst_span": null
+        }
+      },
+      "air_temp_mean_c": null,
+      "relative_humidity_min_pct": null,
+      "partial_coverage": null,
+      "quality_note": "Full-sol coverage unknown; counts or extrema times cannot establish continuous coverage."
     },
     {
       "sol": 1018,
@@ -365,11 +897,30 @@
       "air_temp_max_c": -8.59,
       "air_temp_min_ltst": "05:57:11",
       "air_temp_max_ltst": "14:57:44",
+      "samples_air": 53695,
       "pressure_mean_pa": 631.71,
       "pressure_min_pa": 617.17,
       "pressure_max_pa": 643.16,
       "relative_humidity_mean_pct": 6.46,
-      "relative_humidity_max_pct": 19.19
+      "relative_humidity_max_pct": 19.19,
+      "observations": {
+        "air": {
+          "n_samples": 53695,
+          "ltst_span": null
+        },
+        "pressure": {
+          "n_samples": null,
+          "ltst_span": null
+        },
+        "rh": {
+          "n_samples": null,
+          "ltst_span": null
+        }
+      },
+      "air_temp_mean_c": null,
+      "relative_humidity_min_pct": null,
+      "partial_coverage": null,
+      "quality_note": "Full-sol coverage unknown; counts or extrema times cannot establish continuous coverage."
     },
     {
       "sol": 1054,
@@ -377,11 +928,30 @@
       "air_temp_max_c": -6.93,
       "air_temp_min_ltst": "05:14:20",
       "air_temp_max_ltst": "14:39:16",
+      "samples_air": 52038,
       "pressure_mean_pa": 669.1,
       "pressure_min_pa": 651.38,
       "pressure_max_pa": 691.9,
       "relative_humidity_mean_pct": 3.71,
-      "relative_humidity_max_pct": 15.48
+      "relative_humidity_max_pct": 15.48,
+      "observations": {
+        "air": {
+          "n_samples": 52038,
+          "ltst_span": null
+        },
+        "pressure": {
+          "n_samples": null,
+          "ltst_span": null
+        },
+        "rh": {
+          "n_samples": null,
+          "ltst_span": null
+        }
+      },
+      "air_temp_mean_c": null,
+      "relative_humidity_min_pct": null,
+      "partial_coverage": null,
+      "quality_note": "Full-sol coverage unknown; counts or extrema times cannot establish continuous coverage."
     },
     {
       "sol": 1090,
@@ -389,11 +959,30 @@
       "air_temp_max_c": -16.11,
       "air_temp_min_ltst": "03:31:41",
       "air_temp_max_ltst": "13:23:32",
+      "samples_air": 48155,
       "pressure_mean_pa": 731.28,
       "pressure_min_pa": 691.31,
       "pressure_max_pa": 761.89,
       "relative_humidity_mean_pct": 0.28,
-      "relative_humidity_max_pct": 6.02
+      "relative_humidity_max_pct": 6.02,
+      "observations": {
+        "air": {
+          "n_samples": 48155,
+          "ltst_span": null
+        },
+        "pressure": {
+          "n_samples": null,
+          "ltst_span": null
+        },
+        "rh": {
+          "n_samples": null,
+          "ltst_span": null
+        }
+      },
+      "air_temp_mean_c": null,
+      "relative_humidity_min_pct": null,
+      "partial_coverage": null,
+      "quality_note": "Full-sol coverage unknown; counts or extrema times cannot establish continuous coverage."
     },
     {
       "sol": 1162,
@@ -401,11 +990,30 @@
       "air_temp_max_c": -18.28,
       "air_temp_min_ltst": "06:37:26",
       "air_temp_max_ltst": "14:32:57",
+      "samples_air": 51991,
       "pressure_mean_pa": 776.2,
       "pressure_min_pa": 754.05,
       "pressure_max_pa": 794.41,
       "relative_humidity_mean_pct": 6.9,
-      "relative_humidity_max_pct": 37.33
+      "relative_humidity_max_pct": 37.33,
+      "observations": {
+        "air": {
+          "n_samples": 51991,
+          "ltst_span": null
+        },
+        "pressure": {
+          "n_samples": null,
+          "ltst_span": null
+        },
+        "rh": {
+          "n_samples": null,
+          "ltst_span": null
+        }
+      },
+      "air_temp_mean_c": null,
+      "relative_humidity_min_pct": null,
+      "partial_coverage": null,
+      "quality_note": "Full-sol coverage unknown; counts or extrema times cannot establish continuous coverage."
     },
     {
       "sol": 1198,
@@ -413,11 +1021,30 @@
       "air_temp_max_c": -23.8,
       "air_temp_min_ltst": "06:31:44",
       "air_temp_max_ltst": "14:32:14",
+      "samples_air": 8520,
       "pressure_mean_pa": 764.2,
       "pressure_min_pa": 743.77,
       "pressure_max_pa": 777.28,
       "relative_humidity_mean_pct": 11.28,
-      "relative_humidity_max_pct": 47.22
+      "relative_humidity_max_pct": 47.22,
+      "observations": {
+        "air": {
+          "n_samples": 8520,
+          "ltst_span": null
+        },
+        "pressure": {
+          "n_samples": null,
+          "ltst_span": null
+        },
+        "rh": {
+          "n_samples": null,
+          "ltst_span": null
+        }
+      },
+      "air_temp_mean_c": null,
+      "relative_humidity_min_pct": null,
+      "partial_coverage": null,
+      "quality_note": "Full-sol coverage unknown; counts or extrema times cannot establish continuous coverage."
     },
     {
       "sol": 1234,
@@ -425,11 +1052,30 @@
       "air_temp_max_c": -19.18,
       "air_temp_min_ltst": "05:17:01",
       "air_temp_max_ltst": "15:14:43",
+      "samples_air": 8520,
       "pressure_mean_pa": 732.04,
       "pressure_min_pa": 714.63,
       "pressure_max_pa": 744.2,
       "relative_humidity_mean_pct": 16.65,
-      "relative_humidity_max_pct": 99.98
+      "relative_humidity_max_pct": 99.98,
+      "observations": {
+        "air": {
+          "n_samples": 8520,
+          "ltst_span": null
+        },
+        "pressure": {
+          "n_samples": null,
+          "ltst_span": null
+        },
+        "rh": {
+          "n_samples": null,
+          "ltst_span": null
+        }
+      },
+      "air_temp_mean_c": null,
+      "relative_humidity_min_pct": null,
+      "partial_coverage": null,
+      "quality_note": "Full-sol coverage unknown; counts or extrema times cannot establish continuous coverage."
     },
     {
       "sol": 1270,
@@ -437,11 +1083,30 @@
       "air_temp_max_c": -22.27,
       "air_temp_min_ltst": "06:17:05",
       "air_temp_max_ltst": "12:16:03",
+      "samples_air": 17807,
       "pressure_mean_pa": 706.9,
       "pressure_min_pa": 692.43,
       "pressure_max_pa": 729.49,
       "relative_humidity_mean_pct": 0.83,
-      "relative_humidity_max_pct": 22.46
+      "relative_humidity_max_pct": 22.46,
+      "observations": {
+        "air": {
+          "n_samples": 17807,
+          "ltst_span": null
+        },
+        "pressure": {
+          "n_samples": null,
+          "ltst_span": null
+        },
+        "rh": {
+          "n_samples": null,
+          "ltst_span": null
+        }
+      },
+      "air_temp_mean_c": null,
+      "relative_humidity_min_pct": null,
+      "partial_coverage": null,
+      "quality_note": "Full-sol coverage unknown; counts or extrema times cannot establish continuous coverage."
     },
     {
       "sol": 1306,
@@ -449,11 +1114,30 @@
       "air_temp_max_c": -11.57,
       "air_temp_min_ltst": "06:13:29",
       "air_temp_max_ltst": "14:08:04",
+      "samples_air": 28778,
       "pressure_mean_pa": 686.96,
       "pressure_min_pa": 675.42,
       "pressure_max_pa": 704.95,
       "relative_humidity_mean_pct": 0.62,
-      "relative_humidity_max_pct": 34.79
+      "relative_humidity_max_pct": 34.79,
+      "observations": {
+        "air": {
+          "n_samples": 28778,
+          "ltst_span": null
+        },
+        "pressure": {
+          "n_samples": null,
+          "ltst_span": null
+        },
+        "rh": {
+          "n_samples": null,
+          "ltst_span": null
+        }
+      },
+      "air_temp_mean_c": null,
+      "relative_humidity_min_pct": null,
+      "partial_coverage": null,
+      "quality_note": "Full-sol coverage unknown; counts or extrema times cannot establish continuous coverage."
     },
     {
       "sol": 1342,
@@ -461,11 +1145,30 @@
       "air_temp_max_c": -13.37,
       "air_temp_min_ltst": "04:42:46",
       "air_temp_max_ltst": "14:26:35",
+      "samples_air": 48477,
       "pressure_mean_pa": 696.28,
       "pressure_min_pa": 682.36,
       "pressure_max_pa": 710.35,
       "relative_humidity_mean_pct": 0.93,
-      "relative_humidity_max_pct": 96.98
+      "relative_humidity_max_pct": 96.98,
+      "observations": {
+        "air": {
+          "n_samples": 48477,
+          "ltst_span": null
+        },
+        "pressure": {
+          "n_samples": null,
+          "ltst_span": null
+        },
+        "rh": {
+          "n_samples": null,
+          "ltst_span": null
+        }
+      },
+      "air_temp_mean_c": null,
+      "relative_humidity_min_pct": null,
+      "partial_coverage": null,
+      "quality_note": "Full-sol coverage unknown; counts or extrema times cannot establish continuous coverage."
     },
     {
       "sol": 1378,
@@ -473,11 +1176,30 @@
       "air_temp_max_c": -22.0,
       "air_temp_min_ltst": "05:17:22",
       "air_temp_max_ltst": "15:02:38",
+      "samples_air": 48515,
       "pressure_mean_pa": 695.59,
       "pressure_min_pa": 686.92,
       "pressure_max_pa": 703.12,
       "relative_humidity_mean_pct": 4.23,
-      "relative_humidity_max_pct": 24.56
+      "relative_humidity_max_pct": 24.56,
+      "observations": {
+        "air": {
+          "n_samples": 48515,
+          "ltst_span": null
+        },
+        "pressure": {
+          "n_samples": null,
+          "ltst_span": null
+        },
+        "rh": {
+          "n_samples": null,
+          "ltst_span": null
+        }
+      },
+      "air_temp_mean_c": null,
+      "relative_humidity_min_pct": null,
+      "partial_coverage": null,
+      "quality_note": "Full-sol coverage unknown; counts or extrema times cannot establish continuous coverage."
     },
     {
       "sol": 1414,
@@ -485,11 +1207,30 @@
       "air_temp_max_c": -20.69,
       "air_temp_min_ltst": "05:40:26",
       "air_temp_max_ltst": "16:09:03",
+      "samples_air": 48484,
       "pressure_mean_pa": 706.92,
       "pressure_min_pa": 700.16,
       "pressure_max_pa": 715.75,
       "relative_humidity_mean_pct": 2.0,
-      "relative_humidity_max_pct": 28.48
+      "relative_humidity_max_pct": 28.48,
+      "observations": {
+        "air": {
+          "n_samples": 48484,
+          "ltst_span": null
+        },
+        "pressure": {
+          "n_samples": null,
+          "ltst_span": null
+        },
+        "rh": {
+          "n_samples": null,
+          "ltst_span": null
+        }
+      },
+      "air_temp_mean_c": null,
+      "relative_humidity_min_pct": null,
+      "partial_coverage": null,
+      "quality_note": "Full-sol coverage unknown; counts or extrema times cannot establish continuous coverage."
     },
     {
       "sol": 1450,
@@ -497,11 +1238,30 @@
       "air_temp_max_c": -20.31,
       "air_temp_min_ltst": "05:34:19",
       "air_temp_max_ltst": "15:26:05",
+      "samples_air": 48529,
       "pressure_mean_pa": 716.07,
       "pressure_min_pa": 709.8,
       "pressure_max_pa": 723.57,
       "relative_humidity_mean_pct": 0.47,
-      "relative_humidity_max_pct": 14.02
+      "relative_humidity_max_pct": 14.02,
+      "observations": {
+        "air": {
+          "n_samples": 48529,
+          "ltst_span": null
+        },
+        "pressure": {
+          "n_samples": null,
+          "ltst_span": null
+        },
+        "rh": {
+          "n_samples": null,
+          "ltst_span": null
+        }
+      },
+      "air_temp_mean_c": null,
+      "relative_humidity_min_pct": null,
+      "partial_coverage": null,
+      "quality_note": "Full-sol coverage unknown; counts or extrema times cannot establish continuous coverage."
     },
     {
       "sol": 1486,
@@ -509,11 +1269,30 @@
       "air_temp_max_c": -22.34,
       "air_temp_min_ltst": "05:30:00",
       "air_temp_max_ltst": "15:28:25",
+      "samples_air": 48505,
       "pressure_mean_pa": 703.34,
       "pressure_min_pa": 696.21,
       "pressure_max_pa": 715.73,
       "relative_humidity_mean_pct": 1.47,
-      "relative_humidity_max_pct": 12.57
+      "relative_humidity_max_pct": 12.57,
+      "observations": {
+        "air": {
+          "n_samples": 48505,
+          "ltst_span": null
+        },
+        "pressure": {
+          "n_samples": null,
+          "ltst_span": null
+        },
+        "rh": {
+          "n_samples": null,
+          "ltst_span": null
+        }
+      },
+      "air_temp_mean_c": null,
+      "relative_humidity_min_pct": null,
+      "partial_coverage": null,
+      "quality_note": "Full-sol coverage unknown; counts or extrema times cannot establish continuous coverage."
     },
     {
       "sol": 1522,
@@ -521,11 +1300,30 @@
       "air_temp_max_c": -19.09,
       "air_temp_min_ltst": "05:15:01",
       "air_temp_max_ltst": "16:22:13",
+      "samples_air": 48512,
       "pressure_mean_pa": 670.74,
       "pressure_min_pa": 662.97,
       "pressure_max_pa": 681.61,
       "relative_humidity_mean_pct": 2.74,
-      "relative_humidity_max_pct": 17.17
+      "relative_humidity_max_pct": 17.17,
+      "observations": {
+        "air": {
+          "n_samples": 48512,
+          "ltst_span": null
+        },
+        "pressure": {
+          "n_samples": null,
+          "ltst_span": null
+        },
+        "rh": {
+          "n_samples": null,
+          "ltst_span": null
+        }
+      },
+      "air_temp_mean_c": null,
+      "relative_humidity_min_pct": null,
+      "partial_coverage": null,
+      "quality_note": "Full-sol coverage unknown; counts or extrema times cannot establish continuous coverage."
     },
     {
       "sol": 1594,
@@ -533,11 +1331,30 @@
       "air_temp_max_c": -11.96,
       "air_temp_min_ltst": "05:05:33",
       "air_temp_max_ltst": "15:28:54",
+      "samples_air": 48503,
       "pressure_mean_pa": 611.37,
       "pressure_min_pa": 601.51,
       "pressure_max_pa": 623.42,
       "relative_humidity_mean_pct": 25.27,
-      "relative_humidity_max_pct": 57.73
+      "relative_humidity_max_pct": 57.73,
+      "observations": {
+        "air": {
+          "n_samples": 48503,
+          "ltst_span": null
+        },
+        "pressure": {
+          "n_samples": null,
+          "ltst_span": null
+        },
+        "rh": {
+          "n_samples": null,
+          "ltst_span": null
+        }
+      },
+      "air_temp_mean_c": null,
+      "relative_humidity_min_pct": null,
+      "partial_coverage": null,
+      "quality_note": "Full-sol coverage unknown; counts or extrema times cannot establish continuous coverage."
     },
     {
       "sol": 1630,
@@ -545,11 +1362,30 @@
       "air_temp_max_c": -14.48,
       "air_temp_min_ltst": "05:27:24",
       "air_temp_max_ltst": "15:34:30",
+      "samples_air": 52136,
       "pressure_mean_pa": 589.39,
       "pressure_min_pa": 575.48,
       "pressure_max_pa": 598.07,
       "relative_humidity_mean_pct": 4.62,
-      "relative_humidity_max_pct": 25.48
+      "relative_humidity_max_pct": 25.48,
+      "observations": {
+        "air": {
+          "n_samples": 52136,
+          "ltst_span": null
+        },
+        "pressure": {
+          "n_samples": null,
+          "ltst_span": null
+        },
+        "rh": {
+          "n_samples": null,
+          "ltst_span": null
+        }
+      },
+      "air_temp_mean_c": null,
+      "relative_humidity_min_pct": null,
+      "partial_coverage": null,
+      "quality_note": "Full-sol coverage unknown; counts or extrema times cannot establish continuous coverage."
     },
     {
       "sol": 1702,
@@ -557,7 +1393,25 @@
       "pressure_min_pa": 606.16,
       "pressure_max_pa": 638.34,
       "relative_humidity_mean_pct": 9.84,
-      "relative_humidity_max_pct": 42.07
+      "relative_humidity_max_pct": 42.07,
+      "observations": {
+        "air": {
+          "n_samples": null,
+          "ltst_span": null
+        },
+        "pressure": {
+          "n_samples": null,
+          "ltst_span": null
+        },
+        "rh": {
+          "n_samples": null,
+          "ltst_span": null
+        }
+      },
+      "air_temp_mean_c": null,
+      "relative_humidity_min_pct": null,
+      "partial_coverage": null,
+      "quality_note": "Full-sol coverage unknown; counts or extrema times cannot establish continuous coverage."
     },
     {
       "sol": 1738,
@@ -565,11 +1419,30 @@
       "air_temp_max_c": -7.35,
       "air_temp_min_ltst": "05:40:22",
       "air_temp_max_ltst": "12:44:13",
+      "samples_air": 85169,
       "pressure_mean_pa": 668.38,
       "pressure_min_pa": 650.03,
       "pressure_max_pa": 691.44,
       "relative_humidity_mean_pct": 2.45,
-      "relative_humidity_max_pct": 10.68
+      "relative_humidity_max_pct": 10.68,
+      "observations": {
+        "air": {
+          "n_samples": 85169,
+          "ltst_span": null
+        },
+        "pressure": {
+          "n_samples": null,
+          "ltst_span": null
+        },
+        "rh": {
+          "n_samples": null,
+          "ltst_span": null
+        }
+      },
+      "air_temp_mean_c": null,
+      "relative_humidity_min_pct": null,
+      "partial_coverage": null,
+      "quality_note": "Full-sol coverage unknown; counts or extrema times cannot establish continuous coverage."
     },
     {
       "sol": 1774,
@@ -577,11 +1450,30 @@
       "air_temp_max_c": -12.6,
       "air_temp_min_ltst": "05:58:57",
       "air_temp_max_ltst": "12:46:03",
+      "samples_air": 50315,
       "pressure_mean_pa": 718.67,
       "pressure_min_pa": 698.32,
       "pressure_max_pa": 733.88,
       "relative_humidity_mean_pct": 2.32,
-      "relative_humidity_max_pct": 24.34
+      "relative_humidity_max_pct": 24.34,
+      "observations": {
+        "air": {
+          "n_samples": 50315,
+          "ltst_span": null
+        },
+        "pressure": {
+          "n_samples": null,
+          "ltst_span": null
+        },
+        "rh": {
+          "n_samples": null,
+          "ltst_span": null
+        }
+      },
+      "air_temp_mean_c": null,
+      "relative_humidity_min_pct": null,
+      "partial_coverage": null,
+      "quality_note": "Full-sol coverage unknown; counts or extrema times cannot establish continuous coverage."
     },
     {
       "sol": 1810,
@@ -589,11 +1481,30 @@
       "air_temp_max_c": -40.54,
       "air_temp_min_ltst": "06:01:26",
       "air_temp_max_ltst": "09:40:31",
+      "samples_air": 20579,
       "pressure_mean_pa": 758.61,
       "pressure_min_pa": 750.28,
       "pressure_max_pa": 767.95,
       "relative_humidity_mean_pct": 7.27,
-      "relative_humidity_max_pct": 26.73
+      "relative_humidity_max_pct": 26.73,
+      "observations": {
+        "air": {
+          "n_samples": 20579,
+          "ltst_span": null
+        },
+        "pressure": {
+          "n_samples": null,
+          "ltst_span": null
+        },
+        "rh": {
+          "n_samples": null,
+          "ltst_span": null
+        }
+      },
+      "air_temp_mean_c": null,
+      "relative_humidity_min_pct": null,
+      "partial_coverage": null,
+      "quality_note": "Full-sol coverage unknown; counts or extrema times cannot establish continuous coverage."
     },
     {
       "sol": 1846,
@@ -601,13 +1512,63 @@
       "air_temp_max_c": -23.12,
       "air_temp_min_ltst": "06:29:26",
       "air_temp_max_ltst": "13:58:47",
+      "samples_air": 46688,
       "pressure_mean_pa": 747.85,
       "pressure_min_pa": 730.74,
       "pressure_max_pa": 759.95,
       "relative_humidity_mean_pct": 14.04,
-      "relative_humidity_max_pct": 62.93
+      "relative_humidity_max_pct": 62.93,
+      "observations": {
+        "air": {
+          "n_samples": 46688,
+          "ltst_span": null
+        },
+        "pressure": {
+          "n_samples": null,
+          "ltst_span": null
+        },
+        "rh": {
+          "n_samples": null,
+          "ltst_span": null
+        }
+      },
+      "air_temp_mean_c": null,
+      "relative_humidity_min_pct": null,
+      "partial_coverage": null,
+      "quality_note": "Full-sol coverage unknown; counts or extrema times cannot establish continuous coverage."
     }
   ],
   "caveat": "Point measurements at the rover location during the listed sols; not current conditions and not representative of the whole region. Station coordinates are the landing site; the rover has since traversed several kilometres.",
-  "synthetic": false
+  "synthetic": false,
+  "sampling": {
+    "first_sol": 10,
+    "last_sol": 1850,
+    "step": 36
+  },
+  "missing_sols": [
+    {
+      "sol": 1126,
+      "reason": "No usable air or pressure in cached summary; archive absence versus retrieval failure unknown"
+    },
+    {
+      "sol": 1558,
+      "reason": "Source retrieval failed (error recorded in cached summary; cause truncated)"
+    },
+    {
+      "sol": 1666,
+      "reason": "No usable air or pressure in cached summary; archive absence versus retrieval failure unknown"
+    }
+  ],
+  "statistic_labels": {
+    "extrema": "Observed min/max over n_samples retained observations, not full-sol extrema.",
+    "mean": "Equal-weight mean of available per-sol sample means; not time-weighted.",
+    "relative_humidity_min": "minimum_of_per_sol_means"
+  },
+  "field_caveats": {
+    "coverage": "Counts are retained observations per field. Null counts/spans were not cached; extrema times cannot reconstruct coverage.",
+    "air_temp_c": "Null air means were not cached; extrema cannot reconstruct a mean.",
+    "quality": "Instrument confidence flags not applied; no rover-heating correction. Historical sensor-local data, no forecast or safe EVA window. Wind/dust/UV/ionizing radiation unavailable.",
+    "relative_humidity_pct": "RH is local to sensor temperature. Observed RH minimum unavailable in reduced cache; summary min remains the minimum of per-sol means. RH = 0 % samples may have been dropped by an earlier filter; RH statistics unverified.",
+    "legacy_filter": "Cached MEDA air/pressure statistics predate physical screening; sample-level validation is unavailable offline."
+  }
 }
