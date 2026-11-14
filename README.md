@@ -22,7 +22,7 @@ NASA Space Apps 2026 · *Interplanetary Survival Guide: Martian Map* · team Cla
 | `data/landing_sites.geojson` | 10 landing sites (Viking 1/2, Pathfinder, Spirit, Opportunity, Phoenix, Curiosity, InSight, Perseverance, Zhurong), each with `source_ref` | Map markers |
 | `data/missions.json` | 12 missions: dates, instruments, key results with source links, `landing_site_id` | DB table "previous missions", info cards |
 | `data/science_targets.geojson` | EVA science targets per preset | Route destinations |
-| `data/hazards.geojson` | Steep-slope zones derived from MOLA (severity 2/3) | Hazard overlay |
+| `data/hazards.geojson` | MOLA steep-slope zones (severity 2/3; `hazard_kind: steep_slope`) plus two cited sand-dune outlines (severity 2; `hazard_kind: sand_dunes`) | Hazard overlay |
 | `data/ice.geojson` | Regional neutron-spectrometer ice proxy per preset + global ice context (Odyssey GRS, ice scarps, polar cap, Phoenix) | Ice overlay |
 | `data/environment/jezero.json` | Mars 2020 **MEDA**: 49 sampled sols (10–1846): air temp min/max + local time, pressure, humidity | Atmosphere charts |
 | `data/environment/gale.json` | MSL **REMS**: 49 sampled sols (10–4810): air temp, ground temp (max), pressure, humidity | Atmosphere charts |

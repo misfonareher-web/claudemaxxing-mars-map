@@ -62,8 +62,8 @@
       "geometry": {
         "type": "Point",
         "coordinates": [
-          137.379,
-          -4.676
+          137.3775,
+          -4.6627
         ]
       },
       "properties": {
@@ -75,9 +75,9 @@
         "preset_ids": [
           "gale"
         ],
-        "confidence": "medium",
-        "caveat": "Center of HiRISE image ESP_039280_1755 acquired while Curiosity was at Pahrump Hills (13 Dec 2014); the outcrop lies within that frame, not exactly at its center.",
-        "source_ref": "https://www.uahirise.org/ESP_039280_1755",
+        "confidence": "high",
+        "caveat": "Sol-753 rover end-of-drive position at Pahrump Hills arrival, rounded to four decimals from NASA MSL waypoints; a rover position, not the full outcrop extent. Not for navigation.",
+        "source_ref": "https://mars.nasa.gov/mmgis-maps/MSL/Layers/json/MSL_waypoints.json",
         "synthetic": false,
         "priority": 1,
         "science_goal": "Murray formation mudstones at the base of Mount Sharp (ancient lake deposits)"
