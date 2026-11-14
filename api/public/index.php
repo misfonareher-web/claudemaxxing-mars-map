@@ -1,5 +1,7 @@
 <?php
 require dirname(__DIR__).'/src/App.php';
+foreach(corsHeaders($_SERVER['HTTP_ORIGIN']??null) as $name=>$value) header($name.': '.$value);
+if($_SERVER['REQUEST_METHOD']==='OPTIONS') { http_response_code(204); exit; }
 try {
  $method=$_SERVER['REQUEST_METHOD']; $q=$_GET;
  if($method==='POST') { $body=file_get_contents('php://input',false,null,0,65537); if(strlen($body)>65536) throw new ApiError(400,'Request too large'); $q=json_decode($body,true,512,JSON_THROW_ON_ERROR); if(!is_array($q)||array_is_list($q)) throw new ApiError(400,'Expected JSON object'); }

@@ -1,6 +1,8 @@
 # Backend
 
-Run `docker compose up --build -d`. HTTP defaults to port 8080; override HTTP_PORT in your local .env.
+Copy `.env.example` to `.env` and replace the DB password before running
+`docker compose -p ares up --build -d`. HTTP defaults to loopback port 8080;
+override HTTP_PORT in your local .env. For VPS HTTPS, see [DEPLOY.md](../docs/DEPLOY.md).
 SCORING_CMD accepts a JSON argv array, defaulting to `["python3","-m","scoring.cli"]`.
 Run tests with `php api/tests/run.php`.
 On Windows, set `PYTHONIOENCODING=utf-8` for the scoring subprocess so PHP receives UTF-8 JSON.
@@ -9,6 +11,25 @@ Examples: `curl localhost:8080/api/health`, `curl localhost:8080/api/presets`,
 `curl localhost:8080/api/layers`, `curl "localhost:8080/api/score?preset=jezero"`.
 
 The map uses locally vendored Leaflet with EPSG4326 tile layout. Scores and routes require the scoring stream; missing datasets remain visibly unavailable.
+
+Browser access is controlled in the PHP front controller by `CORS_ALLOWED_ORIGINS`,
+a comma-separated list of exact origins (scheme + hostname + optional port, no trailing slash).
+Unset/empty means no cross-origin access; `.env.example` lists the Netlify demo and a VPS
+placeholder to replace. No wildcard or credentials are enabled. Allowed origins receive
+`Access-Control-Allow-Origin` on successful and error JSON responses; all PHP responses
+vary by Origin. OPTIONS returns 204 with methods GET, POST, OPTIONS and header Content-Type.
+Proxy-generated errors (for example nginx 502 while PHP is down) are outside this PHP policy.
+CORS is browser access control, not authentication or a restriction on non-browser callers.
+Next.js can either proxy its API handlers to this HTTPS service using a server-side base URL,
+or call it directly from an allowed browser origin. This stack serves `web/`, not Next.js.
+
+`GET /api/score/point` may omit `preset`: it is inferred when the coordinates fit exactly
+one configured bbox. `POST /api/route` may omit it when **both** endpoints fit the same
+unique bbox. Bbox edges are inclusive. Outside, mixed-region or ambiguous coordinates
+return 400 (`Point outside the supported regions: jezero, gale` with an explanatory suffix).
+Malformed coordinates return 400. An explicitly supplied preset always wins and retains
+its existing validation, including rejection of coordinates outside that preset.
+`GET /api/score` and `/api/environment` still require an explicit preset.
 
 Other endpoints:
 
@@ -52,14 +73,14 @@ An over-limit endpoint returns a normal route response with `reachable: false`,
 the start reason takes precedence. Nearest candidate centers and snap distances
 remain reported even when rejected; they are null only when no valid cells exist.
 Endpoints accepted within the limit can still be disconnected (`no_path`).
-The request format and bbox validation are unchanged: points outside the preset
+Bbox validation still applies after preset inference: points outside the preset
 bbox remain bad requests. Reachability describes a coarse heuristic grid path,
 not a validated EVA traverse.
 
 The API skips its PostgreSQL score cache when the database is down and reads
 vector files directly. Cache keys include the canonical request and config/grid
 manifest modification times. Feature loading at container startup uses upserts;
-missing files are skipped. Run `docker compose down -v` to discard demo DB state.
+missing files are skipped. Never use `docker compose down -v` on the VPS: it deletes DB state.
 
 The 0–100 index is a conditional heuristic methodology for comparison, not a safety certification or a validated model.
 Absence of a mapped hazard does not mean the terrain is safe.

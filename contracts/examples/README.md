@@ -20,3 +20,9 @@ for the unreachable example. Endpoint metadata includes `requested`, `snapped`,
 `unreachable_reason` and `message` are null on success. Failure reasons are
 `start_too_far_from_valid_cell`, `end_too_far_from_valid_cell`, `no_valid_cells`,
 and `no_path`; geometry and route metrics are null, with zero steps, on failure.
+
+The PHP HTTP API also accepts point requests without `preset` and route bodies
+without `preset` when all coordinates fall in exactly one common configured bbox.
+Explicit presets still take precedence; other/ambiguous regions return HTTP 400.
+This is an HTTP convenience only: direct `scoring.cli` calls still require `preset`.
+Response shapes and the fixtures above are unchanged.

@@ -4,8 +4,30 @@ final class ApiError extends RuntimeException { public function __construct(publ
 function root(): string { return getenv('CLAUDEMAXXING_ROOT') ?: dirname(__DIR__,2); }
 function readJson(string $path): array { if (!is_file($path)) throw new ApiError(404,'Data unavailable'); return json_decode(file_get_contents($path),true,512,JSON_THROW_ON_ERROR); }
 function db(): ?PDO { try { return new PDO(getenv('DB_DSN') ?: 'pgsql:host=db;dbname=mars;connect_timeout=2',getenv('DB_USER') ?: 'mars',getenv('DB_PASSWORD') ?: '',[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]); } catch(Throwable $e) { return null; } }
+function corsHeaders(?string $origin): array {
+ $headers=['Vary'=>'Origin','Access-Control-Allow-Methods'=>'GET, POST, OPTIONS','Access-Control-Allow-Headers'=>'Content-Type'];
+ $allowed=array_map('trim',explode(',',getenv('CORS_ALLOWED_ORIGINS') ?: ''));
+ if($origin!==null && $origin!=='' && $origin!=='*' && in_array($origin,$allowed,true)) $headers['Access-Control-Allow-Origin']=$origin;
+ return $headers;
+}
 function validate(array $q,string $cmd): array {
- $p=null; foreach(readJson(root().'/config/mission_presets.json')['presets'] as $v) if (($q['preset']??null)===$v['id']) $p=$v;
+ $presets=readJson(root().'/config/mission_presets.json')['presets'];
+ if(!array_key_exists('preset',$q) && in_array($cmd,['point','route'],true)) {
+  $points=$cmd==='point'?[[$q['lon']??null,$q['lat']??null]]:[$q['from']??null,$q['to']??null];
+  foreach($points as $point) {
+   if(!is_array($point)||!array_is_list($point)||count($point)!==2) throw new ApiError(400,'Invalid coordinate');
+   foreach($point as $n) if(!is_numeric($n)||!is_finite((float)$n)) throw new ApiError(400,'Invalid coordinate');
+  }
+  $matches=[];
+  foreach($presets as $v) {
+   [$a,$b,$c,$d]=$v['bbox']; $inside=true;
+   foreach($points as [$x,$y]) if($x<$a||$x>$c||$y<$b||$y>$d) $inside=false;
+   if($inside) $matches[]=$v['id'];
+  }
+  if(count($matches)!==1) throw new ApiError(400,'Point outside the supported regions: '.implode(', ',array_column($presets,'id')).' (coordinates must fit exactly one region)');
+  $q['preset']=$matches[0];
+ }
+ $p=null; foreach($presets as $v) if (($q['preset']??null)===$v['id']) $p=$v;
  if (!$p) throw new ApiError(400,'Unknown preset');
  $cfg=readJson(root().'/config/scoring_weights.json'); $out=['preset'=>$p['id']];
  if(isset($q['profile']) && is_string($q['profile'])) $q['profile']=$cfg['profile_aliases'][$q['profile']]??$q['profile'];
