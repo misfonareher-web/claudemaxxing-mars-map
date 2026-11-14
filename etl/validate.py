@@ -1,5 +1,6 @@
 """Fail closed when committed data do not meet the DATA contract."""
 import json
+import os
 from pathlib import Path
 import numpy as np
 from etl.grid import definition, CRS_NOTE
@@ -11,6 +12,74 @@ def load(path):
     def reject(value):
         raise ValueError('Non-finite JSON: '+value)
     return json.loads(path.read_text(encoding='utf-8'), parse_constant=reject)
+
+
+def dataset_join_errors(root, ids):
+    """Check all product/config references, including optional backend layers."""
+    errors = []
+
+    def check(value, location):
+        if isinstance(value, dict):
+            for key, item in value.items():
+                path = location + '/' + key
+                if key == 'dataset_id' or key.endswith('_dataset_id'):
+                    if not isinstance(item, str) or item not in ids:
+                        errors.append(f'{path}: unknown dataset_id {item!r}')
+                elif key == 'dataset_ids':
+                    if not isinstance(item, list):
+                        errors.append(f'{path}: dataset_ids must be a list')
+                    else:
+                        for index, dataset_id in enumerate(item):
+                            if not isinstance(dataset_id, str) or dataset_id not in ids:
+                                errors.append(f'{path}/{index}: unknown dataset_id {dataset_id!r}')
+                else:
+                    check(item, path)
+        elif isinstance(value, list):
+            for index, item in enumerate(value):
+                check(item, location + '/' + str(index))
+
+    for folder in ('data', 'config'):
+        for directory, subdirs, files in os.walk(root/folder):
+            subdirs[:] = [name for name in subdirs if name != 'raw']
+            for name in sorted(files):
+                path = Path(directory)/name
+                if path == root/'data/provenance.json' or path.suffix not in ('.json', '.geojson'):
+                    continue
+                try:
+                    check(load(path), path.relative_to(root).as_posix())
+                except (OSError, ValueError) as exc:
+                    errors.append(f'{path.relative_to(root)}: {exc}')
+    return errors
+
+
+def validate_environment(env):
+    errors = []
+    def require(ok, message):
+        if not ok:
+            errors.append(message)
+    groups = [('air_temp', 'c', -153.15, 46.85), ('pressure', 'pa', 100, 1500),
+              ('relative_humidity', 'pct', 0, 100), ('ground_temp', 'c', -123.15, 56.85)]
+    def check(values, lo, hi):
+        present = [v for v in values if v is not None]
+        require(all(isinstance(v, (int, float)) and np.isfinite(v) and lo <= v <= hi for v in present), 'Environment value out of physical range')
+        if all(isinstance(v, (int, float)) for v in present):
+            require(all(a <= b for a, b in zip(present, present[1:])), 'Environment min/mean/max out of order')
+    for row in env['series']:
+        for field, unit, lo, hi in groups:
+            check([row.get(f'{field}_{stat}_{unit}') for stat in ('min', 'mean', 'max')], lo, hi)
+    for field, unit, lo, hi in groups:
+        summary = env['summary'].get(f'{field}_{unit}', {})
+        check([summary.get(stat) for stat in ('min', 'mean', 'max')], lo, hi)
+    # Legacy committed products lack the additive sampling metadata until rebuilt.
+    if 'sampling' in env or 'missing_sols' in env:
+        sampling = env['sampling']
+        scheduled = set(range(sampling['first_sol'], sampling['last_sol'] + 1, sampling['step']))
+        sols = [r['sol'] for r in env['series']]
+        missing = [r['sol'] for r in env['missing_sols']]
+        require(len(missing) == len(set(missing)), 'Duplicate missing_sols')
+        require(set(sols) <= scheduled and set(missing) == scheduled - set(sols), 'missing_sols inconsistent with scheduled series')
+        require(all(r.get('reason') for r in env['missing_sols']), 'Missing sol needs a reason')
+    return errors
 
 
 def validate(root=ROOT):
@@ -31,6 +100,7 @@ def validate(root=ROOT):
     except (OSError, ValueError, KeyError) as exc:
         errors.append('Provenance: '+str(exc))
         ids = set()
+    errors.extend(dataset_join_errors(root, ids))
     for preset in presets:
         try:
             folder = root/'data/grids'/preset['id']
@@ -83,8 +153,11 @@ def validate(root=ROOT):
                 if geometry['type'] in ['Polygon','MultiPolygon']:
                     polygons=[geometry['coordinates']] if geometry['type']=='Polygon' else geometry['coordinates']
                     for polygon in polygons:
-                        for ring in polygon:
+                        for i, ring in enumerate(polygon):
                             require(len(ring)>=4 and ring[0]==ring[-1], 'Unclosed polygon')
+                            require(all(a != b for a,b in zip(ring,ring[1:])), 'Repeated consecutive polygon point')
+                            area = sum((a[0]-ring[0][0])*(b[1]-ring[0][1]) - (b[0]-ring[0][0])*(a[1]-ring[0][1]) for a,b in zip(ring,ring[1:]))
+                            require(area > 0 if i == 0 else area < 0, 'Incorrect polygon orientation')
                 if properties['kind']=='ice':
                     require('Mapped water-ice evidence indicates presence or likelihood, not extractability or accessibility.' in properties['caveat'], 'Missing ice caveat')
                 if properties['kind']=='hazard':
@@ -111,12 +184,7 @@ def validate(root=ROOT):
         require(10<=len(env['series'])<=1000,'Invalid environment series length '+preset['id'])
         sols=[row['sol'] for row in env['series']]
         require(all(a<b for a,b in zip(sols,sols[1:])),'Environment sols not strictly increasing')
-        for row in env['series']:
-            for key,lo,hi in [('air_temp_min_c',-140,40),('air_temp_max_c',-140,40),('ground_temp_min_c',-150,50),('ground_temp_max_c',-150,50),('pressure_mean_pa',400,1300),('relative_humidity_mean_pct',0,100),('relative_humidity_max_pct',0,100)]:
-                if key in row:
-                    require(isinstance(row[key],(int,float)) and lo<=row[key]<=hi, f"{preset['id']} sol {row['sol']}: {key} out of range")
-            if 'air_temp_min_c' in row and 'air_temp_max_c' in row:
-                require(row['air_temp_min_c']<=row['air_temp_max_c'],'Invalid environment values')
+        errors.extend(validate_environment(env))
       except (OSError,ValueError,KeyError) as exc:
         errors.append('Environment: '+str(exc))
     try:

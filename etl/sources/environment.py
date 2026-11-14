@@ -13,11 +13,11 @@ import re
 import subprocess
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
+from etl.sources.weather import valid, observations, enrich, statistics, metadata
 
 ROOT_URL = 'https://atmos.nmsu.edu/PDS/data/PDS4/Mars2020/mars2020_meda/'
 SOL_STEP = 36
 SOL_FIRST, SOL_LAST = 10, 1850
-NODATA = 999999999.0
 UA = 'claudemaxxing-etl/0.1'
 CURL = 'curl.exe' if os.name == 'nt' else 'curl'
 
@@ -26,7 +26,7 @@ PROVENANCE = dict(
     data_type='environment', source_url=ROOT_URL, temporal_coverage=f'Sols {SOL_FIRST}-{SOL_LAST}, every {SOL_STEP}th sol where archived',
     spatial_coverage='Perseverance rover location (moves along its traverse in Jezero crater)', resolution='One row per sampled sol (daily min/max/mean of ~1 Hz samples)',
     units='degC; Pa; percent RH', format='PDS4 CSV (calibrated ATS; derived PS, RHS) reduced to JSON',
-    processing='Complete per-sol CSVs streamed; air temperature = mean of ATS_LOCAL_TEMP1-3 per sample (K-273.15); pressure from derived PS; local RH from derived RHS; values <=0 or >=999999999 treated as missing; daily min/max/mean; LTST of min/max air temperature recorded.',
+    processing='Complete per-sol CSVs streamed; air temperature = mean of ATS_LOCAL_TEMP1-3 per sample (K-273.15); pressure from derived PS; local RH from derived RHS; finite air 120-320 K, pressure 100-1500 Pa, RH 0-100 percent (zero retained); known placeholders rejected; legacy cache caveats in environment JSON; daily min/max/mean; LTST of min/max air temperature recorded.',
     limitations=['ATS sensors sit about 1 m above ground near the rover; readings can include rover thermal contamination and are not free-stream atmospheric temperature.',
                  'RHS relative humidity is local to the sensor temperature, not near-surface ambient RH.',
                  'Wind (WS) omitted: very large files at the archive download rate and documented sensor damage periods.',
@@ -52,13 +52,15 @@ def _sol_dir(kind, sol, ranges):
 
 
 def _reduce(text, columns, combine):
+    fields = {'ATS_LOCAL_TEMP1': 'air', 'ATS_LOCAL_TEMP2': 'air', 'ATS_LOCAL_TEMP3': 'air',
+              'PRESSURE': 'pressure', 'LOCAL_RELATIVE_HUMIDITY': 'rh'}
     vals, ltst = [], []
     for row in csv.DictReader(io.StringIO(text)):
         try:
             x = [float(row[c]) for c in columns]
         except (KeyError, ValueError, TypeError):
             continue
-        x = [v for v in x if 0 < abs(v) < NODATA]
+        x = [v for c, v in zip(columns, x) if valid(v, fields[c])]
         if len(x) != len(columns):
             continue
         vals.append(combine(x)); ltst.append(row.get('LTST', ''))
@@ -66,7 +68,7 @@ def _reduce(text, columns, combine):
 
 
 def _summarise_sol(sol, cal_ranges, der_ranges):
-    out = dict(sol=sol)
+    out = dict(sol=sol, observations={})
     cal = _sol_dir('data_calibrated_env', sol, cal_ranges)
     der = _sol_dir('data_derived_env', sol, der_ranges)
     files = {}
@@ -82,16 +84,18 @@ def _summarise_sol(sol, cal_ranges, der_ranges):
         v, t = _reduce(_get(ats, 900).decode('utf-8', 'replace'), ['ATS_LOCAL_TEMP1', 'ATS_LOCAL_TEMP2', 'ATS_LOCAL_TEMP3'], lambda x: sum(x) / len(x) - 273.15)
         if v:
             i, j = v.index(min(v)), v.index(max(v))
-            out.update(air_temp_min_c=round(min(v), 2), air_temp_max_c=round(max(v), 2), air_temp_min_ltst=t[i].split(' ')[-1], air_temp_max_ltst=t[j].split(' ')[-1], samples_air=len(v))
+            out.update(air_temp_min_c=round(min(v), 2), air_temp_max_c=round(max(v), 2), air_temp_min_ltst=t[i].split(' ')[-1], air_temp_max_ltst=t[j].split(' ')[-1], samples_air=len(v), air_temp_mean_c=round(sum(v) / len(v), 2))
+            out['observations']['air'] = observations(v, t)
     if ps:
-        v, _ = _reduce(_get(ps, 600).decode('utf-8', 'replace'), ['PRESSURE'], lambda x: x[0])
+        v, t = _reduce(_get(ps, 600).decode('utf-8', 'replace'), ['PRESSURE'], lambda x: x[0])
         if v:
+            out['observations']['pressure'] = observations(v, t)
             out.update(pressure_mean_pa=round(sum(v) / len(v), 2), pressure_min_pa=round(min(v), 2), pressure_max_pa=round(max(v), 2))
     if rhs:
-        v, _ = _reduce(_get(rhs, 600).decode('utf-8', 'replace'), ['LOCAL_RELATIVE_HUMIDITY'], lambda x: x[0])
-        v = [x for x in v if x <= 100]
+        v, t = _reduce(_get(rhs, 600).decode('utf-8', 'replace'), ['LOCAL_RELATIVE_HUMIDITY'], lambda x: x[0])
         if v:
-            out.update(relative_humidity_mean_pct=round(sum(v) / len(v), 2), relative_humidity_max_pct=round(max(v), 2))
+            out['observations']['rh'] = observations(v, t)
+            out.update(relative_humidity_min_pct=round(min(v), 2), relative_humidity_mean_pct=round(sum(v) / len(v), 2), relative_humidity_max_pct=round(max(v), 2))
     out['sources'] = [u for u in (ats, ps, rhs) if u]
     return out
 
@@ -121,26 +125,26 @@ def fetch(raw_dir, offline=False, force=False):
 
 def build(preset, files):
     rows = []
+    cached = []
     for path in files:
         s = json.loads(Path(path).read_text(encoding='utf-8'))
+        cached.append(s)
         if 'air_temp_min_c' not in s and 'pressure_mean_pa' not in s:
             continue
-        rows.append({k: v for k, v in s.items() if k not in ('sources', 'error', 'samples_air')})
+        rows.append(enrich({k: v for k, v in s.items() if k not in ('sources', 'error')}, meda=True))
     if len(rows) < 10:
         raise ValueError(f'Too few MEDA sols with data: {len(rows)}')
     rows.sort(key=lambda r: r['sol'])
 
-    def stat(key_min, key_max=None, key_mean=None):
-        lo = [r[key_min] for r in rows if key_min in r]
-        hi = [r[key_max or key_min] for r in rows if (key_max or key_min) in r]
-        mean = [r[key_mean] for r in rows if key_mean and key_mean in r]
-        return dict(min=min(lo) if lo else None, max=max(hi) if hi else None, mean=round(sum(mean) / len(mean), 2) if mean else None)
+    stat = lambda a, b, m=None: statistics(rows, a, b, m)
+    meta = metadata(rows, cached, SOL_FIRST, SOL_LAST, SOL_STEP, meda=True)
+    rh_min = 'relative_humidity_mean_pct' if meta['statistic_labels']['relative_humidity_min'] == 'minimum_of_per_sol_means' else 'relative_humidity_min_pct'
     return dict(version=1, preset_id=preset['id'], dataset_id='meda_derived_daily',
                 station=dict(name='Perseverance / MEDA', lon=preset['base_point']['lon'], lat=preset['base_point']['lat']),
                 sol_range=[rows[0]['sol'], rows[-1]['sol']],
-                summary=dict(air_temp_c=stat('air_temp_min_c', 'air_temp_max_c'), pressure_pa=stat('pressure_min_pa', 'pressure_max_pa', 'pressure_mean_pa'),
-                             relative_humidity_pct=stat('relative_humidity_mean_pct', 'relative_humidity_max_pct', 'relative_humidity_mean_pct'),
-                             notes=f'{len(rows)} sampled sols (every {SOL_STEP}th sol {SOL_FIRST}-{SOL_LAST}); complete daily files; ATS mean of sensors 1-3; no rover-heating correction.'),
+                summary=dict(air_temp_c=stat('air_temp_min_c', 'air_temp_max_c', 'air_temp_mean_c'), pressure_pa=stat('pressure_min_pa', 'pressure_max_pa', 'pressure_mean_pa'),
+                             relative_humidity_pct=stat(rh_min, 'relative_humidity_max_pct', 'relative_humidity_mean_pct'),
+                             notes=f'{len(rows)} sampled sols (every {SOL_STEP}th sol {SOL_FIRST}-{SOL_LAST}); observed samples only; ATS mean of sensors 1-3; no rover-heating correction.'),
                 series=rows,
                 caveat='Point measurements at the rover location during the listed sols; not current conditions and not representative of the whole region. Station coordinates are the landing site; the rover has since traversed several kilometres.',
-                synthetic=False)
+                synthetic=False, **meta)
