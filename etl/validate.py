@@ -13,6 +13,36 @@ def load(path):
     return json.loads(path.read_text(encoding='utf-8'), parse_constant=reject)
 
 
+def validate_environment(env):
+    errors = []
+    def require(ok, message):
+        if not ok:
+            errors.append(message)
+    groups = [('air_temp', 'c', -153.15, 46.85), ('pressure', 'pa', 100, 1500),
+              ('relative_humidity', 'pct', 0, 100), ('ground_temp', 'c', -123.15, 56.85)]
+    def check(values, lo, hi):
+        present = [v for v in values if v is not None]
+        require(all(isinstance(v, (int, float)) and np.isfinite(v) and lo <= v <= hi for v in present), 'Environment value out of physical range')
+        if all(isinstance(v, (int, float)) for v in present):
+            require(all(a <= b for a, b in zip(present, present[1:])), 'Environment min/mean/max out of order')
+    for row in env['series']:
+        for field, unit, lo, hi in groups:
+            check([row.get(f'{field}_{stat}_{unit}') for stat in ('min', 'mean', 'max')], lo, hi)
+    for field, unit, lo, hi in groups:
+        summary = env['summary'].get(f'{field}_{unit}', {})
+        check([summary.get(stat) for stat in ('min', 'mean', 'max')], lo, hi)
+    # Legacy committed products lack the additive sampling metadata until rebuilt.
+    if 'sampling' in env or 'missing_sols' in env:
+        sampling = env['sampling']
+        scheduled = set(range(sampling['first_sol'], sampling['last_sol'] + 1, sampling['step']))
+        sols = [r['sol'] for r in env['series']]
+        missing = [r['sol'] for r in env['missing_sols']]
+        require(len(missing) == len(set(missing)), 'Duplicate missing_sols')
+        require(set(sols) <= scheduled and set(missing) == scheduled - set(sols), 'missing_sols inconsistent with scheduled series')
+        require(all(r.get('reason') for r in env['missing_sols']), 'Missing sol needs a reason')
+    return errors
+
+
 def validate(root=ROOT):
     errors = []
     def require(condition, message):
@@ -111,12 +141,7 @@ def validate(root=ROOT):
         require(10<=len(env['series'])<=1000,'Invalid environment series length '+preset['id'])
         sols=[row['sol'] for row in env['series']]
         require(all(a<b for a,b in zip(sols,sols[1:])),'Environment sols not strictly increasing')
-        for row in env['series']:
-            for key,lo,hi in [('air_temp_min_c',-140,40),('air_temp_max_c',-140,40),('ground_temp_min_c',-150,50),('ground_temp_max_c',-150,50),('pressure_mean_pa',400,1300),('relative_humidity_mean_pct',0,100),('relative_humidity_max_pct',0,100)]:
-                if key in row:
-                    require(isinstance(row[key],(int,float)) and lo<=row[key]<=hi, f"{preset['id']} sol {row['sol']}: {key} out of range")
-            if 'air_temp_min_c' in row and 'air_temp_max_c' in row:
-                require(row['air_temp_min_c']<=row['air_temp_max_c'],'Invalid environment values')
+        errors.extend(validate_environment(env))
       except (OSError,ValueError,KeyError) as exc:
         errors.append('Environment: '+str(exc))
     try:
