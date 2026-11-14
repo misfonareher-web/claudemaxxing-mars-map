@@ -57,3 +57,18 @@ python -m unittest discover -s etl/tests
 ```
 
 `config/scoring_weights.json` is read only for the slope thresholds that define hazard severity.
+
+## Backend (branch `backend`)
+
+nginx + PHP 8 (FPM) + PostgreSQL in Docker; PHP calls the Python scoring engine.
+
+```sh
+docker compose up --build -d          # http://localhost:8080 (override with HTTP_PORT)
+docker compose exec -T api php api/tests/run.php
+python -m pytest tests etl/tests -q
+```
+
+- PHP → Python: `proc_open(python3 -m scoring.cli <score|point|route>)`, JSON request on stdin, JSON on stdout; exit 2 → HTTP 400, 3 → 404, 20 s timeout. PostgreSQL caches scores and stores features; the API falls back to files if the DB is down.
+- Endpoints: `GET /api/health`, `/api/presets`, `/api/layers`, `/api/provenance`, `/api/features?preset=&kind=`, `/api/environment?preset=`, `/api/score?preset=&profile=&weights=`, `/api/score/point?preset=&lon=&lat=`, `POST /api/route` `{"preset":"jezero","from":[lon,lat],"to":[lon,lat]}`. Details: `api/README.md`; request/response examples: `contracts/examples/`.
+- Scoring method and limits: `scoring/METHODOLOGY.md`. Hazards with severity ≥ the configured threshold are excluded; lower severities (e.g. the `sand_dunes` outlines) are penalized.
+- `web/` is a minimal Leaflet test client for the API (nginx serves it at `/`). It is not the team's frontend.

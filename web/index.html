@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="viewport" content="width=device-width"><title>Martian Map</title>
+<style>body{background:#18212b;color:#fff;font:18px system-ui;margin:2rem}pre{white-space:pre-wrap}</style>
+<link rel="stylesheet" href="vendor/leaflet/leaflet.css">
+<link rel="stylesheet" href="css/app.css">
+<noscript>This map requires JavaScript. The REST API remains available under /api.</noscript>
+<h1>Martian Map</h1><label>Mission <select id="preset"></select></label><label>Profile <select id="profile"><option>balanced</option><option>safety_first</option><option>science_first</option><option>resource_first</option></select></label><button id="route">Select route start/end</button><p id="status" role="status"></p><div id="map" style="height:60vh"></div><p id="coords"></p><pre id="card"></pre><details><summary>Provenance</summary><pre id="provenance"></pre></details><details><summary>Environment</summary><pre id="environment"></pre></details>
+<script src="vendor/leaflet/leaflet.js"></script><script type="module" src="js/main.js"></script>
+<label>Basemap opacity <input id="opacity" type="range" min="0" max="1" step="0.05" value="1"></label><div id="weights"></div><button id="reset">Reset weights</button><p>Score legend: 0 (red) → 50 (yellow) → 100 (green); grey: excluded or missing.</p>
+<p>The 0–100 index is a conditional heuristic methodology for comparison, not a safety certification or a validated model.</p>
+<p>Absence of a mapped hazard does not mean the terrain is safe.</p>
+<p>Mapped water-ice evidence indicates presence or likelihood, not extractability or accessibility.</p>

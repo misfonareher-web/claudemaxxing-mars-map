@@ -1,0 +1,48 @@
+{
+  "type": "FeatureCollection",
+  "crs_note": "Mars 2000 planetocentric, east-positive, degrees",
+  "meta": {
+    "preset_id": "jezero",
+    "profile": "balanced",
+    "weights": {"slope": 0.30, "roughness": 0.10, "thermal": 0.15, "ice": 0.15, "science": 0.20, "base_distance": 0.10},
+    "effective_weights": {"slope": 0.30, "roughness": 0.10, "thermal": 0.15, "ice": 0.15, "science": 0.20, "base_distance": 0.10},
+    "methodology_version": "0.1.0",
+    "label": "Conditional heuristic EVA suitability index (0–100)",
+    "disclaimers": [
+      "The 0–100 index is a conditional heuristic methodology for comparison, not a safety certification or a validated model.",
+      "Absence of a mapped hazard does not mean the terrain is safe.",
+      "Mapped water-ice evidence indicates presence or likelihood, not extractability or accessibility."
+    ],
+    "datasets": ["mola_megdr", "trek_themis_ir_day", "ody_grs_weh"],
+    "data_flags": [],
+    "grid": {"rows": 1, "cols": 1, "cell_size_deg": [0.0078125, 0.0078125], "bbox": [77.2, 18.25, 77.75, 18.7]},
+    "stats": {"min": 67, "max": 67, "mean": 67.2, "excluded_cells": 0},
+    "generated_at": "2026-11-14T12:00:00Z"
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "id": "r0c0",
+      "geometry": {"type": "Polygon", "coordinates": [[[77.2, 18.6921875], [77.2078125, 18.6921875], [77.2078125, 18.7], [77.2, 18.7], [77.2, 18.6921875]]]},
+      "properties": {
+        "cell_id": "r0c0",
+        "row": 0,
+        "col": 0,
+        "center": [77.20390625, 18.69609375],
+        "score": 67,
+        "excluded": false,
+        "exclusion_reasons": [],
+        "factors": {
+          "slope":         {"value": 3.2,  "units": "deg",          "subscore": 1.0,  "weight": 0.30, "contribution": 30.0, "available": true},
+          "roughness":     {"value": 14.0, "units": "m",            "subscore": 0.92, "weight": 0.10, "contribution": 9.2,  "available": true},
+          "thermal":       {"value": 0.55, "units": "unitless 0-1", "subscore": 0.58, "weight": 0.15, "contribution": 8.7,  "available": true},
+          "ice":           {"value": 0.10, "units": "unitless 0-1", "subscore": 0.10, "weight": 0.15, "contribution": 1.5,  "available": true},
+          "science":       {"value": 1.9,  "units": "km",           "subscore": 0.53, "weight": 0.20, "contribution": 10.6, "available": true},
+          "base_distance": {"value": 2.8,  "units": "km",           "subscore": 0.72, "weight": 0.10, "contribution": 7.2,  "available": true}
+        },
+        "hazard_ids": [],
+        "data_flags": []
+      }
+    }
+  ]
+}
