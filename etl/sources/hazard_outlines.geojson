@@ -11,7 +11,7 @@
         "severity": 2,
         "confidence": "medium",
         "source_ref": "https://doi.org/10.1007/s11214-020-00739-x",
-        "caveat": "Absence of a mapped hazard does not mean the terrain is safe. The outline is a simplified exterior of connected published large-aeolian-bedform polygons over Séítah-associated bedrock, including internal bedrock islands and adjoining dune tongues, with estimated overview-scale uncertainty of 250–500 m; it is not for navigation.",
+        "caveat": "Absence of a mapped hazard does not mean the terrain is safe. The outline is a simplified exterior of connected published large-aeolian-bedform polygons over Séítah-associated bedrock, including internal bedrock islands and adjoining dune tongues, with estimated overview-scale uncertainty of 250–500 m; it is used as an approximate scoring penalty, not a navigation boundary.",
         "kind": "hazard",
         "dataset_id": "m2020_photogeologic_map",
         "preset_ids": [
@@ -174,7 +174,7 @@
         "severity": 2,
         "confidence": "medium",
         "source_ref": "https://mars.nasa.gov/maps/location/api/configure/get?mission=MSL",
-        "caveat": "Absence of a mapped hazard does not mean the terrain is safe. This generalized envelope was manually traced from NASA MMGIS CTX tiles using a three-control-point affine transform, includes intervening bedrock gaps, and has estimated boundary uncertainty of 200-500 m, locally about 1 km; it is for overview display only.",
+        "caveat": "Absence of a mapped hazard does not mean the terrain is safe. This generalized envelope was manually traced from NASA MMGIS CTX tiles using a three-control-point affine transform, includes intervening bedrock gaps, and has estimated boundary uncertainty of 200-500 m, locally about 1 km; it is used as an approximate scoring penalty, not a navigation boundary.",
         "kind": "hazard",
         "dataset_id": "msl_mmgis_ctx",
         "preset_ids": [

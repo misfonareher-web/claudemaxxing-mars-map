@@ -1,5 +1,6 @@
 """Fail closed when committed data do not meet the DATA contract."""
 import json
+import os
 from pathlib import Path
 import numpy as np
 from etl.grid import definition, CRS_NOTE
@@ -11,6 +12,44 @@ def load(path):
     def reject(value):
         raise ValueError('Non-finite JSON: '+value)
     return json.loads(path.read_text(encoding='utf-8'), parse_constant=reject)
+
+
+def dataset_join_errors(root, ids):
+    """Check all product/config references, including optional backend layers."""
+    errors = []
+
+    def check(value, location):
+        if isinstance(value, dict):
+            for key, item in value.items():
+                path = location + '/' + key
+                if key == 'dataset_id' or key.endswith('_dataset_id'):
+                    if not isinstance(item, str) or item not in ids:
+                        errors.append(f'{path}: unknown dataset_id {item!r}')
+                elif key == 'dataset_ids':
+                    if not isinstance(item, list):
+                        errors.append(f'{path}: dataset_ids must be a list')
+                    else:
+                        for index, dataset_id in enumerate(item):
+                            if not isinstance(dataset_id, str) or dataset_id not in ids:
+                                errors.append(f'{path}/{index}: unknown dataset_id {dataset_id!r}')
+                else:
+                    check(item, path)
+        elif isinstance(value, list):
+            for index, item in enumerate(value):
+                check(item, location + '/' + str(index))
+
+    for folder in ('data', 'config'):
+        for directory, subdirs, files in os.walk(root/folder):
+            subdirs[:] = [name for name in subdirs if name != 'raw']
+            for name in sorted(files):
+                path = Path(directory)/name
+                if path == root/'data/provenance.json' or path.suffix not in ('.json', '.geojson'):
+                    continue
+                try:
+                    check(load(path), path.relative_to(root).as_posix())
+                except (OSError, ValueError) as exc:
+                    errors.append(f'{path.relative_to(root)}: {exc}')
+    return errors
 
 
 def validate(root=ROOT):
@@ -31,6 +70,7 @@ def validate(root=ROOT):
     except (OSError, ValueError, KeyError) as exc:
         errors.append('Provenance: '+str(exc))
         ids = set()
+    errors.extend(dataset_join_errors(root, ids))
     for preset in presets:
         try:
             folder = root/'data/grids'/preset['id']

@@ -43,3 +43,34 @@ class ValidatorTests(unittest.TestCase):
    self.assertTrue(f['properties']['source_ref'].startswith('http'))
   opp=[f for f in sites if f['properties']['id']=='ls-opportunity'][0]['geometry']['coordinates']
   self.assertAlmostEqual(opp[0],-5.5266,places=3)
+
+
+def test_dataset_joins(tmp_path):
+ from etl.validate import dataset_join_errors
+ documents = {
+  'config/layers.json': {'basemaps': [{'dataset_id': 'missing-basemap'}]},
+  'config/mission_presets.json': {'environment_dataset_id': 'missing-preset-env'},
+  'data/grids/demo/manifest.json': {'layers': {'slope': {'dataset_id': 'missing-grid'}}},
+  'data/hazards.geojson': {'dataset_ids': ['missing-collection'], 'features': [{'properties': {'dataset_id': 'missing-feature'}}]},
+  'data/missions.json': {'missions': [{'dataset_id': 'missing-mission'}]},
+  'data/environment/demo.json': {'dataset_id': 'missing-env'},
+ }
+ for filename, value in documents.items():
+  path = tmp_path/filename
+  path.parent.mkdir(parents=True, exist_ok=True)
+  path.write_text(json.dumps(value), encoding='utf-8')
+ errors = dataset_join_errors(tmp_path, set())
+ assert len(errors) == 7
+ for name in ('basemap', 'preset-env', 'grid', 'collection', 'feature', 'mission', 'env'):
+  assert any(repr('missing-'+name) in error for error in errors)
+ ids = {'missing-'+name for name in ('basemap', 'preset-env', 'grid', 'collection', 'feature', 'mission', 'env')}
+ assert dataset_join_errors(tmp_path, ids) == []
+ # Raw source metadata is not an ARES dataset-reference contract.
+ raw = tmp_path/'data/raw'
+ raw.mkdir()
+ (raw/'source.json').write_text('{"dataset_id": "external-source"}')
+ assert dataset_join_errors(tmp_path, ids) == []
+ assert dataset_join_errors(tmp_path, ids - {'missing-basemap'}) == [
+  "config/layers.json/basemaps/0/dataset_id: unknown dataset_id 'missing-basemap'"]
+ (tmp_path/'config/layers.json').unlink()
+ assert dataset_join_errors(tmp_path, ids - {'missing-basemap'}) == []

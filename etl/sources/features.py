@@ -21,7 +21,7 @@ def build(presets,slopes,thresholds,ice_grids):
  for p in presets:
   id=p['id'];b=p['base_point'];src,mission,date=catalog.BASE_SOURCES[b['id']]
   f=feature(b['id'],'landing_site',b['name'],[b['lon'],b['lat']],[id],mission=mission,agency='NASA',landing_date=date,status='active')
-  f['properties'].update(confidence='high',source_ref=src,caveat='Official landing coordinates (planetocentric, east-positive), copied from config/mission_presets.json.')
+  f['properties'].update(confidence='high',source_ref=src,caveat='Historical landing-site coordinates (planetocentric, east-positive), copied from config/mission_presets.json; used as a stand-in for a hypothetical habitat in the EVA demo, not an existing crew habitat.')
   land.append(f)
   for target in p['science_target_ids']:
    name,lon,lat,conf,src,cav,goal=catalog.SCIENCE_TARGETS[target]
