@@ -1,0 +1,274 @@
+{
+  "type": "FeatureCollection",
+  "crs_note": "Mars 2000 planetocentric, east-positive, degrees",
+  "dataset_ids": [
+    "cnsa_mission_records",
+    "mission_features"
+  ],
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -47.951,
+          22.269
+        ]
+      },
+      "properties": {
+        "id": "ls-viking1",
+        "kind": "landing_site",
+        "name": "Viking 1 Lander",
+        "description": "Viking 1 Lander",
+        "dataset_id": "mission_features",
+        "preset_ids": [],
+        "confidence": "high",
+        "caveat": "PDS Geosciences ODE landing-site table. Planetocentric latitude; longitude converted from 0-360 E to east-positive -180..180. Not for navigation.",
+        "source_ref": "https://ode.rsl.wustl.edu/mars/pagehelp/Content/Missions_Instruments/Landing_Sites.htm",
+        "synthetic": false,
+        "mission": "Viking 1",
+        "agency": "NASA",
+        "landing_date": "1976-07-20",
+        "status": "ended"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          134.28,
+          47.668
+        ]
+      },
+      "properties": {
+        "id": "ls-viking2",
+        "kind": "landing_site",
+        "name": "Viking 2 Lander",
+        "description": "Viking 2 Lander",
+        "dataset_id": "mission_features",
+        "preset_ids": [],
+        "confidence": "high",
+        "caveat": "PDS Geosciences ODE landing-site table. Planetocentric latitude; longitude converted from 0-360 E to east-positive -180..180. Not for navigation.",
+        "source_ref": "https://ode.rsl.wustl.edu/mars/pagehelp/Content/Missions_Instruments/Landing_Sites.htm",
+        "synthetic": false,
+        "mission": "Viking 2",
+        "agency": "NASA",
+        "landing_date": "1976-09-03",
+        "status": "ended"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -33.253,
+          19.095
+        ]
+      },
+      "properties": {
+        "id": "ls-pathfinder",
+        "kind": "landing_site",
+        "name": "Mars Pathfinder (Carl Sagan Memorial Station)",
+        "description": "Mars Pathfinder (Carl Sagan Memorial Station)",
+        "dataset_id": "mission_features",
+        "preset_ids": [],
+        "confidence": "high",
+        "caveat": "PDS Geosciences ODE landing-site table. Planetocentric latitude; longitude converted from 0-360 E to east-positive -180..180. Not for navigation.",
+        "source_ref": "https://ode.rsl.wustl.edu/mars/pagehelp/Content/Missions_Instruments/Landing_Sites.htm",
+        "synthetic": false,
+        "mission": "Mars Pathfinder",
+        "agency": "NASA",
+        "landing_date": "1997-07-04",
+        "status": "ended"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          175.4729,
+          -14.5692
+        ]
+      },
+      "properties": {
+        "id": "ls-spirit",
+        "kind": "landing_site",
+        "name": "Spirit (MER-A) landing site",
+        "description": "Spirit (MER-A) landing site",
+        "dataset_id": "mission_features",
+        "preset_ids": [],
+        "confidence": "high",
+        "caveat": "ODE cartographic triangulation solution (Doppler solution: 14.571892 S, 175.47848 E). Planetocentric latitude; longitude converted from 0-360 E to east-positive -180..180. Not for navigation.",
+        "source_ref": "https://ode.rsl.wustl.edu/mars/pagehelp/Content/Missions_Instruments/Landing_Sites.htm",
+        "synthetic": false,
+        "mission": "Mars Exploration Rover Spirit",
+        "agency": "NASA",
+        "landing_date": "2004-01-04",
+        "status": "ended"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -5.5266,
+          -1.9462
+        ]
+      },
+      "properties": {
+        "id": "ls-opportunity",
+        "kind": "landing_site",
+        "name": "Opportunity (MER-B) landing site",
+        "description": "Opportunity (MER-B) landing site",
+        "dataset_id": "mission_features",
+        "preset_ids": [],
+        "confidence": "high",
+        "caveat": "ODE cartographic triangulation solution (Doppler solution: 1.9483 S, 354.47417 E). Planetocentric latitude; longitude converted from 0-360 E to east-positive -180..180. Not for navigation.",
+        "source_ref": "https://ode.rsl.wustl.edu/mars/pagehelp/Content/Missions_Instruments/Landing_Sites.htm",
+        "synthetic": false,
+        "mission": "Mars Exploration Rover Opportunity",
+        "agency": "NASA",
+        "landing_date": "2004-01-25",
+        "status": "ended"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          -125.75,
+          68.22
+        ]
+      },
+      "properties": {
+        "id": "ls-phoenix",
+        "kind": "landing_site",
+        "name": "Phoenix landing site",
+        "description": "Phoenix landing site",
+        "dataset_id": "mission_features",
+        "preset_ids": [],
+        "confidence": "high",
+        "caveat": "PDS Geosciences ODE landing-site table (2-decimal precision). Planetocentric latitude; longitude converted from 0-360 E to east-positive -180..180. Not for navigation.",
+        "source_ref": "https://ode.rsl.wustl.edu/mars/pagehelp/Content/Missions_Instruments/Landing_Sites.htm",
+        "synthetic": false,
+        "mission": "Phoenix",
+        "agency": "NASA",
+        "landing_date": "2008-05-25",
+        "status": "ended"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          135.623447,
+          4.502384
+        ]
+      },
+      "properties": {
+        "id": "ls-insight",
+        "kind": "landing_site",
+        "name": "InSight lander",
+        "description": "InSight lander",
+        "dataset_id": "mission_features",
+        "preset_ids": [],
+        "confidence": "high",
+        "caveat": "Golombek et al. (2020), Earth and Space Science, located on a georeferenced HiRISE image. Planetocentric latitude; longitude converted from 0-360 E to east-positive -180..180. Not for navigation.",
+        "source_ref": "https://doi.org/10.1029/2020EA001248",
+        "synthetic": false,
+        "mission": "InSight",
+        "agency": "NASA",
+        "landing_date": "2018-11-26",
+        "status": "ended"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          109.925,
+          25.066
+        ]
+      },
+      "properties": {
+        "id": "ls-zhurong",
+        "kind": "landing_site",
+        "name": "Zhurong rover landing site (Tianwen-1)",
+        "description": "Zhurong rover landing site (Tianwen-1)",
+        "dataset_id": "cnsa_mission_records",
+        "preset_ids": [],
+        "confidence": "medium",
+        "caveat": "Published landing-site value (Nature Astronomy, 2021); landing date in UTC (15 May Beijing time). Non-NASA mission record. Planetocentric latitude; longitude converted from 0-360 E to east-positive -180..180. Not for navigation.",
+        "source_ref": "https://doi.org/10.1038/s41550-021-01519-5",
+        "synthetic": false,
+        "mission": "Tianwen-1 / Zhurong",
+        "agency": "CNSA",
+        "landing_date": "2021-05-14",
+        "status": "ended"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          77.4508,
+          18.4447
+        ]
+      },
+      "properties": {
+        "id": "ls-mars2020",
+        "kind": "landing_site",
+        "name": "Octavia E. Butler Landing (Mars 2020)",
+        "description": "Octavia E. Butler Landing (Mars 2020)",
+        "dataset_id": "mission_features",
+        "preset_ids": [
+          "jezero"
+        ],
+        "confidence": "high",
+        "caveat": "Official landing coordinates (planetocentric, east-positive), copied from config/mission_presets.json.",
+        "source_ref": "https://science.nasa.gov/mission/mars-2020-perseverance/",
+        "synthetic": false,
+        "mission": "Mars 2020 / Perseverance",
+        "agency": "NASA",
+        "landing_date": "2021-02-18",
+        "status": "active"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [
+          137.4417,
+          -4.5895
+        ]
+      },
+      "properties": {
+        "id": "ls-msl",
+        "kind": "landing_site",
+        "name": "Bradbury Landing (MSL)",
+        "description": "Bradbury Landing (MSL)",
+        "dataset_id": "mission_features",
+        "preset_ids": [
+          "gale"
+        ],
+        "confidence": "high",
+        "caveat": "Official landing coordinates (planetocentric, east-positive), copied from config/mission_presets.json.",
+        "source_ref": "https://ode.rsl.wustl.edu/mars/pagehelp/Content/Missions_Instruments/Landing_Sites.htm",
+        "synthetic": false,
+        "mission": "Mars Science Laboratory / Curiosity",
+        "agency": "NASA",
+        "landing_date": "2012-08-06",
+        "status": "active"
+      }
+    }
+  ]
+}

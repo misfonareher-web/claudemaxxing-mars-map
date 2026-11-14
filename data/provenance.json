@@ -1,0 +1,304 @@
+{
+  "version": 1,
+  "generated_at": "2026-11-14T07:50:27.723589+00:00",
+  "datasets": [
+    {
+      "dataset_id": "mola_megdr",
+      "title": "MOLA MEGDR median topography",
+      "mission": "Mars Global Surveyor",
+      "instrument": "MOLA",
+      "data_type": "elevation",
+      "source_url": "https://pds-geosciences.wustl.edu/mgs/mgs-m-mola-5-megdr-l3-v1/mgsl_300x/meg128/",
+      "temporal_coverage": "1997-09-15 to 2001-06-30",
+      "spatial_coverage": "Global; selected 128 pixels/degree tiles",
+      "resolution": "1/128 degree, approximately 463 m north-south",
+      "units": "m above GMM3 areoid",
+      "format": "PDS3 detached label and big-endian int16 IMG",
+      "processing": "Bilinear sampling at exact target cell centers; spherical gradient slope; edge-padded 3x3 elevation population standard deviation.",
+      "limitations": [
+        "Coarse altimetry smooths boulders and local slopes.",
+        "MEGDR includes interpolated bins; equatorial profile gaps can reach 12 km."
+      ],
+      "license": "NASA PDS public domain",
+      "synthetic": false,
+      "used_for": [
+        "elevation",
+        "slope",
+        "roughness",
+        "hazards"
+      ],
+      "access_date": "2026-11-14"
+    },
+    {
+      "dataset_id": "trek_themis_ir_day",
+      "title": "THEMIS Day IR controlled mosaic",
+      "mission": "Mars Odyssey",
+      "instrument": "THEMIS",
+      "data_type": "thermal_ir",
+      "source_url": "https://trek.nasa.gov/tiles/Mars/EQ/THEMIS_DayIR_ControlledMosaics_100m_v2_oct2018/1.0.0/WMTSCapabilities.xml",
+      "temporal_coverage": "Multi-observation mosaic, October 2018 release",
+      "spatial_coverage": "65S to 65N",
+      "resolution": "100 m source; WMTS zoom 9",
+      "units": "relative rendered brightness / 255",
+      "format": "WMTS PNG",
+      "processing": "Nearest rendered grayscale pixel at target centers divided by 255; transparent pixels become nodata.",
+      "limitations": [
+        "Relative display brightness, not temperature or thermal inertia; illumination and surface texture affect values."
+      ],
+      "license": "NASA public domain",
+      "synthetic": false,
+      "used_for": [
+        "thermal"
+      ],
+      "access_date": "2026-11-14"
+    },
+    {
+      "dataset_id": "ody_ns_epithermal",
+      "title": "Odyssey NS epithermal neutron flux",
+      "mission": "Mars Odyssey",
+      "instrument": "Neutron Spectrometer",
+      "data_type": "water_ice",
+      "source_url": "https://pds-geosciences.wustl.edu/ody/urn-nasa-pds-odyssey_grs_special/data/ns_epithermal_020917.tab",
+      "temporal_coverage": "First 25.7 mapping days, 2002",
+      "spatial_coverage": "Global",
+      "resolution": "0.5 degree bins; instrument footprint much larger; latitude-band subset -5.5..-3.5 and 17.5..19.5 degrees",
+      "units": "relative neutron suppression 0-1",
+      "format": "PDS ASCII table",
+      "processing": "Nearest 0.5-degree bin; index=clip(1-flux/maximum flux in downloaded latitude bands,0,1).",
+      "limitations": [
+        "Neutron suppression is a hydrogen-sensitive comparison proxy, not water fraction or confirmation of ice; composition also affects neutrons.",
+        "Mapped water-ice evidence indicates presence or likelihood, not extractability or accessibility."
+      ],
+      "license": "NASA PDS public domain",
+      "synthetic": false,
+      "used_for": [
+        "ice"
+      ],
+      "access_date": "2026-11-14"
+    },
+    {
+      "dataset_id": "meda_derived_daily",
+      "title": "Mars 2020 MEDA daily summaries (sampled sols)",
+      "mission": "Mars 2020",
+      "instrument": "MEDA (ATS, PS, RHS)",
+      "data_type": "environment",
+      "source_url": "https://atmos.nmsu.edu/PDS/data/PDS4/Mars2020/mars2020_meda/",
+      "temporal_coverage": "Sols 10-1850, every 36th sol where archived",
+      "spatial_coverage": "Perseverance rover location (moves along its traverse in Jezero crater)",
+      "resolution": "One row per sampled sol (daily min/max/mean of ~1 Hz samples)",
+      "units": "degC; Pa; percent RH",
+      "format": "PDS4 CSV (calibrated ATS; derived PS, RHS) reduced to JSON",
+      "processing": "Complete per-sol CSVs streamed; air temperature = mean of ATS_LOCAL_TEMP1-3 per sample (K-273.15); pressure from derived PS; local RH from derived RHS; values <=0 or >=999999999 treated as missing; daily min/max/mean; LTST of min/max air temperature recorded.",
+      "limitations": [
+        "ATS sensors sit about 1 m above ground near the rover; readings can include rover thermal contamination and are not free-stream atmospheric temperature.",
+        "RHS relative humidity is local to the sensor temperature, not near-surface ambient RH.",
+        "Wind (WS) omitted: very large files at the archive download rate and documented sensor damage periods.",
+        "Historical point data at a moving rover; not current conditions and not representative of the whole region."
+      ],
+      "license": "NASA PDS public domain",
+      "synthetic": false,
+      "used_for": [
+        "environment charts"
+      ],
+      "access_date": "2026-11-14"
+    },
+    {
+      "dataset_id": "rems_derived_daily",
+      "title": "MSL REMS daily summaries (sampled sols)",
+      "mission": "Mars Science Laboratory",
+      "instrument": "REMS (ATS, GTS, PS, HS)",
+      "data_type": "environment",
+      "source_url": "https://atmos.nmsu.edu/PDS/data/PDS4/msl_rems_bundle/",
+      "temporal_coverage": "Sols 10-4810, every 96th sol where archived",
+      "spatial_coverage": "Curiosity rover location (traversing from Bradbury Landing up Mount Sharp)",
+      "resolution": "One row per sampled sol (daily min/max/mean)",
+      "units": "degC; Pa; percent RH",
+      "format": "PDS4 calibrated MODRDR (RMD) tables reduced to JSON",
+      "processing": "Complete per-sol RMD tables streamed; AMBIENT_TEMP and BRIGHTNESS_TEMP K-273.15; PRESSURE Pa; LOCAL_RELATIVE_HUMIDITY %; -999 treated as missing; daily min/max/mean.",
+      "limitations": [
+        "REMS air temperature is measured on the mast booms about 1.6 m above ground and can include rover thermal effects.",
+        "REMS wind sensor was damaged at landing; wind is omitted.",
+        "Ground temperature is GTS infrared brightness temperature of a small patch beside the rover; only the daily maximum is published because unfiltered nighttime minima reach the sensor floor (about -170 C), which is not physical.",
+        "Historical point data at a moving rover; not current conditions and not representative of the whole region."
+      ],
+      "license": "NASA PDS public domain",
+      "synthetic": false,
+      "used_for": [
+        "environment charts"
+      ],
+      "access_date": "2026-11-14"
+    },
+    {
+      "dataset_id": "mission_features",
+      "title": "Mars landing sites and science targets",
+      "mission": "NASA Mars exploration",
+      "instrument": "Published mission maps",
+      "data_type": "landing_sites",
+      "source_url": "https://ode.rsl.wustl.edu/mars/pagehelp/Content/Missions_Instruments/Landing_Sites.htm",
+      "temporal_coverage": "1976-2021 landings; historical rover maps",
+      "spatial_coverage": "Mars mission locations",
+      "resolution": "Point coordinates as published (2-6 decimals)",
+      "units": "degrees",
+      "format": "GeoJSON",
+      "processing": "Landing sites transcribed from the PDS Geosciences ODE landing-site table or peer-reviewed papers (per-feature source_ref) and converted to east-positive -180..180; science targets digitized approximately from cited NASA images and maps.",
+      "limitations": [
+        "Science-target positions are approximate.",
+        "Coordinates are not suitable for navigation."
+      ],
+      "license": "NASA public domain",
+      "synthetic": false,
+      "used_for": [
+        "base_distance",
+        "science",
+        "map context"
+      ],
+      "access_date": "2026-11-14"
+    },
+    {
+      "dataset_id": "trek_mola_globe",
+      "title": "Mars Trek MOLA color shaded relief",
+      "mission": "Mars Global Surveyor",
+      "instrument": "MOLA",
+      "data_type": "texture",
+      "source_url": "https://trek.nasa.gov/tiles/Mars/EQ/Mars_MGS_MOLA_ClrShade_merge_global_463m/1.0.0/WMTSCapabilities.xml",
+      "temporal_coverage": "MGS mapping mission",
+      "spatial_coverage": "Global",
+      "resolution": "2048 x 1024; zoom 2",
+      "units": "rendered RGB",
+      "format": "JPEG",
+      "processing": "Stitch 8 x 4 zoom-2 JPEG tiles without resampling; north at top, east-positive longitude -180 at left to +180 at right.",
+      "limitations": [
+        "Color encodes elevation and shaded relief; not true-color surface imagery."
+      ],
+      "license": "NASA/JPL-Caltech/GSFC, Mars Trek",
+      "synthetic": false,
+      "used_for": [
+        "globe context"
+      ],
+      "access_date": "2026-11-14"
+    },
+    {
+      "dataset_id": "mission_history",
+      "title": "NASA Mars mission history (curated)",
+      "mission": "NASA Mars exploration",
+      "instrument": "Mission records",
+      "data_type": "mission_history",
+      "source_url": "https://science.nasa.gov/mars/",
+      "temporal_coverage": "1975-present",
+      "spatial_coverage": "Mars missions",
+      "resolution": "Per mission",
+      "units": "dates (ISO 8601)",
+      "format": "JSON",
+      "processing": "Hand-curated from NASA mission pages; each key result links to its source.",
+      "limitations": [
+        "Short summaries; not a complete mission record.",
+        "End dates are last contact or declared end as published."
+      ],
+      "license": "NASA public domain",
+      "synthetic": false,
+      "used_for": [
+        "mission history panel",
+        "database"
+      ],
+      "access_date": "2026-11-14"
+    },
+    {
+      "dataset_id": "cnsa_mission_records",
+      "title": "Tianwen-1 / Zhurong published landing-site and mission record",
+      "mission": "Tianwen-1",
+      "instrument": "Published literature",
+      "data_type": "landing_sites",
+      "source_url": "https://doi.org/10.1038/s41550-021-01519-5",
+      "temporal_coverage": "2021-2022",
+      "spatial_coverage": "Utopia Planitia",
+      "resolution": "Point",
+      "units": "degrees",
+      "format": "GeoJSON / JSON",
+      "processing": "Transcribed from peer-reviewed publication.",
+      "limitations": [
+        "Non-NASA mission; included for context only."
+      ],
+      "license": "Citation only",
+      "synthetic": false,
+      "used_for": [
+        "map context",
+        "mission history"
+      ],
+      "access_date": "2026-11-14"
+    },
+    {
+      "dataset_id": "ice_literature",
+      "title": "Published Mars water-ice context (generalized)",
+      "mission": "Mars Odyssey; MRO; Phoenix; MGS",
+      "instrument": "GRS/NS; HiRISE/SHARAD; Phoenix lander",
+      "data_type": "water_ice",
+      "source_url": "https://doi.org/10.1126/science.1073722",
+      "temporal_coverage": "2002-2018 publications",
+      "spatial_coverage": "Global latitude bands and points",
+      "resolution": "Generalized latitude bands",
+      "units": "degrees",
+      "format": "GeoJSON",
+      "processing": "Latitude bands and points transcribed from cited publications; boundaries generalized.",
+      "limitations": [
+        "Mapped water-ice evidence indicates presence or likelihood, not extractability or accessibility.",
+        "Bands are generalized from publications and are not ice maps."
+      ],
+      "license": "Citation only",
+      "synthetic": false,
+      "used_for": [
+        "map context"
+      ],
+      "access_date": "2026-11-14"
+    },
+    {
+      "dataset_id": "m2020_photogeologic_map",
+      "title": "Stack et al. (2020), Photogeologic Map of the Perseverance Rover Field Site, SSR 216:127",
+      "mission": "Mars 2020 / Perseverance",
+      "instrument": "Published orbital photogeologic unit map",
+      "data_type": "hazard_outlines",
+      "source_url": "https://doi.org/10.1007/s11214-020-00739-x",
+      "temporal_coverage": "2020 pre-landing publication; derived 2026-11-14",
+      "spatial_coverage": "Connected Seitah-associated dune complex, Jezero crater",
+      "resolution": "Generalized vector exterior; estimated uncertainty 250-500 m",
+      "units": "degrees (east-positive longitude, planetocentric latitude)",
+      "format": "GeoJSON (derived from GIS shapefile)",
+      "processing": "GIS supplement https://static-content.springer.com/esm/art%3A10.1007%2Fs11214-020-00739-x/MediaObjects/11214_2020_739_MOESM3_ESM.zip ; SHA-256 970e4c78ae6dc689c99e46eddb4be184704a56952008d0558f643e816e29b118. Select Crater floor fractured 1 / Aeolian bedforms, large; repair, dissolve, select connected component at [77.441,18.439], fill 100 holes, simplify exterior at 150 native meters, analytically invert Mars spherical equirectangular projection (R=3396190 m). See docs/hazard_outlines/seitah/NOTES.md.",
+      "limitations": [
+        "Estimated regional uncertainty 250-500 m, not measured ground-truth accuracy.",
+        "Includes internal bedrock gaps and adjoining dune tongues; not continuous sand or an exact named-region boundary.",
+        "Not for navigation. Absence of a mapped hazard does not mean the terrain is safe."
+      ],
+      "license": "Open access article CC BY 4.0; derived from its published GIS supplement with attribution to Stack et al. (2020).",
+      "synthetic": false,
+      "used_for": [
+        "hazard overlay"
+      ],
+      "access_date": "2026-11-14"
+    },
+    {
+      "dataset_id": "msl_mmgis_ctx",
+      "title": "NASA MMGIS MSL CTX ortho mosaic: Bagnold Dunes derived envelope",
+      "mission": "Mars Science Laboratory / Curiosity; Mars Reconnaissance Orbiter",
+      "instrument": "CTX",
+      "data_type": "hazard_outlines",
+      "source_url": "https://mars.nasa.gov/maps/location/api/configure/get?mission=MSL",
+      "temporal_coverage": "Composite acquisition dates unknown; digitized 2026-11-14",
+      "spatial_coverage": "Bagnold dune belt, Gale crater; clipped to preset bbox [137.2,-4.9,137.6,-4.5]",
+      "resolution": "Approx. 20 m/pixel sampled imagery; boundary uncertainty 200-500 m, locally about 1 km",
+      "units": "degrees (east-positive longitude, planetocentric latitude)",
+      "format": "GeoJSON (manual image digitization)",
+      "processing": "NASA public configuration and CTX TMS tiles https://mars.nasa.gov/mmgis-maps/MSL/Layers/MSL_CTX_ortho_mosaic_6m/{z}/{x}/{y}.png ; 30 zoom-12 tiles (x=3608..3613, TMS y=1992..1996), 1536x1280 mosaic. Manually trace 56 pixel vertices; three grid controls define affine transform to longitude/latitude; clip, round to seven decimals and orient CCW (52 distinct vertices). Affine approximation residual 2.04 m. See docs/hazard_outlines/bagnold/NOTES.md and raw/digitization.json there.",
+      "limitations": [
+        "Estimated boundary uncertainty 200-500 m, locally about 1 km; not a statistical accuracy measurement.",
+        "Includes bedrock gaps and sand aprons; smaller patches may be omitted; western clipping edge is not a natural field boundary.",
+        "Not for navigation. Absence of a mapped hazard does not mean the terrain is safe."
+      ],
+      "license": "NASA public domain",
+      "synthetic": false,
+      "used_for": [
+        "hazard overlay"
+      ],
+      "access_date": "2026-11-14"
+    }
+  ]
+}

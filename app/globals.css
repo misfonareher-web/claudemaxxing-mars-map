@@ -1,0 +1,88 @@
+@import "tailwindcss";
+
+@theme inline {
+  --color-ares-bg: #090605;
+  --color-ares-panel: #140e0b;
+  --color-ares-raised: #1e1510;
+  --color-ares-line: #3b2418;
+  --color-ares-accent: #f06423;
+  --color-ares-accent-soft: #ff8c4a;
+  --color-ares-text: #f7efe8;
+  --color-ares-mute: #b5a394;
+  --color-ares-dim: #7f6d60;
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+html,
+body {
+  height: 100%;
+  background: #090605;
+  color: #f7efe8;
+  font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+}
+
+::selection {
+  background: rgba(240, 100, 35, 0.35);
+  color: #ffffff;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(240, 100, 35, 0.35) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(240, 100, 35, 0.35);
+  border-radius: 9999px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(240, 100, 35, 0.65);
+}
+
+/* Leaflet Martian dark surface overrides */
+.leaflet-container {
+  background: #090605 !important;
+  font-family: var(--font-geist-sans), system-ui, sans-serif !important;
+  cursor: grab;
+}
+
+.leaflet-container:active {
+  cursor: grabbing;
+}
+
+.mars-custom-marker {
+  background: transparent !important;
+  border: none !important;
+}
+
+@keyframes ares-pulse {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.75;
+  }
+  100% {
+    transform: scale(1.85);
+    opacity: 0;
+  }
+}
+
+.ares-pulse {
+  animation: ares-pulse 2.2s cubic-bezier(0.16, 1, 0.3, 1) infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ares-pulse {
+    animation: none;
+  }
+}

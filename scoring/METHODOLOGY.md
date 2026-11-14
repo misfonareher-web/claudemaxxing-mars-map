@@ -1,0 +1,19 @@
+﻿# Conditional heuristic EVA methodology
+
+This is a conditional comparison of coarse terrain cells, not a validated model or safety certification. Resolution hides local obstacles; thermal brightness and ice evidence are proxies; weights and mission scenarios remain team decisions.
+
+The 0–100 index is a conditional heuristic methodology for comparison, not a safety certification or a validated model.
+Absence of a mapped hazard does not mean the terrain is safe.
+Mapped water-ice evidence indicates presence or likelihood, not extractability or accessibility.
+
+Weights are normalized to sum to one. At each cell unavailable factors have zero effective weight and remaining weights are renormalized. Contributions are 100 times effective weight times subscore. Sum contributions, apply each overlapping lower-severity hazard multiplier, round to the nearest integer. Exclusions override with zero. Required terrain nodata yields null and cannot be traversed.
+
+Parameters come unchanged from config/scoring_weights.json. Slope is one through 5 degrees, falls linearly to zero at 25 degrees, and excludes above 25. Roughness is one through 10 m and zero at 60 m. Thermal scales linearly from 0.2 to 0.8, preferring higher values; ice scales from zero to one. These are relative proxies, not physiological limits. Science is exp(-nearest selected target distance / 3 km); base proximity is max(0, 1-distance/preset EVA radius). The seeded radius is 10 km. Hazards at severity 3 exclude; others multiply by 1-0.15*severity. All parameters and profiles can be changed in the existing JSON keys; request weights replace the profile weights, unspecified factors become zero. No config values were changed.
+
+The illustrative contract example uses rounded subscores: contributions 30 + 9.2 + 8.7 + 1.5 + 10.6 + 7.2 = 67.2, rounded to 67. Evaluating the listed raw inputs precisely instead gives approximately 67.553 and rounds to 68 (roughness is 0.92, thermal 0.583333, science exp(-1.9/3)=0.530819). Thus example values are illustrative; the binding mathematical semantics govern computation rather than prematurely rounding subscores. Factor contributions remain pre-hazard as explicitly defined; their sum matches the final score only without penalties/exclusions.
+
+Compute on the data grid, then block nan-mean numeric fields using the smallest integer block factor satisfying max_cells. Partial edge blocks are clipped to the bbox. Any exclusion in a block conservatively excludes that output cell; hazard IDs and exclusion reasons are unioned. Effective weights in metadata are the mean of per-cell weights. Cell factors retain their local weights. Nodata in individual factors is unavailable per cell. Missing vectors are flagged, not interpreted as evidence of safety. Polygon ray casting uses the usual half-open edge convention; hole interiors are excluded.
+
+Routing uses 8-connected A* with spherical edge distances and destination cell cost distance*(1+k*(1-score/100)). The heuristic lower-bounds travel cost using the greatest available score. Diagonal moves cannot cross blocked corners. Endpoints inside the bbox snap to the nearest finite, nonexcluded cell by spherical distance. Disconnected components yield null geometry and reachable false; no valid cells also yields unreachable. A coincident snapped endpoint produces a two-position zero-length line. Elevation gain/loss and route summaries use the full unsimplified path; output drops collinear grid directions. Route thresholds and score-cost factor come from config.
+
+Runtime imports are restricted to the standard library and NumPy. Fixtures are generated only under temporary directories. Python 3.11/NumPy 1.24 compatibility is by API selection; actual runtime verification is reported separately.

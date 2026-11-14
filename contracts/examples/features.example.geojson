@@ -1,0 +1,55 @@
+{
+  "type": "FeatureCollection",
+  "crs_note": "Mars 2000 planetocentric, east-positive, degrees",
+  "dataset_ids": ["pds_landing_sites", "ody_grs_weh", "mola_megdr", "mission_science_targets"],
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {"type": "Point", "coordinates": [77.4508, 18.4447]},
+      "properties": {
+        "id": "ls-mars2020", "kind": "landing_site", "name": "Octavia E. Butler Landing",
+        "description": "Mars 2020 Perseverance landing site.",
+        "dataset_id": "pds_landing_sites", "preset_ids": ["jezero"], "confidence": "high",
+        "caveat": "Coordinates rounded to 4 decimals.",
+        "source_ref": "https://science.nasa.gov/mission/mars-2020-perseverance/",
+        "mission": "Mars 2020", "agency": "NASA", "landing_date": "2021-02-18", "status": "active"
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {"type": "Polygon", "coordinates": [[[77.2, 18.25], [77.75, 18.25], [77.75, 18.7], [77.2, 18.7], [77.2, 18.25]]]},
+      "properties": {
+        "id": "ice-jezero-weh", "kind": "ice", "name": "Regional water-equivalent hydrogen (coarse)",
+        "description": "Neutron-derived WEH averaged over a coarse bin covering the preset.",
+        "dataset_id": "ody_grs_weh", "preset_ids": ["jezero"], "confidence": "low",
+        "caveat": "Mapped water-ice evidence indicates presence or likelihood, not extractability or accessibility. Bin is far coarser than the map.",
+        "source_ref": "PDS Geosciences Node, Odyssey GRS derived products",
+        "ice_metric": "WEH_percent", "ice_value": 3.0, "depth_estimate_m": null
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {"type": "Polygon", "coordinates": [[[77.40, 18.40], [77.45, 18.40], [77.45, 18.44], [77.40, 18.44], [77.40, 18.40]]]},
+      "properties": {
+        "id": "hz-example-steep", "kind": "hazard", "name": "Steep slope zone",
+        "description": "Cells with MOLA-derived slope above threshold.",
+        "dataset_id": "mola_megdr", "preset_ids": ["jezero"], "confidence": "medium",
+        "caveat": "Absence of a mapped hazard does not mean the terrain is safe. Derived from ~463 m data.",
+        "source_ref": "Derived from MOLA MEGDR",
+        "hazard_kind": "steep_slope", "severity": 2, "derived": true
+      }
+    },
+    {
+      "type": "Feature",
+      "geometry": {"type": "Point", "coordinates": [77.40, 18.50]},
+      "properties": {
+        "id": "st-jezero-delta-front", "kind": "science_target", "name": "Western delta front",
+        "description": "Fan-delta sediments of the ancient lake.",
+        "dataset_id": "mission_science_targets", "preset_ids": ["jezero"], "confidence": "medium",
+        "caveat": "Approximate coordinates digitized from published mission maps.",
+        "source_ref": "https://science.nasa.gov/mission/mars-2020-perseverance/",
+        "priority": 1, "science_goal": "Biosignature-bearing lake sediments"
+      }
+    }
+  ]
+}
