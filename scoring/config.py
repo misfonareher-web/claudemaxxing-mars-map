@@ -52,6 +52,8 @@ def load():
         assert config['hazard_rules']['exclude_severity_at_least'] > 0
         assert 0 <= config['hazard_rules']['penalty_per_severity'] <= 1
         assert math.isfinite(config.get('route',{}).get('score_cost_factor',2.0)) and config.get('route',{}).get('score_cost_factor',2.0) >= 0
+        max_snap = config.get('route', {}).get('max_snap_km')
+        assert max_snap is None or (not isinstance(max_snap, bool) and isinstance(max_snap, (int, float)) and math.isfinite(max_snap) and max_snap >= 0)
     except (KeyError, TypeError, AssertionError, Error) as exc:
         raise Error('Invalid configuration: ' + str(exc), 'internal', 1)
     return root, missions, config
