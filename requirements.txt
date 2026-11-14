@@ -1,0 +1,4 @@
+# ARES data pipeline (etl/). Python >= 3.11. Install: pip install -r requirements.txt
+# Everything else used by etl/ is the Python standard library; downloads also need the curl command.
+numpy>=1.24
+Pillow>=9

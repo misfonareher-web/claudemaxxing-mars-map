@@ -39,8 +39,8 @@ SCIENCE_TARGETS = {
     'st-jezero-seitah': ('Seitah (crater floor, olivine-rich layered rocks)', 77.433, 18.43, 'low', 'https://science.nasa.gov/photojournal/flight-12-view-of-south-seitah/',
                          'Approximate position; NASA describes Seitah as a sandy, rocky crater-floor unit west of the landing site. Verify against the Perseverance traverse map.',
                          'Olivine-rich igneous layers, possibly the oldest exposed rocks in Jezero'),
-    'st-gale-pahrump-hills': ('Pahrump Hills (base of Mount Sharp)', 137.379, -4.676, 'medium', 'https://www.uahirise.org/ESP_039280_1755',
-                              'Center of HiRISE image ESP_039280_1755 acquired while Curiosity was at Pahrump Hills (13 Dec 2014); the outcrop lies within that frame, not exactly at its center.',
+    'st-gale-pahrump-hills': ('Pahrump Hills (base of Mount Sharp)', 137.3775, -4.6627, 'high', 'https://mars.nasa.gov/mmgis-maps/MSL/Layers/json/MSL_waypoints.json',
+                              'Sol-753 rover end-of-drive position at Pahrump Hills arrival, rounded to four decimals from NASA MSL waypoints; a rover position, not the full outcrop extent. Not for navigation.',
                               'Murray formation mudstones at the base of Mount Sharp (ancient lake deposits)'),
 }
 
@@ -141,3 +141,21 @@ PROVENANCE_ICE = dict(dataset_id='ice_literature', title='Published Mars water-i
                       data_type='water_ice', source_url='https://doi.org/10.1126/science.1073722', temporal_coverage='2002-2018 publications', spatial_coverage='Global latitude bands and points',
                       resolution='Generalized latitude bands', units='degrees', format='GeoJSON', processing='Latitude bands and points transcribed from cited publications; boundaries generalized.',
                       limitations=[ICE, 'Bands are generalized from publications and are not ice maps.'], license='Citation only', synthetic=False, used_for=['map context'])
+
+PROVENANCE_SEITAH = dict(dataset_id='m2020_photogeologic_map', title='Stack et al. (2020), Photogeologic Map of the Perseverance Rover Field Site, SSR 216:127',
+    mission='Mars 2020 / Perseverance', instrument='Published orbital photogeologic unit map', data_type='hazard_outlines',
+    source_url='https://doi.org/10.1007/s11214-020-00739-x', temporal_coverage='2020 pre-landing publication; derived 2026-11-14',
+    spatial_coverage='Connected Seitah-associated dune complex, Jezero crater', resolution='Generalized vector exterior; estimated uncertainty 250-500 m',
+    units='degrees (east-positive longitude, planetocentric latitude)', format='GeoJSON (derived from GIS shapefile)',
+    processing='GIS supplement https://static-content.springer.com/esm/art%3A10.1007%2Fs11214-020-00739-x/MediaObjects/11214_2020_739_MOESM3_ESM.zip ; SHA-256 970e4c78ae6dc689c99e46eddb4be184704a56952008d0558f643e816e29b118. Select Crater floor fractured 1 / Aeolian bedforms, large; repair, dissolve, select connected component at [77.441,18.439], fill 100 holes, simplify exterior at 150 native meters, analytically invert Mars spherical equirectangular projection (R=3396190 m). See docs/hazard_outlines/seitah/NOTES.md.',
+    limitations=['Estimated regional uncertainty 250-500 m, not measured ground-truth accuracy.', 'Includes internal bedrock gaps and adjoining dune tongues; not continuous sand or an exact named-region boundary.', 'Not for navigation. Absence of a mapped hazard does not mean the terrain is safe.'],
+    license='Open access article CC BY 4.0; derived from its published GIS supplement with attribution to Stack et al. (2020).', synthetic=False, used_for=['hazard overlay'])
+PROVENANCE_BAGNOLD = dict(dataset_id='msl_mmgis_ctx', title='NASA MMGIS MSL CTX ortho mosaic: Bagnold Dunes derived envelope',
+    mission='Mars Science Laboratory / Curiosity; Mars Reconnaissance Orbiter', instrument='CTX', data_type='hazard_outlines',
+    source_url='https://mars.nasa.gov/maps/location/api/configure/get?mission=MSL', temporal_coverage='Composite acquisition dates unknown; digitized 2026-11-14',
+    spatial_coverage='Bagnold dune belt, Gale crater; clipped to preset bbox [137.2,-4.9,137.6,-4.5]',
+    resolution='Approx. 20 m/pixel sampled imagery; boundary uncertainty 200-500 m, locally about 1 km',
+    units='degrees (east-positive longitude, planetocentric latitude)', format='GeoJSON (manual image digitization)',
+    processing='NASA public configuration and CTX TMS tiles https://mars.nasa.gov/mmgis-maps/MSL/Layers/MSL_CTX_ortho_mosaic_6m/{z}/{x}/{y}.png ; 30 zoom-12 tiles (x=3608..3613, TMS y=1992..1996), 1536x1280 mosaic. Manually trace 56 pixel vertices; three grid controls define affine transform to longitude/latitude; clip, round to seven decimals and orient CCW (52 distinct vertices). Affine approximation residual 2.04 m. See docs/hazard_outlines/bagnold/NOTES.md and raw/digitization.json there.',
+    limitations=['Estimated boundary uncertainty 200-500 m, locally about 1 km; not a statistical accuracy measurement.', 'Includes bedrock gaps and sand aprons; smaller patches may be omitted; western clipping edge is not a natural field boundary.', 'Not for navigation. Absence of a mapped hazard does not mean the terrain is safe.'],
+    license='NASA public domain', synthetic=False, used_for=['hazard overlay'])
