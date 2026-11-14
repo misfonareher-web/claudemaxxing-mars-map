@@ -1,0 +1,21 @@
+{
+  "type": "FeatureCollection",
+  "crs_note": "Mars 2000 planetocentric, east-positive, degrees",
+  "meta": {
+    "preset_id": "jezero",
+    "profile": "balanced",
+    "label": "Heuristic least-cost EVA route",
+    "disclaimers": [
+      "The route is a heuristic least-cost path on a coarse grid, not a validated traverse plan.",
+      "Absence of a mapped hazard does not mean the terrain is safe."
+    ],
+    "data_flags": []
+  },
+  "features": [
+    {
+      "type": "Feature",
+      "geometry": {"type": "LineString", "coordinates": [[77.4508, 18.4447], [77.4430, 18.4510], [77.4010, 18.4980]]},
+      "properties": {"distance_km": 4.2, "elevation_gain_m": 120.0, "elevation_loss_m": 35.0, "max_slope_deg": 11.3, "mean_score": 64.0, "steps": 58, "reachable": true}
+    }
+  ]
+}

@@ -94,21 +94,116 @@ export interface MissionPreset {
   environment_dataset_id: string;
 }
 
-export interface MissionRecord {
-  id: string;
-  name: string;
-  agency: string;
-  mission_type: string;
-  launch_date: string;
-  landing_date?: string;
-  end_date?: string | null;
-  status: string;
-  landing_site_id?: string;
-  instruments: string[];
-  key_results: {
-    text: string;
-    source_url: string;
-  }[];
-  source_url: string;
-  dataset_id: string;
+export interface EnvironmentSeriesPoint {
+  sol: number;
+  air_temp_min_c?: number;
+  air_temp_max_c?: number;
+  ground_temp_min_c?: number;
+  ground_temp_max_c?: number;
+  pressure_mean_pa?: number;
+  relative_humidity_mean_pct?: number;
 }
+
+export interface EnvironmentSummary {
+  preset_id: string;
+  dataset_id: string;
+  station: { name: string; lon: number; lat: number };
+  sol_range: [number, number];
+  summary: {
+    air_temp_c: { min: number; max: number; mean: number | null };
+    pressure_pa: { min: number; max: number; mean: number | null };
+    relative_humidity_pct?: { min: number; max: number; mean: number | null };
+    ground_temp_max_c?: { min: number; max: number; mean: number | null };
+  };
+  series?: EnvironmentSeriesPoint[];
+  caveat: string;
+}
+
+export type AppTab = "map" | "settings";
+
+export type ScoringProfileId =
+  | "balanced"
+  | "safety_first"
+  | "science_first"
+  | "resource_first";
+
+export type ScoringFactorKey =
+  | "slope"
+  | "roughness"
+  | "thermal"
+  | "ice"
+  | "science"
+  | "base_distance";
+
+export interface ScoringFactorBreakdown {
+  value: number | null;
+  units: string;
+  subscore: number | null;
+  weight: number;
+  contribution: number;
+  available: boolean;
+}
+
+export interface BackendPointScoreResponse {
+  type: "Feature";
+  id: string;
+  geometry: {
+    type: "Polygon" | "Point";
+    coordinates: unknown;
+  };
+  properties: {
+    cell_id: string;
+    row?: number;
+    col?: number;
+    center: [number, number]; // [lon, lat]
+    elevation_m?: number | null;
+    score: number | null;
+    excluded: boolean;
+    exclusion_reasons: string[];
+    factors: Record<ScoringFactorKey, ScoringFactorBreakdown>;
+    hazard_ids: string[];
+    data_flags: string[];
+  };
+  meta: {
+    preset_id: string;
+    profile: ScoringProfileId;
+    weights: Record<ScoringFactorKey, number>;
+    effective_weights: Record<ScoringFactorKey, number>;
+    methodology_version: string;
+    label: string;
+    disclaimers: string[];
+    datasets: string[];
+    data_flags: string[];
+  };
+}
+
+export interface BackendRouteProperties {
+  distance_km: number | null;
+  elevation_gain_m: number | null;
+  elevation_loss_m: number | null;
+  max_slope_deg: number | null;
+  mean_score: number | null;
+  steps: number;
+  reachable: boolean;
+}
+
+export interface BackendRouteResponse {
+  type: "FeatureCollection";
+  crs_note: string;
+  meta: {
+    preset_id: string;
+    profile: ScoringProfileId;
+    label: string;
+    disclaimers: string[];
+    data_flags: string[];
+  };
+  features: {
+    type: "Feature";
+    geometry: {
+      type: "LineString";
+      coordinates: [number, number][]; // [lon, lat][]
+    } | null;
+    properties: BackendRouteProperties;
+  }[];
+}
+
