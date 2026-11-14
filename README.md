@@ -4,7 +4,7 @@ NASA Space Apps 2026 · *Interplanetary Survival Guide: Martian Map* · team Cla
 
 Готовые данные для карты, маршрутов и графиков: рельеф, уклоны, тепловой ИК, лёд, опасности,
 места посадок, история миссий, атмосфера (MEDA/REMS) и текстура Марса для режима сферы.
-Все наборы — из архивов NASA (PDS, Mars Trek), с источником и ограничениями в `data/provenance.json`.
+ARES uses NASA measurements and cartographic products plus cited literature and derived annotations. Non-NASA items include CNSA Zhurong information from published literature and the Séítah outline derived from the published GIS map by Stack et al. (2020); the team digitized the Bagnold outline from NASA CTX imagery. Sources and limitations are in `data/provenance.json`.
 
 ## Conventions
 
@@ -43,6 +43,8 @@ Mars Trek WMTS basemaps (EPSG:4326-style, 2×1 tiles at z=0):
 - Absence of a mapped hazard does not mean the terrain is safe.
 - MOLA cells are ~463 m: slopes are smoothed; boulders, ripples and small craters are not resolved.
 - `thermal_index` is relative THEMIS image brightness, not temperature or thermal inertia.
+- Preset base points are historical landing sites standing in for a hypothetical habitat. The 10 km radial EVA cutoff is a demo assumption, not a NASA requirement or a validated walking/return range.
+- Jezero targets include delta/lake sediments and the separate Séítah olivine-rich igneous cumulate crater-floor unit ([Liu et al., 2022](https://doi.org/10.1126/science.abo2756)).
 - Weather series are historical point measurements at a moving rover, not current regional conditions.
 - If a 0–100 index is built on this data, it is a conditional heuristic methodology for comparison, not a safety certification or a validated model.
 

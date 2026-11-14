@@ -2,17 +2,113 @@
   "version": 1,
   "preset_id": "jezero",
   "dataset_id": "meda_derived_daily",
-  "station": {"name": "Perseverance / MEDA", "lon": 77.45, "lat": 18.44},
-  "sol_range": [100, 101],
+  "station": {
+    "name": "Perseverance / MEDA",
+    "lon": 77.4508,
+    "lat": 18.4447
+  },
+  "sol_range": [
+    10,
+    46
+  ],
   "summary": {
-    "air_temp_c": {"min": -80.1, "max": -12.3, "mean": -46.0},
-    "pressure_pa": {"min": 718.0, "max": 723.0, "mean": 720.5},
-    "notes": "Example values only."
+    "air_temp_c": {
+      "min": -80.96,
+      "max": -20.3,
+      "mean": null
+    },
+    "pressure_pa": {
+      "min": 738.3,
+      "max": 758.39,
+      "mean": 747.57
+    },
+    "relative_humidity_pct": {
+      "min": null,
+      "max": null,
+      "mean": null
+    },
+    "notes": "Illustrative reduced-cache shape only; summary values are examples."
   },
   "series": [
-    {"sol": 100, "air_temp_min_c": -80.1, "air_temp_max_c": -12.3, "pressure_mean_pa": 720.5},
-    {"sol": 101, "air_temp_min_c": -79.4, "air_temp_max_c": -13.0, "pressure_mean_pa": 719.8}
+    {
+      "sol": 10,
+      "air_temp_min_c": -31.44,
+      "air_temp_max_c": -20.3,
+      "air_temp_min_ltst": "14:05:01",
+      "air_temp_max_ltst": "14:20:16",
+      "samples_air": 2685,
+      "observations": {
+        "air": {
+          "n_samples": 2685,
+          "ltst_span": null
+        },
+        "pressure": {
+          "n_samples": null,
+          "ltst_span": null
+        },
+        "rh": {
+          "n_samples": null,
+          "ltst_span": null
+        }
+      },
+      "air_temp_mean_c": null,
+      "relative_humidity_min_pct": null,
+      "partial_coverage": true,
+      "quality_note": "Fewer than 3600 valid ATS samples: insufficient to establish full-sol extrema."
+    },
+    {
+      "sol": 46,
+      "air_temp_min_c": -80.96,
+      "air_temp_max_c": -20.34,
+      "air_temp_min_ltst": "04:43:18",
+      "air_temp_max_ltst": "14:17:44",
+      "samples_air": 105215,
+      "pressure_mean_pa": 747.57,
+      "pressure_min_pa": 738.3,
+      "pressure_max_pa": 758.39,
+      "observations": {
+        "air": {
+          "n_samples": 105215,
+          "ltst_span": null
+        },
+        "pressure": {
+          "n_samples": null,
+          "ltst_span": null
+        },
+        "rh": {
+          "n_samples": null,
+          "ltst_span": null
+        }
+      },
+      "air_temp_mean_c": null,
+      "relative_humidity_min_pct": null,
+      "partial_coverage": null,
+      "quality_note": "Full-sol coverage unknown; counts or extrema times cannot establish continuous coverage."
+    }
   ],
-  "caveat": "Point measurements at the rover location during the listed sols; not current conditions and not representative of the whole region.",
-  "synthetic": true
+  "caveat": "Point measurements at the rover location during the listed sols; not current conditions and not representative of the whole region. Station coordinates are the landing site; the rover has since traversed several kilometres.",
+  "synthetic": true,
+  "sampling": {
+    "first_sol": 10,
+    "last_sol": 82,
+    "step": 36
+  },
+  "missing_sols": [
+    {
+      "sol": 82,
+      "reason": "Illustrative missing scheduled sol"
+    }
+  ],
+  "statistic_labels": {
+    "extrema": "Observed min/max over n_samples retained observations, not full-sol extrema.",
+    "mean": "Equal-weight mean of available per-sol sample means; not time-weighted.",
+    "relative_humidity_min": "minimum_of_per_sol_means"
+  },
+  "field_caveats": {
+    "coverage": "Counts are retained observations per field. Null counts/spans were not cached; extrema times cannot reconstruct coverage.",
+    "air_temp_c": "Null air means were not cached; extrema cannot reconstruct a mean.",
+    "quality": "Instrument confidence flags not applied; no rover-heating correction. Historical sensor-local data, no forecast or safe EVA window. Wind/dust/UV/ionizing radiation unavailable.",
+    "relative_humidity_pct": "RH is local to sensor temperature. Observed RH minimum unavailable in reduced cache; summary min remains the minimum of per-sol means. RH = 0 % samples may have been dropped by an earlier filter; RH statistics unverified.",
+    "legacy_filter": "Cached MEDA air/pressure statistics predate physical screening; sample-level validation is unavailable offline."
+  }
 }

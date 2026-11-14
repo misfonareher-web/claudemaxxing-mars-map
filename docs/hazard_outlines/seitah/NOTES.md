@@ -84,3 +84,7 @@ Absence of a mapped hazard does not mean the terrain is safe.
 ## Repository integration
 
 The production input is `../../../etl/sources/hazard_outlines.geojson`; the ETL reads it without GIS dependencies. The copied builder is an archival derivation script, run from this directory only after restoring the documented research inputs. Raw downloads, imagery, extracted GIS files, QA products, fetch scripts and local dependency directories are intentionally omitted from the repository. References above to those files describe the original research workspace; the builder is not part of the offline ETL rebuild. Restore the cited archive as `raw/stack_gis.zip`, extract its shapefile files into `raw/stack_gis/`, and provide PyShp/Shapely to reproduce the archival build.
+
+## Scoring use
+
+ARES uses this outline as an approximate scoring penalty, not a navigation boundary. Severity 2 receives the configured hazard penalty (currently a multiplier of 0.70). The uncertainty and included bedrock gaps described above still apply.

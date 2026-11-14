@@ -88,7 +88,7 @@
       "resolution": "One row per sampled sol (daily min/max/mean of ~1 Hz samples)",
       "units": "degC; Pa; percent RH",
       "format": "PDS4 CSV (calibrated ATS; derived PS, RHS) reduced to JSON",
-      "processing": "Complete per-sol CSVs streamed; air temperature = mean of ATS_LOCAL_TEMP1-3 per sample (K-273.15); pressure from derived PS; local RH from derived RHS; values <=0 or >=999999999 treated as missing; daily min/max/mean; LTST of min/max air temperature recorded.",
+      "processing": "Complete per-sol CSVs streamed; air temperature = mean of ATS_LOCAL_TEMP1-3 per sample (K-273.15); pressure from derived PS; local RH from derived RHS; finite air 120-320 K, pressure 100-1500 Pa, RH 0-100 percent (zero retained); known placeholders rejected; legacy cache caveats in environment JSON; daily min/max/mean; LTST of min/max air temperature recorded.",
       "limitations": [
         "ATS sensors sit about 1 m above ground near the rover; readings can include rover thermal contamination and are not free-stream atmospheric temperature.",
         "RHS relative humidity is local to the sensor temperature, not near-surface ambient RH.",
@@ -114,7 +114,7 @@
       "resolution": "One row per sampled sol (daily min/max/mean)",
       "units": "degC; Pa; percent RH",
       "format": "PDS4 calibrated MODRDR (RMD) tables reduced to JSON",
-      "processing": "Complete per-sol RMD tables streamed; AMBIENT_TEMP and BRIGHTNESS_TEMP K-273.15; PRESSURE Pa; LOCAL_RELATIVE_HUMIDITY %; -999 treated as missing; daily min/max/mean.",
+      "processing": "Complete per-sol RMD tables streamed; AMBIENT_TEMP and BRIGHTNESS_TEMP K-273.15; PRESSURE Pa; LOCAL_RELATIVE_HUMIDITY %; -999 treated as missing; finite air 120-320 K, ground 150-330 K, pressure 100-1500 Pa, RH 0-100 percent; legacy cache caveats in environment JSON; daily min/max/mean.",
       "limitations": [
         "REMS air temperature is measured on the mast booms about 1.6 m above ground and can include rover thermal effects.",
         "REMS wind sensor was damaged at landing; wind is omitted.",
@@ -174,6 +174,29 @@
       "synthetic": false,
       "used_for": [
         "globe context"
+      ],
+      "access_date": "2026-11-14"
+    },
+    {
+      "dataset_id": "trek_mola_clrshade",
+      "title": "Mars Trek MOLA ClrShade WMTS basemap",
+      "mission": "Mars Global Surveyor",
+      "instrument": "MOLA",
+      "data_type": "basemap",
+      "source_url": "https://trek.nasa.gov/tiles/Mars/EQ/Mars_MGS_MOLA_ClrShade_merge_global_463m/1.0.0/WMTSCapabilities.xml",
+      "temporal_coverage": "MGS mapping mission",
+      "spatial_coverage": "Global",
+      "resolution": "463 m source product; WMTS zoom levels 0-7",
+      "units": "rendered RGB",
+      "format": "WMTS JPEG tiles",
+      "processing": "Mars Trek color shaded relief tiles served directly to the map; no ARES stitching or resampling.",
+      "limitations": [
+        "Color encodes elevation and shaded relief; not true-color surface imagery."
+      ],
+      "license": "NASA/JPL-Caltech/GSFC, Mars Trek",
+      "synthetic": false,
+      "used_for": [
+        "map basemap"
       ],
       "access_date": "2026-11-14"
     },
@@ -271,7 +294,8 @@
       "license": "Open access article CC BY 4.0; derived from its published GIS supplement with attribution to Stack et al. (2020).",
       "synthetic": false,
       "used_for": [
-        "hazard overlay"
+        "hazard overlay",
+        "approximate scoring penalty"
       ],
       "access_date": "2026-11-14"
     },
@@ -296,7 +320,8 @@
       "license": "NASA public domain",
       "synthetic": false,
       "used_for": [
-        "hazard overlay"
+        "hazard overlay",
+        "approximate scoring penalty"
       ],
       "access_date": "2026-11-14"
     }
