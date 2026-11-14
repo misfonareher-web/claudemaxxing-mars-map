@@ -233,7 +233,7 @@
           "jezero"
         ],
         "confidence": "high",
-        "caveat": "Official landing coordinates (planetocentric, east-positive), copied from config/mission_presets.json.",
+        "caveat": "Historical landing-site coordinates (planetocentric, east-positive), copied from config/mission_presets.json; used as a stand-in for a hypothetical habitat in the EVA demo, not an existing crew habitat.",
         "source_ref": "https://science.nasa.gov/mission/mars-2020-perseverance/",
         "synthetic": false,
         "mission": "Mars 2020 / Perseverance",
@@ -261,7 +261,7 @@
           "gale"
         ],
         "confidence": "high",
-        "caveat": "Official landing coordinates (planetocentric, east-positive), copied from config/mission_presets.json.",
+        "caveat": "Historical landing-site coordinates (planetocentric, east-positive), copied from config/mission_presets.json; used as a stand-in for a hypothetical habitat in the EVA demo, not an existing crew habitat.",
         "source_ref": "https://ode.rsl.wustl.edu/mars/pagehelp/Content/Missions_Instruments/Landing_Sites.htm",
         "synthetic": false,
         "mission": "Mars Science Laboratory / Curiosity",

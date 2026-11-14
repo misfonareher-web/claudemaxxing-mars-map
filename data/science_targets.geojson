@@ -43,18 +43,18 @@
       "properties": {
         "id": "st-jezero-seitah",
         "kind": "science_target",
-        "name": "Seitah (crater floor, olivine-rich layered rocks)",
-        "description": "Olivine-rich igneous layers, possibly the oldest exposed rocks in Jezero",
+        "name": "Seitah (crater floor, olivine-rich igneous cumulate)",
+        "description": "Olivine-rich igneous cumulate rocks of the crater floor, distinct from delta/lake sediments",
         "dataset_id": "mission_features",
         "preset_ids": [
           "jezero"
         ],
         "confidence": "low",
-        "caveat": "Approximate position; NASA describes Seitah as a sandy, rocky crater-floor unit west of the landing site. Verify against the Perseverance traverse map.",
-        "source_ref": "https://science.nasa.gov/photojournal/flight-12-view-of-south-seitah/",
+        "caveat": "Approximate position from NASA context imagery (https://science.nasa.gov/photojournal/flight-12-view-of-south-seitah/); Liu et al. (2022) identify Seitah as an olivine-rich igneous cumulate crater-floor unit, separate from the delta/lake deposits. Verify position against the Perseverance traverse map.",
+        "source_ref": "https://doi.org/10.1126/science.abo2756",
         "synthetic": false,
         "priority": 1,
-        "science_goal": "Olivine-rich igneous layers, possibly the oldest exposed rocks in Jezero"
+        "science_goal": "Olivine-rich igneous cumulate rocks of the crater floor, distinct from delta/lake sediments"
       }
     },
     {
