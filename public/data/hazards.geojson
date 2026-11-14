@@ -1,0 +1,89 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "id": "olympus-mons-caldera",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-133.8, 18.65]
+      },
+      "properties": {
+        "name": "Olympus Mons Summit & Escarpment",
+        "category": "hazard",
+        "elevation_m": 21229,
+        "score": 14,
+        "pros": [
+          "Above most global dust storm layers",
+          "Potential volcanic lava tubes on lower flanks"
+        ],
+        "risks": [
+          "Extreme altitude (+21.2 km) — near-vacuum atmosphere makes parachute/retropropulsion landing nearly impossible",
+          "Severe cosmic and solar radiation exposure due to thin air column",
+          "8 km peripheral cliff escarpment and bone-dry volcanic terrain"
+        ],
+        "resources": [
+          "Unattenuated solar irradiance",
+          "Basaltic lava flows"
+        ],
+        "source": "NASA MGS MOLA"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "valles-marineris-chasma",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-70.0, -11.5]
+      },
+      "properties": {
+        "name": "Valles Marineris Canyon Walls (Coprates Chasma)",
+        "category": "hazard",
+        "elevation_m": -4000,
+        "score": 32,
+        "pros": [
+          "Deep canyon floor (-4 to -7 km) has the highest atmospheric pressure on Mars",
+          "Exposed geological strata and seasonal recurring slope lineae"
+        ],
+        "risks": [
+          "Catastrophic landslide zones and 7 km steep canyon walls",
+          "Severe turbulent canyon winds (katabatic downdrafts) during entry",
+          "Canyon walls block horizon communications and early/late sunlight"
+        ],
+        "resources": [
+          "Dense CO2 atmosphere at canyon floor",
+          "Exposed hydrated sulfate deposits in chasm walls"
+        ],
+        "source": "NASA MOLA / HiRISE"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "hellas-dust-corridor",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [70.0, -42.4]
+      },
+      "properties": {
+        "name": "Hellas Basin Dust Storm Corridor",
+        "category": "hazard",
+        "elevation_m": -7152,
+        "score": 28,
+        "pros": [
+          "Lowest elevation on Mars (-7.1 km) with highest atmospheric pressure (~11.5 mbar)"
+        ],
+        "risks": [
+          "Primary birthplace of planet-encircling Martian dust storms",
+          "Weeks of near-zero solar visibility during southern spring/summer storms",
+          "High wind gusts and severe electrostatic dust fouling"
+        ],
+        "resources": [
+          "Thick atmospheric column for aerobraking",
+          "Deep basin glacial remnants on crater rim"
+        ],
+        "source": "NASA TES / MRO MARCI"
+      }
+    }
+  ]
+}
+

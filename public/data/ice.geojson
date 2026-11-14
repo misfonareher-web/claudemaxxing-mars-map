@@ -1,0 +1,93 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "id": "arcadia-planitia-ice",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-172.5, 39.2]
+      },
+      "properties": {
+        "name": "Arcadia Planitia Ice Sheet",
+        "category": "ice",
+        "elevation_m": -3900,
+        "score": 91,
+        "pros": [
+          "Massive shallow subsurface water-ice sheet mapped by NASA SWIM & SHARAD",
+          "Low elevation (-3.9 km) and remarkably flat smooth plains",
+          "Mid-latitude (39.2°N) balances accessible water ice with usable sunlight"
+        ],
+        "risks": [
+          "Colder winters than equatorial sites",
+          "Seasonal frost and northern storm fronts"
+        ],
+        "resources": [
+          "High-purity subsurface water ice (<1–3 m depth)",
+          "Flat volcanic plains ideal for starship landing pads",
+          "Abundant atmospheric CO2 + water for in-situ propellant (ISRU)"
+        ],
+        "source": "NASA SWIM (Subsurface Water Ice Mapping) / MRO SHARAD"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "utopia-planitia-ice",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [110.0, 43.5]
+      },
+      "properties": {
+        "name": "Utopia Planitia Ice Deposit",
+        "category": "ice",
+        "elevation_m": -4400,
+        "score": 86,
+        "pros": [
+          "Contains more subsurface water ice than Lake Superior (50–85% water ice by volume)",
+          "Deep basin (-4.4 km) provides maximum atmospheric braking & radiation protection",
+          "Broad, flat basin floor"
+        ],
+        "risks": [
+          "Higher latitude (43.5°N) reduces winter solar efficiency",
+          "Scattered scalloped depressions (thermokarst pits)"
+        ],
+        "resources": [
+          "Vast buried water-ice deposit (1–10 m overburden)",
+          "Smooth regolith for habitat burial",
+          "High atmospheric pressure (~8–9 mbar)"
+        ],
+        "source": "NASA MRO SHARAD / USGS"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "deuteronilus-mensae-glaciers",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [23.0, 42.0]
+      },
+      "properties": {
+        "name": "Deuteronilus Mensae Lobate Glaciers",
+        "category": "ice",
+        "elevation_m": -2800,
+        "score": 79,
+        "pros": [
+          "Debris-covered glaciers containing nearly pure buried water ice",
+          "Natural mesa cliffs offer potential cave/alcove radiation shelter",
+          "Accessible mid-latitude (42°N) along dichotomy boundary"
+        ],
+        "risks": [
+          "Rugged mesa edges require precision landing on valley floors",
+          "Rockfall hazard near steep fretted terrain walls"
+        ],
+        "resources": [
+          "Glacial water ice beneath thin rocky debris apron",
+          "Diverse highland-lowland boundary geology & minerals",
+          "Natural terrain shielding against solar particle events"
+        ],
+        "source": "NASA SWIM / ESA Mars Express"
+      }
+    }
+  ]
+}
+

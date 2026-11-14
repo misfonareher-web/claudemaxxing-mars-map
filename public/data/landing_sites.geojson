@@ -1,0 +1,130 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {
+      "type": "Feature",
+      "id": "perseverance-jezero",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [77.4508, 18.4447]
+      },
+      "properties": {
+        "name": "Jezero Crater (Perseverance)",
+        "category": "landing_site",
+        "year": 2021,
+        "mission": "NASA Mars 2020 Perseverance",
+        "elevation_m": -2500,
+        "score": 84,
+        "pros": [
+          "Ancient river delta rich in hydrated minerals",
+          "Low elevation (-2.5 km) gives denser atmosphere for braking",
+          "Near-equatorial latitude (18.4°N) provides warm solar conditions"
+        ],
+        "risks": [
+          "Steep delta scarps and boulder fields nearby",
+          "No shallow pure water-ice sheet directly at the surface"
+        ],
+        "resources": [
+          "Hydrated clays & carbonates (bound water)",
+          "High year-round solar energy",
+          "Fine basaltic regolith for 3D-printed radiation shielding"
+        ],
+        "source": "NASA Mars 2020 / HiRISE / MEDA"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "curiosity-gale",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [137.4417, -4.5895]
+      },
+      "properties": {
+        "name": "Gale Crater (Curiosity)",
+        "category": "landing_site",
+        "year": 2012,
+        "mission": "NASA Mars Science Laboratory",
+        "elevation_m": -4500,
+        "score": 81,
+        "pros": [
+          "Very deep basin (-4.5 km) provides thick atmospheric column and lower radiation",
+          "Equatorial location (-4.6°S) maximizes solar power and moderates temperatures",
+          "Smooth Bradbury Landing plains for safe touchdowns"
+        ],
+        "risks": [
+          "Steep slopes ascending Aeolis Mons (Mount Sharp)",
+          "Sharp wind-eroded ventifacts that can damage rover wheels"
+        ],
+        "resources": [
+          "Sulfate and clay mineral beds holding bound water",
+          "Peak equatorial solar irradiance",
+          "Natural topographic wind shelter inside crater floor"
+        ],
+        "source": "NASA MSL / PDS"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "insight-elysium",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [135.6234, 4.5024]
+      },
+      "properties": {
+        "name": "Elysium Planitia (InSight)",
+        "category": "landing_site",
+        "year": 2018,
+        "mission": "NASA InSight Lander",
+        "elevation_m": -2655,
+        "score": 76,
+        "pros": [
+          "Known as the 'biggest parking lot on Mars' — exceptionally flat and smooth",
+          "Equatorial latitude (4.5°N) ideal for solar arrays",
+          "Low elevation (-2.6 km) supports heavy lander deceleration"
+        ],
+        "risks": [
+          "Frequent dust accumulation on solar panels",
+          "Low subsurface water ice availability at equatorial latitude"
+        ],
+        "resources": [
+          "Consistent equatorial sunlight",
+          "Deep unconsolidated regolith (~3–5 m) easy to excavate for berms",
+          "Flat terrain for large habitat & solar farm deployment"
+        ],
+        "source": "NASA InSight / JPL"
+      }
+    },
+    {
+      "type": "Feature",
+      "id": "phoenix-vastitas",
+      "geometry": {
+        "type": "Point",
+        "coordinates": [-125.749, 68.2188]
+      },
+      "properties": {
+        "name": "Vastitas Borealis (Phoenix)",
+        "category": "landing_site",
+        "year": 2008,
+        "mission": "NASA Phoenix Mars Lander",
+        "elevation_m": -4100,
+        "score": 68,
+        "pros": [
+          "Confirmed shallow water-ice table just centimeters beneath the soil",
+          "Very low northern plains elevation (-4.1 km) with dense atmosphere",
+          "Flat polygonal permafrost terrain"
+        ],
+        "risks": [
+          "Extreme polar winter darkness and CO2 frost burial (68.2°N)",
+          "Severe cold (-100°C+) requires nuclear/kilopower instead of solar"
+        ],
+        "resources": [
+          "Abundant near-surface water ice for life support & methalox propellant",
+          "Perchlorate-rich soil (potential oxidizer source)",
+          "Dense atmospheric CO2 for Sabatier fuel synthesis"
+        ],
+        "source": "NASA Phoenix / SWIM"
+      }
+    }
+  ]
+}
+
