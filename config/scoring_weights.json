@@ -1,14 +1,15 @@
 {
   "version": 1,
-  "methodology_version": "0.1.0",
+  "methodology_version": "0.2.0",
   "active_profile": "balanced",
   "score_grid": {"max_cells": 6000},
   "profiles": {
-    "balanced":       {"label": "Balanced",       "weights": {"slope": 0.30, "roughness": 0.10, "thermal": 0.15, "ice": 0.15, "science": 0.20, "base_distance": 0.10}},
-    "safety_first":   {"label": "Safety first",   "weights": {"slope": 0.45, "roughness": 0.20, "thermal": 0.10, "ice": 0.05, "science": 0.05, "base_distance": 0.15}},
-    "science_first":  {"label": "Science first",  "weights": {"slope": 0.20, "roughness": 0.05, "thermal": 0.10, "ice": 0.05, "science": 0.50, "base_distance": 0.10}},
-    "resource_first": {"label": "Resource first", "weights": {"slope": 0.20, "roughness": 0.05, "thermal": 0.10, "ice": 0.45, "science": 0.10, "base_distance": 0.10}}
+    "balanced": {"label": "Balanced", "weights": {"slope": 0.428, "roughness": 0.143, "thermal": 0, "ice": 0, "science": 0.286, "base_distance": 0.143}},
+    "safety_first": {"label": "Safety first", "weights": {"slope": 0.529, "roughness": 0.235, "thermal": 0, "ice": 0, "science": 0.059, "base_distance": 0.177}},
+    "science_first": {"label": "Science first", "weights": {"slope": 0.235, "roughness": 0.059, "thermal": 0, "ice": 0, "science": 0.588, "base_distance": 0.118}},
+    "terrain_first": {"label": "Terrain and proximity", "weights": {"slope": 0.445, "roughness": 0.111, "thermal": 0, "ice": 0, "science": 0.222, "base_distance": 0.222}}
   },
+  "profile_aliases": {"resource_first": "terrain_first"},
   "factor_params": {
     "slope": {"ideal_max_deg": 5, "hard_max_deg": 25},
     "roughness": {"ideal_max_m": 10, "poor_m": 60},

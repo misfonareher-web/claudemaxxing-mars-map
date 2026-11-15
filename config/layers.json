@@ -1,0 +1,25 @@
+{
+  "version": 1,
+  "notes": "Mars Trek WMTS equirectangular tiles. Layer identifiers must be verified against https://trek.nasa.gov/tiles/apidoc/trekAPI.html?body=mars (GetCapabilities) by BACKEND_WEB.",
+  "basemaps": [
+    {
+      "id": "mola_color_hillshade",
+      "title": "MOLA Color Hillshade (MGS)",
+      "dataset_id": "trek_mola_clrshade",
+      "url_template": "https://trek.nasa.gov/tiles/Mars/EQ/Mars_MGS_MOLA_ClrShade_merge_global_463m/1.0.0/default/default028mm/{z}/{y}/{x}.jpg",
+      "crs": "EPSG:4326-like equirectangular (Mars), 2x1 tiles at z=0",
+      "max_native_zoom": 7,
+      "attribution": "NASA/JPL-Caltech/GSFC/USGS, Mars Trek"
+    },
+    {
+      "id": "themis_ir_day",
+      "title": "THEMIS Day IR Mosaic (Mars Odyssey)",
+      "dataset_id": "trek_themis_ir_day",
+      "url_template": "https://trek.nasa.gov/tiles/Mars/EQ/THEMIS_DayIR_ControlledMosaics_100m_v2_oct2018/1.0.0/default/default028mm/{z}/{y}/{x}.png",
+      "crs": "EPSG:4326-like equirectangular (Mars), 2x1 tiles at z=0",
+      "max_native_zoom": 9,
+      "attribution": "NASA/JPL-Caltech/ASU, Mars Trek"
+    }
+  ],
+  "overlays": []
+}
