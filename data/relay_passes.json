@@ -1,0 +1,1267 @@
+{
+  "dataset_id": "jpl_horizons_relay_passes",
+  "generated_at_utc": "2026-11-15T18:56:29Z",
+  "source": "https://ssd.jpl.nasa.gov/api/horizons.api",
+  "query_templates": {
+    "orbiter": {
+      "MAKE_EPHEM": "YES",
+      "EPHEM_TYPE": "OBSERVER",
+      "CSV_FORMAT": "YES",
+      "TIME_DIGITS": "MINUTES",
+      "COMMAND": "{orbiter_command}",
+      "CENTER": "coord@499",
+      "COORD_TYPE": "GEODETIC",
+      "SITE_COORD": "{-east_lon},{lat},0",
+      "QUANTITIES": "4",
+      "ANG_FORMAT": "DEG",
+      "START_TIME": "{day} 00:00",
+      "STOP_TIME": "{next_day} 00:00",
+      "STEP_SIZE": "1 m"
+    },
+    "light_time": {
+      "MAKE_EPHEM": "YES",
+      "EPHEM_TYPE": "OBSERVER",
+      "CSV_FORMAT": "YES",
+      "TIME_DIGITS": "MINUTES",
+      "COMMAND": "499",
+      "CENTER": "500@399",
+      "QUANTITIES": "21",
+      "START_TIME": "2026-11-14 00:00",
+      "STOP_TIME": "2026-12-31 00:00",
+      "STEP_SIZE": "1 d"
+    }
+  },
+  "elevation_mask_deg": 10,
+  "window": {
+    "start": "2026-11-15T00:00:00Z",
+    "end": "2026-11-23T00:00:00Z"
+  },
+  "orbiters": [
+    {
+      "id": "MRO",
+      "command": "-74",
+      "coverage_note": "Prediction coverage ends 2026-11-30 12:48 UTC."
+    },
+    {
+      "id": "TGO",
+      "command": "-143",
+      "coverage_note": "Long-term prediction coverage to 2039."
+    },
+    {
+      "id": "ODY",
+      "command": "-53",
+      "coverage_note": "Prediction coverage to 2027-01-26."
+    }
+  ],
+  "excluded_orbiters": [
+    {
+      "id": "MAVEN",
+      "command": "-202",
+      "note": "Prediction coverage ends March 2026; excluded."
+    }
+  ],
+  "sampling_note": "Endpoints are first/last above-mask samples, inclusive; duration is their elapsed time. No interpolation. Window-boundary passes may be clipped. Single-sample grazes shorter than 1 minute are dropped.",
+  "sites": {
+    "jezero": {
+      "name": "Jezero",
+      "base_point": {
+        "id": "ls-mars2020",
+        "name": "Octavia E. Butler Landing (Mars 2020)",
+        "lon": 77.4508,
+        "lat": 18.4447
+      },
+      "passes": [
+        {
+          "orbiter": "ODY",
+          "start": "2026-11-15T00:19:00Z",
+          "end": "2026-11-15T00:30:00Z",
+          "duration_min": 11.0,
+          "max_elevation_deg": 82.952659,
+          "time_of_max": "2026-11-15T00:25:00Z"
+        },
+        {
+          "orbiter": "TGO",
+          "start": "2026-11-15T08:36:00Z",
+          "end": "2026-11-15T08:40:00Z",
+          "duration_min": 4.0,
+          "max_elevation_deg": 12.049752,
+          "time_of_max": "2026-11-15T08:38:00Z"
+        },
+        {
+          "orbiter": "MRO",
+          "start": "2026-11-15T09:26:00Z",
+          "end": "2026-11-15T09:34:00Z",
+          "duration_min": 8.0,
+          "max_elevation_deg": 57.069293,
+          "time_of_max": "2026-11-15T09:30:00Z"
+        },
+        {
+          "orbiter": "TGO",
+          "start": "2026-11-15T10:33:00Z",
+          "end": "2026-11-15T10:42:00Z",
+          "duration_min": 9.0,
+          "max_elevation_deg": 28.006407,
+          "time_of_max": "2026-11-15T10:38:00Z"
+        },
+        {
+          "orbiter": "ODY",
+          "start": "2026-11-15T11:26:00Z",
+          "end": "2026-11-15T11:33:00Z",
+          "duration_min": 7.0,
+          "max_elevation_deg": 16.333704,
+          "time_of_max": "2026-11-15T11:29:00Z"
+        },
+        {
+          "orbiter": "ODY",
+          "start": "2026-11-15T13:23:00Z",
+          "end": "2026-11-15T13:31:00Z",
+          "duration_min": 8.0,
+          "max_elevation_deg": 21.92125,
+          "time_of_max": "2026-11-15T13:27:00Z"
+        },
+        {
+          "orbiter": "TGO",
+          "start": "2026-11-15T21:35:00Z",
+          "end": "2026-11-15T21:40:00Z",
+          "duration_min": 5.0,
+          "max_elevation_deg": 13.568707,
+          "time_of_max": "2026-11-15T21:37:00Z"
+        },
+        {
+          "orbiter": "MRO",
+          "start": "2026-11-15T21:46:00Z",
+          "end": "2026-11-15T21:54:00Z",
+          "duration_min": 8.0,
+          "max_elevation_deg": 73.856892,
+          "time_of_max": "2026-11-15T21:50:00Z"
+        },
+        {
+          "orbiter": "TGO",
+          "start": "2026-11-15T23:32:00Z",
+          "end": "2026-11-15T23:41:00Z",
+          "duration_min": 9.0,
+          "max_elevation_deg": 24.226812,
+          "time_of_max": "2026-11-15T23:37:00Z"
+        },
+        {
+          "orbiter": "ODY",
+          "start": "2026-11-16T00:04:00Z",
+          "end": "2026-11-16T00:12:00Z",
+          "duration_min": 8.0,
+          "max_elevation_deg": 21.82597,
+          "time_of_max": "2026-11-16T00:08:00Z"
+        },
+        {
+          "orbiter": "ODY",
+          "start": "2026-11-16T02:02:00Z",
+          "end": "2026-11-16T02:09:00Z",
+          "duration_min": 7.0,
+          "max_elevation_deg": 16.886535,
+          "time_of_max": "2026-11-16T02:05:00Z"
+        },
+        {
+          "orbiter": "MRO",
+          "start": "2026-11-16T09:45:00Z",
+          "end": "2026-11-16T09:52:00Z",
+          "duration_min": 7.0,
+          "max_elevation_deg": 26.865268,
+          "time_of_max": "2026-11-16T09:48:00Z"
+        },
+        {
+          "orbiter": "TGO",
+          "start": "2026-11-16T10:07:00Z",
+          "end": "2026-11-16T10:18:00Z",
+          "duration_min": 11.0,
+          "max_elevation_deg": 69.188829,
+          "time_of_max": "2026-11-16T10:12:00Z"
+        },
+        {
+          "orbiter": "ODY",
+          "start": "2026-11-16T13:04:00Z",
+          "end": "2026-11-16T13:16:00Z",
+          "duration_min": 12.0,
+          "max_elevation_deg": 82.70791,
+          "time_of_max": "2026-11-16T13:10:00Z"
+        },
+        {
+          "orbiter": "MRO",
+          "start": "2026-11-16T22:05:00Z",
+          "end": "2026-11-16T22:12:00Z",
+          "duration_min": 7.0,
+          "max_elevation_deg": 34.254871,
+          "time_of_max": "2026-11-16T22:08:00Z"
+        },
+        {
+          "orbiter": "TGO",
+          "start": "2026-11-16T23:05:00Z",
+          "end": "2026-11-16T23:16:00Z",
+          "duration_min": 11.0,
+          "max_elevation_deg": 75.807564,
+          "time_of_max": "2026-11-16T23:11:00Z"
+        },
+        {
+          "orbiter": "ODY",
+          "start": "2026-11-17T01:43:00Z",
+          "end": "2026-11-17T01:55:00Z",
+          "duration_min": 12.0,
+          "max_elevation_deg": 73.556636,
+          "time_of_max": "2026-11-17T01:49:00Z"
+        },
+        {
+          "orbiter": "TGO",
+          "start": "2026-11-17T09:43:00Z",
+          "end": "2026-11-17T09:50:00Z",
+          "duration_min": 7.0,
+          "max_elevation_deg": 17.66989,
+          "time_of_max": "2026-11-17T09:46:00Z"
+        },
+        {
+          "orbiter": "MRO",
+          "start": "2026-11-17T10:05:00Z",
+          "end": "2026-11-17T10:09:00Z",
+          "duration_min": 4.0,
+          "max_elevation_deg": 13.811697,
+          "time_of_max": "2026-11-17T10:07:00Z"
+        },
+        {
+          "orbiter": "TGO",
+          "start": "2026-11-17T11:42:00Z",
+          "end": "2026-11-17T11:49:00Z",
+          "duration_min": 7.0,
+          "max_elevation_deg": 19.39434,
+          "time_of_max": "2026-11-17T11:46:00Z"
+        },
+        {
+          "orbiter": "MRO",
+          "start": "2026-11-17T11:57:00Z",
+          "end": "2026-11-17T11:59:00Z",
+          "duration_min": 2.0,
+          "max_elevation_deg": 12.014459,
+          "time_of_max": "2026-11-17T11:58:00Z"
+        },
+        {
+          "orbiter": "ODY",
+          "start": "2026-11-17T12:50:00Z",
+          "end": "2026-11-17T12:57:00Z",
+          "duration_min": 7.0,
+          "max_elevation_deg": 18.782677,
+          "time_of_max": "2026-11-17T12:54:00Z"
+        },
+        {
+          "orbiter": "ODY",
+          "start": "2026-11-17T14:47:00Z",
+          "end": "2026-11-17T14:55:00Z",
+          "duration_min": 8.0,
+          "max_elevation_deg": 19.235947,
+          "time_of_max": "2026-11-17T14:51:00Z"
+        },
+        {
+          "orbiter": "MRO",
+          "start": "2026-11-17T22:25:00Z",
+          "end": "2026-11-17T22:30:00Z",
+          "duration_min": 5.0,
+          "max_elevation_deg": 17.854492,
+          "time_of_max": "2026-11-17T22:27:00Z"
+        },
+        {
+          "orbiter": "TGO",
+          "start": "2026-11-17T22:41:00Z",
+          "end": "2026-11-17T22:49:00Z",
+          "duration_min": 8.0,
+          "max_elevation_deg": 20.010259,
+          "time_of_max": "2026-11-17T22:45:00Z"
+        },
+        {
+          "orbiter": "TGO",
+          "start": "2026-11-18T00:41:00Z",
+          "end": "2026-11-18T00:48:00Z",
+          "duration_min": 7.0,
+          "max_elevation_deg": 17.032361,
+          "time_of_max": "2026-11-18T00:45:00Z"
+        },
+        {
+          "orbiter": "ODY",
+          "start": "2026-11-18T01:28:00Z",
+          "end": "2026-11-18T01:37:00Z",
+          "duration_min": 9.0,
+          "max_elevation_deg": 24.734043,
+          "time_of_max": "2026-11-18T01:32:00Z"
+        },
+        {
+          "orbiter": "ODY",
+          "start": "2026-11-18T03:27:00Z",
+          "end": "2026-11-18T03:32:00Z",
+          "duration_min": 5.0,
+          "max_elevation_deg": 14.663961,
+          "time_of_max": "2026-11-18T03:30:00Z"
+        },
+        {
+          "orbiter": "TGO",
+          "start": "2026-11-18T11:14:00Z",
+          "end": "2026-11-18T11:26:00Z",
+          "duration_min": 12.0,
+          "max_elevation_deg": 79.732106,
+          "time_of_max": "2026-11-18T11:20:00Z"
+        },
+        {
+          "orbiter": "MRO",
+          "start": "2026-11-18T12:14:00Z",
+          "end": "2026-11-18T12:20:00Z",
+          "duration_min": 6.0,
+          "max_elevation_deg": 23.47604,
+          "time_of_max": "2026-11-18T12:17:00Z"
+        },
+        {
+          "orbiter": "ODY",
+          "start": "2026-11-18T14:29:00Z",
+          "end": "2026-11-18T14:40:00Z",
+          "duration_min": 11.0,
+          "max_elevation_deg": 82.729277,
+          "time_of_max": "2026-11-18T14:34:00Z"
+        },
+        {
+          "orbiter": "TGO",
+          "start": "2026-11-19T00:13:00Z",
+          "end": "2026-11-19T00:24:00Z",
+          "duration_min": 11.0,
+          "max_elevation_deg": 65.087008,
+          "time_of_max": "2026-11-19T00:18:00Z"
+        },
+        {
+          "orbiter": "MRO",
+          "start": "2026-11-19T00:35:00Z",
+          "end": "2026-11-19T00:40:00Z",
+          "duration_min": 5.0,
+          "max_elevation_deg": 18.235044,
+          "time_of_max": "2026-11-19T00:37:00Z"
+        },
+        {
+          "orbiter": "ODY",
+          "start": "2026-11-19T03:08:00Z",
+          "end": "2026-11-19T03:19:00Z",
+          "duration_min": 11.0,
+          "max_elevation_deg": 62.50295,
+          "time_of_max": "2026-11-19T03:13:00Z"
+        },
+        {
+          "orbiter": "TGO",
+          "start": "2026-11-19T10:50:00Z",
+          "end": "2026-11-19T10:59:00Z",
+          "duration_min": 9.0,
+          "max_elevation_deg": 25.152696,
+          "time_of_max": "2026-11-19T10:54:00Z"
+        },
+        {
+          "orbiter": "MRO",
+          "start": "2026-11-19T12:32:00Z",
+          "end": "2026-11-19T12:39:00Z",
+          "duration_min": 7.0,
+          "max_elevation_deg": 47.476156,
+          "time_of_max": "2026-11-19T12:36:00Z"
+        },
+        {
+          "orbiter": "TGO",
+          "start": "2026-11-19T12:51:00Z",
+          "end": "2026-11-19T12:56:00Z",
+          "duration_min": 5.0,
+          "max_elevation_deg": 13.047727,
+          "time_of_max": "2026-11-19T12:54:00Z"
+        },
+        {
+          "orbiter": "ODY",
+          "start": "2026-11-19T14:14:00Z",
+          "end": "2026-11-19T14:22:00Z",
+          "duration_min": 8.0,
+          "max_elevation_deg": 21.510923,
+          "time_of_max": "2026-11-19T14:18:00Z"
+        },
+        {
+          "orbiter": "ODY",
+          "start": "2026-11-19T16:12:00Z",
+          "end": "2026-11-19T16:19:00Z",
+          "duration_min": 7.0,
+          "max_elevation_deg": 16.698874,
+          "time_of_max": "2026-11-19T16:15:00Z"
+        },
+        {
+          "orbiter": "TGO",
+          "start": "2026-11-19T23:48:00Z",
+          "end": "2026-11-19T23:57:00Z",
+          "duration_min": 9.0,
+          "max_elevation_deg": 28.717069,
+          "time_of_max": "2026-11-19T23:53:00Z"
+        },
+        {
+          "orbiter": "MRO",
+          "start": "2026-11-20T00:52:00Z",
+          "end": "2026-11-20T00:59:00Z",
+          "duration_min": 7.0,
+          "max_elevation_deg": 36.139023,
+          "time_of_max": "2026-11-20T00:56:00Z"
+        },
+        {
+          "orbiter": "TGO",
+          "start": "2026-11-20T01:51:00Z",
+          "end": "2026-11-20T01:54:00Z",
+          "duration_min": 3.0,
+          "max_elevation_deg": 11.583213,
+          "time_of_max": "2026-11-20T01:53:00Z"
+        },
+        {
+          "orbiter": "ODY",
+          "start": "2026-11-20T02:52:00Z",
+          "end": "2026-11-20T03:01:00Z",
+          "duration_min": 9.0,
+          "max_elevation_deg": 28.340323,
+          "time_of_max": "2026-11-20T02:57:00Z"
+        },
+        {
+          "orbiter": "ODY",
+          "start": "2026-11-20T04:52:00Z",
+          "end": "2026-11-20T04:56:00Z",
+          "duration_min": 4.0,
+          "max_elevation_deg": 12.736962,
+          "time_of_max": "2026-11-20T04:54:00Z"
+        },
+        {
+          "orbiter": "TGO",
+          "start": "2026-11-20T12:22:00Z",
+          "end": "2026-11-20T12:33:00Z",
+          "duration_min": 11.0,
+          "max_elevation_deg": 54.558246,
+          "time_of_max": "2026-11-20T12:28:00Z"
+        },
+        {
+          "orbiter": "MRO",
+          "start": "2026-11-20T12:50:00Z",
+          "end": "2026-11-20T12:58:00Z",
+          "duration_min": 8.0,
+          "max_elevation_deg": 69.715291,
+          "time_of_max": "2026-11-20T12:54:00Z"
+        },
+        {
+          "orbiter": "ODY",
+          "start": "2026-11-20T15:53:00Z",
+          "end": "2026-11-20T16:04:00Z",
+          "duration_min": 11.0,
+          "max_elevation_deg": 70.578725,
+          "time_of_max": "2026-11-20T15:58:00Z"
+        },
+        {
+          "orbiter": "MRO",
+          "start": "2026-11-21T01:10:00Z",
+          "end": "2026-11-21T01:18:00Z",
+          "duration_min": 8.0,
+          "max_elevation_deg": 74.667921,
+          "time_of_max": "2026-11-21T01:14:00Z"
+        },
+        {
+          "orbiter": "TGO",
+          "start": "2026-11-21T01:21:00Z",
+          "end": "2026-11-21T01:32:00Z",
+          "duration_min": 11.0,
+          "max_elevation_deg": 45.527842,
+          "time_of_max": "2026-11-21T01:26:00Z"
+        },
+        {
+          "orbiter": "ODY",
+          "start": "2026-11-21T04:32:00Z",
+          "end": "2026-11-21T04:43:00Z",
+          "duration_min": 11.0,
+          "max_elevation_deg": 54.81702,
+          "time_of_max": "2026-11-21T04:38:00Z"
+        },
+        {
+          "orbiter": "TGO",
+          "start": "2026-11-21T11:57:00Z",
+          "end": "2026-11-21T12:07:00Z",
+          "duration_min": 10.0,
+          "max_elevation_deg": 35.845965,
+          "time_of_max": "2026-11-21T12:02:00Z"
+        },
+        {
+          "orbiter": "MRO",
+          "start": "2026-11-21T13:09:00Z",
+          "end": "2026-11-21T13:16:00Z",
+          "duration_min": 7.0,
+          "max_elevation_deg": 33.9816,
+          "time_of_max": "2026-11-21T13:13:00Z"
+        },
+        {
+          "orbiter": "ODY",
+          "start": "2026-11-21T15:38:00Z",
+          "end": "2026-11-21T15:47:00Z",
+          "duration_min": 9.0,
+          "max_elevation_deg": 24.486338,
+          "time_of_max": "2026-11-21T15:42:00Z"
+        },
+        {
+          "orbiter": "ODY",
+          "start": "2026-11-21T17:37:00Z",
+          "end": "2026-11-21T17:42:00Z",
+          "duration_min": 5.0,
+          "max_elevation_deg": 14.451355,
+          "time_of_max": "2026-11-21T17:40:00Z"
+        },
+        {
+          "orbiter": "TGO",
+          "start": "2026-11-22T00:55:00Z",
+          "end": "2026-11-22T01:06:00Z",
+          "duration_min": 11.0,
+          "max_elevation_deg": 41.033012,
+          "time_of_max": "2026-11-22T01:01:00Z"
+        },
+        {
+          "orbiter": "MRO",
+          "start": "2026-11-22T01:29:00Z",
+          "end": "2026-11-22T01:37:00Z",
+          "duration_min": 8.0,
+          "max_elevation_deg": 44.859653,
+          "time_of_max": "2026-11-22T01:33:00Z"
+        },
+        {
+          "orbiter": "ODY",
+          "start": "2026-11-22T04:16:00Z",
+          "end": "2026-11-22T04:26:00Z",
+          "duration_min": 10.0,
+          "max_elevation_deg": 32.455235,
+          "time_of_max": "2026-11-22T04:21:00Z"
+        },
+        {
+          "orbiter": "ODY",
+          "start": "2026-11-22T06:17:00Z",
+          "end": "2026-11-22T06:19:00Z",
+          "duration_min": 2.0,
+          "max_elevation_deg": 10.920956,
+          "time_of_max": "2026-11-22T06:18:00Z"
+        },
+        {
+          "orbiter": "MRO",
+          "start": "2026-11-22T13:29:00Z",
+          "end": "2026-11-22T13:34:00Z",
+          "duration_min": 5.0,
+          "max_elevation_deg": 16.90335,
+          "time_of_max": "2026-11-22T13:32:00Z"
+        },
+        {
+          "orbiter": "TGO",
+          "start": "2026-11-22T13:31:00Z",
+          "end": "2026-11-22T13:41:00Z",
+          "duration_min": 10.0,
+          "max_elevation_deg": 36.961029,
+          "time_of_max": "2026-11-22T13:36:00Z"
+        },
+        {
+          "orbiter": "ODY",
+          "start": "2026-11-22T17:17:00Z",
+          "end": "2026-11-22T17:28:00Z",
+          "duration_min": 11.0,
+          "max_elevation_deg": 64.834155,
+          "time_of_max": "2026-11-22T17:23:00Z"
+        }
+      ]
+    },
+    "gale": {
+      "name": "Gale",
+      "base_point": {
+        "id": "ls-msl",
+        "name": "Bradbury Landing (MSL)",
+        "lon": 137.4417,
+        "lat": -4.5895
+      },
+      "passes": [
+        {
+          "orbiter": "MRO",
+          "start": "2026-11-15T05:49:00Z",
+          "end": "2026-11-15T05:56:00Z",
+          "duration_min": 7.0,
+          "max_elevation_deg": 35.616071,
+          "time_of_max": "2026-11-15T05:52:00Z"
+        },
+        {
+          "orbiter": "TGO",
+          "start": "2026-11-15T06:45:00Z",
+          "end": "2026-11-15T06:55:00Z",
+          "duration_min": 10.0,
+          "max_elevation_deg": 31.915924,
+          "time_of_max": "2026-11-15T06:50:00Z"
+        },
+        {
+          "orbiter": "ODY",
+          "start": "2026-11-15T07:22:00Z",
+          "end": "2026-11-15T07:27:00Z",
+          "duration_min": 5.0,
+          "max_elevation_deg": 12.756317,
+          "time_of_max": "2026-11-15T07:25:00Z"
+        },
+        {
+          "orbiter": "ODY",
+          "start": "2026-11-15T09:18:00Z",
+          "end": "2026-11-15T09:26:00Z",
+          "duration_min": 8.0,
+          "max_elevation_deg": 21.715671,
+          "time_of_max": "2026-11-15T09:22:00Z"
+        },
+        {
+          "orbiter": "TGO",
+          "start": "2026-11-15T17:29:00Z",
+          "end": "2026-11-15T17:38:00Z",
+          "duration_min": 9.0,
+          "max_elevation_deg": 24.682004,
+          "time_of_max": "2026-11-15T17:34:00Z"
+        },
+        {
+          "orbiter": "MRO",
+          "start": "2026-11-15T17:54:00Z",
+          "end": "2026-11-15T18:02:00Z",
+          "duration_min": 8.0,
+          "max_elevation_deg": 67.692306,
+          "time_of_max": "2026-11-15T17:58:00Z"
+        },
+        {
+          "orbiter": "ODY",
+          "start": "2026-11-15T20:13:00Z",
+          "end": "2026-11-15T20:23:00Z",
+          "duration_min": 10.0,
+          "max_elevation_deg": 35.521861,
+          "time_of_max": "2026-11-15T20:18:00Z"
+        },
+        {
+          "orbiter": "MRO",
+          "start": "2026-11-16T06:07:00Z",
+          "end": "2026-11-16T06:15:00Z",
+          "duration_min": 8.0,
+          "max_elevation_deg": 83.888844,
+          "time_of_max": "2026-11-16T06:11:00Z"
+        },
+        {
+          "orbiter": "TGO",
+          "start": "2026-11-16T06:19:00Z",
+          "end": "2026-11-16T06:29:00Z",
+          "duration_min": 10.0,
+          "max_elevation_deg": 54.488746,
+          "time_of_max": "2026-11-16T06:24:00Z"
+        },
+        {
+          "orbiter": "ODY",
+          "start": "2026-11-16T09:00:00Z",
+          "end": "2026-11-16T09:11:00Z",
+          "duration_min": 11.0,
+          "max_elevation_deg": 72.701097,
+          "time_of_max": "2026-11-16T09:05:00Z"
+        },
+        {
+          "orbiter": "MRO",
+          "start": "2026-11-16T18:13:00Z",
+          "end": "2026-11-16T18:21:00Z",
+          "duration_min": 8.0,
+          "max_elevation_deg": 49.02206,
+          "time_of_max": "2026-11-16T18:17:00Z"
+        },
+        {
+          "orbiter": "TGO",
+          "start": "2026-11-16T19:02:00Z",
+          "end": "2026-11-16T19:13:00Z",
+          "duration_min": 11.0,
+          "max_elevation_deg": 46.347426,
+          "time_of_max": "2026-11-16T19:07:00Z"
+        },
+        {
+          "orbiter": "ODY",
+          "start": "2026-11-16T21:54:00Z",
+          "end": "2026-11-16T22:04:00Z",
+          "duration_min": 10.0,
+          "max_elevation_deg": 37.879509,
+          "time_of_max": "2026-11-16T21:59:00Z"
+        },
+        {
+          "orbiter": "TGO",
+          "start": "2026-11-17T05:56:00Z",
+          "end": "2026-11-17T06:00:00Z",
+          "duration_min": 4.0,
+          "max_elevation_deg": 12.000827,
+          "time_of_max": "2026-11-17T05:58:00Z"
+        },
+        {
+          "orbiter": "MRO",
+          "start": "2026-11-17T06:26:00Z",
+          "end": "2026-11-17T06:33:00Z",
+          "duration_min": 7.0,
+          "max_elevation_deg": 38.661282,
+          "time_of_max": "2026-11-17T06:30:00Z"
+        },
+        {
+          "orbiter": "TGO",
+          "start": "2026-11-17T07:54:00Z",
+          "end": "2026-11-17T08:02:00Z",
+          "duration_min": 8.0,
+          "max_elevation_deg": 21.675174,
+          "time_of_max": "2026-11-17T07:58:00Z"
+        },
+        {
+          "orbiter": "ODY",
+          "start": "2026-11-17T08:46:00Z",
+          "end": "2026-11-17T08:52:00Z",
+          "duration_min": 6.0,
+          "max_elevation_deg": 15.043493,
+          "time_of_max": "2026-11-17T08:49:00Z"
+        },
+        {
+          "orbiter": "ODY",
+          "start": "2026-11-17T10:43:00Z",
+          "end": "2026-11-17T10:50:00Z",
+          "duration_min": 7.0,
+          "max_elevation_deg": 18.797486,
+          "time_of_max": "2026-11-17T10:46:00Z"
+        },
+        {
+          "orbiter": "MRO",
+          "start": "2026-11-17T18:33:00Z",
+          "end": "2026-11-17T18:39:00Z",
+          "duration_min": 6.0,
+          "max_elevation_deg": 22.151788,
+          "time_of_max": "2026-11-17T18:36:00Z"
+        },
+        {
+          "orbiter": "TGO",
+          "start": "2026-11-17T18:37:00Z",
+          "end": "2026-11-17T18:47:00Z",
+          "duration_min": 10.0,
+          "max_elevation_deg": 36.093595,
+          "time_of_max": "2026-11-17T18:42:00Z"
+        },
+        {
+          "orbiter": "ODY",
+          "start": "2026-11-17T21:38:00Z",
+          "end": "2026-11-17T21:48:00Z",
+          "duration_min": 10.0,
+          "max_elevation_deg": 41.646127,
+          "time_of_max": "2026-11-17T21:43:00Z"
+        },
+        {
+          "orbiter": "MRO",
+          "start": "2026-11-18T06:46:00Z",
+          "end": "2026-11-18T06:51:00Z",
+          "duration_min": 5.0,
+          "max_elevation_deg": 18.481403,
+          "time_of_max": "2026-11-18T06:48:00Z"
+        },
+        {
+          "orbiter": "TGO",
+          "start": "2026-11-18T07:26:00Z",
+          "end": "2026-11-18T07:37:00Z",
+          "duration_min": 11.0,
+          "max_elevation_deg": 82.560472,
+          "time_of_max": "2026-11-18T07:32:00Z"
+        },
+        {
+          "orbiter": "ODY",
+          "start": "2026-11-18T10:24:00Z",
+          "end": "2026-11-18T10:35:00Z",
+          "duration_min": 11.0,
+          "max_elevation_deg": 78.376186,
+          "time_of_max": "2026-11-18T10:30:00Z"
+        },
+        {
+          "orbiter": "MRO",
+          "start": "2026-11-18T18:54:00Z",
+          "end": "2026-11-18T18:55:00Z",
+          "duration_min": 1.0,
+          "max_elevation_deg": 10.63329,
+          "time_of_max": "2026-11-18T18:54:00Z"
+        },
+        {
+          "orbiter": "TGO",
+          "start": "2026-11-18T20:11:00Z",
+          "end": "2026-11-18T20:20:00Z",
+          "duration_min": 9.0,
+          "max_elevation_deg": 31.318149,
+          "time_of_max": "2026-11-18T20:15:00Z"
+        },
+        {
+          "orbiter": "MRO",
+          "start": "2026-11-18T20:45:00Z",
+          "end": "2026-11-18T20:46:00Z",
+          "duration_min": 1.0,
+          "max_elevation_deg": 10.851592,
+          "time_of_max": "2026-11-18T20:46:00Z"
+        },
+        {
+          "orbiter": "ODY",
+          "start": "2026-11-18T23:19:00Z",
+          "end": "2026-11-18T23:28:00Z",
+          "duration_min": 9.0,
+          "max_elevation_deg": 32.708638,
+          "time_of_max": "2026-11-18T23:24:00Z"
+        },
+        {
+          "orbiter": "TGO",
+          "start": "2026-11-19T07:03:00Z",
+          "end": "2026-11-19T07:10:00Z",
+          "duration_min": 7.0,
+          "max_elevation_deg": 18.284084,
+          "time_of_max": "2026-11-19T07:06:00Z"
+        },
+        {
+          "orbiter": "MRO",
+          "start": "2026-11-19T08:56:00Z",
+          "end": "2026-11-19T09:00:00Z",
+          "duration_min": 4.0,
+          "max_elevation_deg": 13.425046,
+          "time_of_max": "2026-11-19T08:58:00Z"
+        },
+        {
+          "orbiter": "TGO",
+          "start": "2026-11-19T09:03:00Z",
+          "end": "2026-11-19T09:08:00Z",
+          "duration_min": 5.0,
+          "max_elevation_deg": 14.516758,
+          "time_of_max": "2026-11-19T09:06:00Z"
+        },
+        {
+          "orbiter": "ODY",
+          "start": "2026-11-19T10:10:00Z",
+          "end": "2026-11-19T10:17:00Z",
+          "duration_min": 7.0,
+          "max_elevation_deg": 17.501154,
+          "time_of_max": "2026-11-19T10:13:00Z"
+        },
+        {
+          "orbiter": "ODY",
+          "start": "2026-11-19T12:07:00Z",
+          "end": "2026-11-19T12:14:00Z",
+          "duration_min": 7.0,
+          "max_elevation_deg": 16.121642,
+          "time_of_max": "2026-11-19T12:10:00Z"
+        },
+        {
+          "orbiter": "TGO",
+          "start": "2026-11-19T19:44:00Z",
+          "end": "2026-11-19T19:55:00Z",
+          "duration_min": 11.0,
+          "max_elevation_deg": 53.707311,
+          "time_of_max": "2026-11-19T19:49:00Z"
+        },
+        {
+          "orbiter": "MRO",
+          "start": "2026-11-19T21:01:00Z",
+          "end": "2026-11-19T21:07:00Z",
+          "duration_min": 6.0,
+          "max_elevation_deg": 23.099375,
+          "time_of_max": "2026-11-19T21:04:00Z"
+        },
+        {
+          "orbiter": "ODY",
+          "start": "2026-11-19T23:02:00Z",
+          "end": "2026-11-19T23:12:00Z",
+          "duration_min": 10.0,
+          "max_elevation_deg": 48.580805,
+          "time_of_max": "2026-11-19T23:07:00Z"
+        },
+        {
+          "orbiter": "TGO",
+          "start": "2026-11-20T08:34:00Z",
+          "end": "2026-11-20T08:45:00Z",
+          "duration_min": 11.0,
+          "max_elevation_deg": 65.650143,
+          "time_of_max": "2026-11-20T08:40:00Z"
+        },
+        {
+          "orbiter": "MRO",
+          "start": "2026-11-20T09:14:00Z",
+          "end": "2026-11-20T09:20:00Z",
+          "duration_min": 6.0,
+          "max_elevation_deg": 27.95589,
+          "time_of_max": "2026-11-20T09:17:00Z"
+        },
+        {
+          "orbiter": "ODY",
+          "start": "2026-11-20T11:49:00Z",
+          "end": "2026-11-20T11:59:00Z",
+          "duration_min": 10.0,
+          "max_elevation_deg": 80.530799,
+          "time_of_max": "2026-11-20T11:54:00Z"
+        },
+        {
+          "orbiter": "TGO",
+          "start": "2026-11-20T19:22:00Z",
+          "end": "2026-11-20T19:25:00Z",
+          "duration_min": 3.0,
+          "max_elevation_deg": 12.123768,
+          "time_of_max": "2026-11-20T19:24:00Z"
+        },
+        {
+          "orbiter": "MRO",
+          "start": "2026-11-20T21:19:00Z",
+          "end": "2026-11-20T21:27:00Z",
+          "duration_min": 8.0,
+          "max_elevation_deg": 50.688324,
+          "time_of_max": "2026-11-20T21:23:00Z"
+        },
+        {
+          "orbiter": "TGO",
+          "start": "2026-11-20T21:19:00Z",
+          "end": "2026-11-20T21:27:00Z",
+          "duration_min": 8.0,
+          "max_elevation_deg": 21.383105,
+          "time_of_max": "2026-11-20T21:23:00Z"
+        },
+        {
+          "orbiter": "ODY",
+          "start": "2026-11-21T00:43:00Z",
+          "end": "2026-11-21T00:52:00Z",
+          "duration_min": 9.0,
+          "max_elevation_deg": 28.637778,
+          "time_of_max": "2026-11-21T00:48:00Z"
+        },
+        {
+          "orbiter": "TGO",
+          "start": "2026-11-21T08:09:00Z",
+          "end": "2026-11-21T08:18:00Z",
+          "duration_min": 9.0,
+          "max_elevation_deg": 26.892108,
+          "time_of_max": "2026-11-21T08:14:00Z"
+        },
+        {
+          "orbiter": "MRO",
+          "start": "2026-11-21T09:32:00Z",
+          "end": "2026-11-21T09:39:00Z",
+          "duration_min": 7.0,
+          "max_elevation_deg": 59.409305,
+          "time_of_max": "2026-11-21T09:35:00Z"
+        },
+        {
+          "orbiter": "ODY",
+          "start": "2026-11-21T11:34:00Z",
+          "end": "2026-11-21T11:41:00Z",
+          "duration_min": 7.0,
+          "max_elevation_deg": 20.134937,
+          "time_of_max": "2026-11-21T11:37:00Z"
+        },
+        {
+          "orbiter": "ODY",
+          "start": "2026-11-21T13:32:00Z",
+          "end": "2026-11-21T13:37:00Z",
+          "duration_min": 5.0,
+          "max_elevation_deg": 13.892388,
+          "time_of_max": "2026-11-21T13:35:00Z"
+        },
+        {
+          "orbiter": "TGO",
+          "start": "2026-11-21T20:52:00Z",
+          "end": "2026-11-21T21:03:00Z",
+          "duration_min": 11.0,
+          "max_elevation_deg": 78.930228,
+          "time_of_max": "2026-11-21T20:57:00Z"
+        },
+        {
+          "orbiter": "MRO",
+          "start": "2026-11-21T21:38:00Z",
+          "end": "2026-11-21T21:45:00Z",
+          "duration_min": 7.0,
+          "max_elevation_deg": 60.9192,
+          "time_of_max": "2026-11-21T21:41:00Z"
+        },
+        {
+          "orbiter": "ODY",
+          "start": "2026-11-22T00:26:00Z",
+          "end": "2026-11-22T00:37:00Z",
+          "duration_min": 11.0,
+          "max_elevation_deg": 55.825142,
+          "time_of_max": "2026-11-22T00:31:00Z"
+        },
+        {
+          "orbiter": "TGO",
+          "start": "2026-11-22T09:42:00Z",
+          "end": "2026-11-22T09:53:00Z",
+          "duration_min": 11.0,
+          "max_elevation_deg": 42.925133,
+          "time_of_max": "2026-11-22T09:48:00Z"
+        },
+        {
+          "orbiter": "MRO",
+          "start": "2026-11-22T09:50:00Z",
+          "end": "2026-11-22T09:58:00Z",
+          "duration_min": 8.0,
+          "max_elevation_deg": 51.59868,
+          "time_of_max": "2026-11-22T09:54:00Z"
+        },
+        {
+          "orbiter": "ODY",
+          "start": "2026-11-22T13:13:00Z",
+          "end": "2026-11-22T13:24:00Z",
+          "duration_min": 11.0,
+          "max_elevation_deg": 69.914997,
+          "time_of_max": "2026-11-22T13:18:00Z"
+        },
+        {
+          "orbiter": "TGO",
+          "start": "2026-11-22T20:28:00Z",
+          "end": "2026-11-22T20:35:00Z",
+          "duration_min": 7.0,
+          "max_elevation_deg": 18.332231,
+          "time_of_max": "2026-11-22T20:31:00Z"
+        },
+        {
+          "orbiter": "MRO",
+          "start": "2026-11-22T21:57:00Z",
+          "end": "2026-11-22T22:03:00Z",
+          "duration_min": 6.0,
+          "max_elevation_deg": 28.257216,
+          "time_of_max": "2026-11-22T22:00:00Z"
+        },
+        {
+          "orbiter": "TGO",
+          "start": "2026-11-22T22:28:00Z",
+          "end": "2026-11-22T22:34:00Z",
+          "duration_min": 6.0,
+          "max_elevation_deg": 14.351968,
+          "time_of_max": "2026-11-22T22:31:00Z"
+        }
+      ]
+    }
+  },
+  "daily_light_time": [
+    {
+      "date": "2026-11-14",
+      "one_way_min": 11.01438304,
+      "distance_km": 198121738
+    },
+    {
+      "date": "2026-11-15",
+      "one_way_min": 10.94362708,
+      "distance_km": 196849012
+    },
+    {
+      "date": "2026-11-16",
+      "one_way_min": 10.87269269,
+      "distance_km": 195573076
+    },
+    {
+      "date": "2026-11-17",
+      "one_way_min": 10.80158893,
+      "distance_km": 194294094
+    },
+    {
+      "date": "2026-11-18",
+      "one_way_min": 10.73032475,
+      "distance_km": 193012226
+    },
+    {
+      "date": "2026-11-19",
+      "one_way_min": 10.65890895,
+      "distance_km": 191727631
+    },
+    {
+      "date": "2026-11-20",
+      "one_way_min": 10.58735007,
+      "distance_km": 190440462
+    },
+    {
+      "date": "2026-11-21",
+      "one_way_min": 10.5156563,
+      "distance_km": 189150867
+    },
+    {
+      "date": "2026-11-22",
+      "one_way_min": 10.44383544,
+      "distance_km": 187858986
+    },
+    {
+      "date": "2026-11-23",
+      "one_way_min": 10.3718948,
+      "distance_km": 186564950
+    },
+    {
+      "date": "2026-11-24",
+      "one_way_min": 10.2998412,
+      "distance_km": 185268883
+    },
+    {
+      "date": "2026-11-25",
+      "one_way_min": 10.22768117,
+      "distance_km": 183970901
+    },
+    {
+      "date": "2026-11-26",
+      "one_way_min": 10.15542119,
+      "distance_km": 182671121
+    },
+    {
+      "date": "2026-11-27",
+      "one_way_min": 10.08306806,
+      "distance_km": 181369665
+    },
+    {
+      "date": "2026-11-28",
+      "one_way_min": 10.01062932,
+      "distance_km": 180066670
+    },
+    {
+      "date": "2026-11-29",
+      "one_way_min": 9.93811356,
+      "distance_km": 178762290
+    },
+    {
+      "date": "2026-11-30",
+      "one_way_min": 9.86553052,
+      "distance_km": 177456699
+    },
+    {
+      "date": "2026-12-01",
+      "one_way_min": 9.79289123,
+      "distance_km": 176150096
+    },
+    {
+      "date": "2026-12-02",
+      "one_way_min": 9.7202078,
+      "distance_km": 174842699
+    },
+    {
+      "date": "2026-12-03",
+      "one_way_min": 9.6474934,
+      "distance_km": 173534746
+    },
+    {
+      "date": "2026-12-04",
+      "one_way_min": 9.57476205,
+      "distance_km": 172226487
+    },
+    {
+      "date": "2026-12-05",
+      "one_way_min": 9.50202855,
+      "distance_km": 170918190
+    },
+    {
+      "date": "2026-12-06",
+      "one_way_min": 9.4293083,
+      "distance_km": 169610131
+    },
+    {
+      "date": "2026-12-07",
+      "one_way_min": 9.35661726,
+      "distance_km": 168302597
+    },
+    {
+      "date": "2026-12-08",
+      "one_way_min": 9.28397186,
+      "distance_km": 166995885
+    },
+    {
+      "date": "2026-12-09",
+      "one_way_min": 9.21138889,
+      "distance_km": 165690295
+    },
+    {
+      "date": "2026-12-10",
+      "one_way_min": 9.13888545,
+      "distance_km": 164386136
+    },
+    {
+      "date": "2026-12-11",
+      "one_way_min": 9.06647892,
+      "distance_km": 163083720
+    },
+    {
+      "date": "2026-12-12",
+      "one_way_min": 8.99418686,
+      "distance_km": 161783363
+    },
+    {
+      "date": "2026-12-13",
+      "one_way_min": 8.92202698,
+      "distance_km": 160485384
+    },
+    {
+      "date": "2026-12-14",
+      "one_way_min": 8.85001713,
+      "distance_km": 159190103
+    },
+    {
+      "date": "2026-12-15",
+      "one_way_min": 8.77817528,
+      "distance_km": 157897845
+    },
+    {
+      "date": "2026-12-16",
+      "one_way_min": 8.70651942,
+      "distance_km": 156608931
+    },
+    {
+      "date": "2026-12-17",
+      "one_way_min": 8.63506761,
+      "distance_km": 155323689
+    },
+    {
+      "date": "2026-12-18",
+      "one_way_min": 8.56383785,
+      "distance_km": 154042440
+    },
+    {
+      "date": "2026-12-19",
+      "one_way_min": 8.49284804,
+      "distance_km": 152765507
+    },
+    {
+      "date": "2026-12-20",
+      "one_way_min": 8.4221159,
+      "distance_km": 151493210
+    },
+    {
+      "date": "2026-12-21",
+      "one_way_min": 8.35165889,
+      "distance_km": 150225861
+    },
+    {
+      "date": "2026-12-22",
+      "one_way_min": 8.28149421,
+      "distance_km": 148963770
+    },
+    {
+      "date": "2026-12-23",
+      "one_way_min": 8.21163894,
+      "distance_km": 147707245
+    },
+    {
+      "date": "2026-12-24",
+      "one_way_min": 8.14211022,
+      "distance_km": 146456594
+    },
+    {
+      "date": "2026-12-25",
+      "one_way_min": 8.07292573,
+      "distance_km": 145212135
+    },
+    {
+      "date": "2026-12-26",
+      "one_way_min": 8.0041041,
+      "distance_km": 143974203
+    },
+    {
+      "date": "2026-12-27",
+      "one_way_min": 7.93566528,
+      "distance_km": 142743156
+    },
+    {
+      "date": "2026-12-28",
+      "one_way_min": 7.86763084,
+      "distance_km": 141519383
+    },
+    {
+      "date": "2026-12-29",
+      "one_way_min": 7.80002395,
+      "distance_km": 140303301
+    },
+    {
+      "date": "2026-12-30",
+      "one_way_min": 7.73286931,
+      "distance_km": 139095354
+    },
+    {
+      "date": "2026-12-31",
+      "one_way_min": 7.66619296,
+      "distance_km": 137896010
+    }
+  ],
+  "caveat": "Predicted line-of-sight windows from JPL Horizons orbit ephemerides (elevation >= 10 deg). Not the operational relay schedule: real sessions are planned by mission teams and depend on DSN and orbiter availability."
+}

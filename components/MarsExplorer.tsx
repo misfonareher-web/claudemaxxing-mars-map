@@ -9,6 +9,7 @@ import type {
   BackendRouteProperties,
   BackendRouteResponse,
   CommsStatus,
+  RelaySchedule,
   EnvironmentSummary,
   MarsFeatureKind,
   MarsGeoJSONFeature,
@@ -69,6 +70,7 @@ export interface MarsExplorerProps {
   features: MarsGeoJSONFeature[];
   presets: MissionPreset[];
   commsStatus: CommsStatus;
+  relaySchedule: RelaySchedule;
   environments: {
     jezero: EnvironmentSummary;
     gale: EnvironmentSummary;
@@ -79,6 +81,7 @@ export default function MarsExplorer({
   features,
   presets,
   commsStatus,
+  relaySchedule,
   environments,
 }: MarsExplorerProps) {
   const [activeTab, setActiveTab] = useState<AppTab>("map");
@@ -1046,6 +1049,8 @@ export default function MarsExplorer({
           {/* Communications Delay & Telemetry Status Bar (Bottom-Left desktop / Top-Right pill mobile & tablet) */}
           <CommsStatusBar
             commsStatus={commsStatus}
+            relaySchedule={relaySchedule}
+            activePresetId={activePresetId}
             environment={activeEnvironment}
             hideCompactPill={Boolean(pickingRouteSlot || mobileLayersOpen)}
             onExpandChange={setCommsExpanded}

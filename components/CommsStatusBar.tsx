@@ -7,7 +7,7 @@ import {
   CaretUpIcon,
 } from "@phosphor-icons/react/ssr";
 import { AresSignalIcon, AresSunIcon } from "@/components/AresIcons";
-import { CommsStatus, EnvironmentSummary } from "@/types/mars";
+import { CommsStatus, EnvironmentSummary, RelaySchedule } from "@/types/mars";
 import {
   MARS_TIME_SOURCE,
   getEnvironmentWeatherSource,
@@ -16,6 +16,8 @@ import {
 
 interface CommsStatusBarProps {
   commsStatus: CommsStatus;
+  relaySchedule: RelaySchedule;
+  activePresetId: string | null;
   environment?: EnvironmentSummary | null;
   hideCompactPill?: boolean;
   onExpandChange?: (expanded: boolean) => void;
@@ -32,10 +34,13 @@ const DESKTOP_INNER_CLIP =
 
 export default function CommsStatusBar({
   commsStatus,
+  relaySchedule,
+  activePresetId,
   environment = null,
   hideCompactPill = false,
   onExpandChange,
 }: CommsStatusBarProps) {
+  const [now, setNow] = useState<number | null>(null);
   const [expanded, setExpanded] = useState(false);
   const [mtcTime, setMtcTime] = useState<string>("--:--:--");
 
@@ -46,6 +51,13 @@ export default function CommsStatusBar({
     const timer = window.setInterval(sync, 1000);
     return () => window.clearInterval(timer);
   }, [expanded]);
+
+  useEffect(() => {
+    const sync = () => setNow(Date.now());
+    sync();
+    const timer = window.setInterval(sync, 30_000);
+    return () => window.clearInterval(timer);
+  }, []);
 
   const toggleExpanded = () => {
     const next = !expanded;
@@ -59,16 +71,42 @@ export default function CommsStatusBar({
     temps && Number.isFinite(temps.min) && Number.isFinite(temps.max)
       ? `${Math.round(temps.min)}°/${Math.round(temps.max)}°C`
       : null;
-  const delayMatch = s.delay.match(/([\d.]+)\s*min/i);
-  const delayNum = delayMatch ? delayMatch[1] : null;
+  const today = now === null ? null : new Date(now).toISOString().slice(0, 10);
+  const lightTime = relaySchedule.daily_light_time.find((entry) => entry.date === today);
+  const delay = lightTime
+    ? `Signal delay to Earth: ${lightTime.one_way_min.toFixed(2)} min one way (${lightTime.date}, 00:00 UTC)`
+    : `${s.delay} · snapshot fallback`;
+  const delayNum = (lightTime?.one_way_min ?? commsStatus.one_way_light_time_min).toFixed(2);
+  const site = relaySchedule.sites[activePresetId ?? "jezero"] ?? relaySchedule.sites.jezero;
+  const upcoming = now === null ? [] : site.passes.filter((pass) => Date.parse(pass.end) >= now);
+  const timeRange = (pass: (typeof site.passes)[number]) =>
+    `${pass.start.slice(11, 16)}–${pass.end.slice(11, 16)} UTC`;
+  const describePass = (pass: (typeof site.passes)[number]) => {
+    const minutes = Math.max(0, Math.ceil((Date.parse(pass.start) - (now ?? 0)) / 60_000));
+    const relative = minutes === 0 ? "now" : `in ${minutes < 60 ? `${minutes} min` : `${Math.floor(minutes / 60)}h ${minutes % 60}m`}`;
+    return `${pass.orbiter} ${relative} (${timeRange(pass)}, max ${Math.round(pass.max_elevation_deg)}°)`;
+  };
+  const nextPass = now === null
+    ? `Next orbiter pass over ${site.name}: checking UTC clock…`
+    : upcoming.length
+      ? `Next orbiter pass over ${site.name}: ${describePass(upcoming[0])}`
+      : `No predicted passes after ${relaySchedule.window.end}`;
+  const sols = (Date.parse(relaySchedule.window.end) - Date.parse(relaySchedule.window.start)) / 88_775_244;
+  const durations = site.passes.map((pass) => pass.duration_min).sort((a, b) => a - b);
+  const middle = Math.floor(durations.length / 2);
+  const median = durations.length ? (durations[middle] + durations[Math.floor((durations.length - 1) / 2)]) / 2 : 0;
+  const relaySummary = `${site.name}: ${(site.passes.length / sols).toFixed(1)} predicted passes per sol via MRO/TGO/ODY`;
   const weatherSource = getEnvironmentWeatherSource(environment?.preset_id);
 
   const detailsList = [
-    s.delay,
-    s.round_trip,
-    s.relays,
-    s.next_pass,
-    s.duration,
+    delay,
+    lightTime
+      ? `Earth reply: ~${(lightTime.one_way_min * 2).toFixed(2)} min propagation round trip, plus relay and processing wait`
+      : s.round_trip,
+    relaySummary,
+    nextPass,
+    ...upcoming.slice(1, 4).map((pass) => `${pass.start.slice(0, 10)} · ${describePass(pass)}`),
+    `Median sampled pass duration: ${median.toFixed(1)} min (${relaySchedule.window.start.slice(0, 10)}–${relaySchedule.window.end.slice(0, 10)} UTC)`,
     s.conjunction,
     s.link_state,
   ];
@@ -130,10 +168,10 @@ export default function CommsStatusBar({
 
         <div className="mb-2 flex items-center justify-between gap-2">
           <span className="text-[11px] font-semibold tracking-wider text-ares-accent uppercase">
-            Comms &amp; Relay Model (Illustrative)
+            PREDICTED · JPL HORIZONS
           </span>
           <span className="shrink-0 font-mono text-[10px] whitespace-nowrap text-ares-mute">
-            {commsStatus.epoch_utc}
+            {lightTime?.date ?? commsStatus.date}
           </span>
         </div>
         <ul className="space-y-1 text-[11px] leading-snug text-ares-text">
@@ -145,7 +183,9 @@ export default function CommsStatusBar({
           ))}
         </ul>
         <p className="mt-2.5 border-t border-[rgba(255,249,235,0.16)] pt-2 text-[10px] text-ares-mute">
-          Source: {commsStatus.source}
+          {relaySchedule.caveat}
+          <br />
+          Source: {commsStatus.source}; JPL Horizons orbiter ephemerides
         </p>
       </div>
     </div>
@@ -227,10 +267,10 @@ export default function CommsStatusBar({
             <AresSignalIcon className="h-[22px] w-[22px] shrink-0 text-ares-text xl:h-6 xl:w-6" />
             <div className="min-w-0 flex-1">
               <div className="truncate font-sans text-[13px] leading-snug font-bold text-ares-text xl:text-[14px]">
-                {s.delay}
+                {delay}
               </div>
-              <div className="mt-0.5 truncate font-sans text-[11.5px] leading-snug font-normal text-ares-mute xl:text-[12px]">
-                {s.relays}
+              <div className="mt-0.5 line-clamp-2 font-sans text-[11.5px] leading-snug font-normal text-ares-mute xl:text-[12px]">
+                {nextPass}
               </div>
             </div>
           </button>
