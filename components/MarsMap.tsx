@@ -1,17 +1,21 @@
 "use client";
 
+import { pointUnavailable } from "@/lib/terrain-availability";
+
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import {
   ArrowsOutSimpleIcon,
-  CrosshairIcon,
-  DropIcon,
-  FlaskIcon,
   MinusIcon,
   PlusIcon,
 } from "@phosphor-icons/react/ssr";
+import {
+  AresFlagIcon,
+  AresFlaskIcon,
+  AresWaterIcon,
+} from "@/components/AresIcons";
 import {
   MarsFeatureKind,
   MarsGeoJSONFeature,
@@ -131,11 +135,11 @@ function createPointDivIcon(
 
   const iconSvg = renderToStaticMarkup(
     kind === "landing_site" ? (
-      <CrosshairIcon size={17} color={palette.ring} weight="duotone" />
+      <AresFlagIcon size={17} color={palette.ring} />
     ) : kind === "science_target" ? (
-      <FlaskIcon size={15} color={palette.ring} weight="duotone" />
+      <AresFlaskIcon size={15} color={palette.ring} />
     ) : (
-      <DropIcon size={15} color={palette.ring} weight="duotone" />
+      <AresWaterIcon size={15} color={palette.ring} />
     )
   );
 
@@ -157,17 +161,17 @@ function createPointDivIcon(
       <div class="group relative flex items-center justify-center cursor-pointer" style="width:${size}px;height:${size}px;">
         ${
           isSelected
-            ? `<span class="ares-pulse absolute inset-0 rounded-full" style="border: 1.5px solid ${palette.ring};"></span>`
+            ? `<span class="ares-pulse absolute inset-0 rounded-none" style="border: 1.5px solid ${palette.ring};"></span>`
             : ""
         }
-        <span class="absolute inset-0 rounded-full transition-transform duration-150 group-hover:scale-110"
+        <span class="absolute inset-0 rounded-none transition-transform duration-150 group-hover:scale-110"
               style="background:${palette.bg}; border: 1.5px solid ${palette.ring}; box-shadow: 0 4px 14px rgba(0,0,0,0.65);"></span>
         <span class="relative z-10 flex items-center justify-center">${iconSvg}</span>
         <div class="pointer-events-none ${
           kind === "landing_site" || isSelected
             ? "opacity-100"
             : "opacity-0 group-hover:opacity-100"
-        } absolute left-full top-1/2 ml-2 -translate-y-1/2 whitespace-nowrap rounded-md px-2 py-0.5 text-[11px] font-medium transition-opacity duration-150"
+        } absolute left-full top-1/2 ml-2 -translate-y-1/2 whitespace-nowrap rounded-none px-2 py-0.5 text-[11px] font-medium transition-opacity duration-150"
              style="background: rgba(16, 10, 7, 0.94); color:${palette.labelColor}; border: 1px solid ${palette.ring}55; box-shadow: 0 4px 12px rgba(0,0,0,0.5);">
           <span>${shortName}</span>${scoreBadge}
         </div>
@@ -191,10 +195,10 @@ function createRouteEndpointDivIcon(
     iconAnchor: [17, 17],
     html: `
       <div class="relative flex items-center justify-center cursor-pointer" style="width:34px;height:34px;">
-        <span class="ares-pulse absolute inset-0 rounded-full" style="border: 1.5px solid ${accent};"></span>
-        <span class="absolute inset-0 rounded-full" style="background:${bg}; border: 2px solid ${accent}; box-shadow: 0 0 16px ${accent}80;"></span>
+        <span class="ares-pulse absolute inset-0 rounded-none" style="border: 1.5px solid ${accent};"></span>
+        <span class="absolute inset-0 rounded-none" style="background:${bg}; border: 2px solid ${accent}; box-shadow: 0 0 16px ${accent}80;"></span>
         <span class="relative z-10 font-mono text-[13px] font-bold text-white">${badge}</span>
-        <div class="pointer-events-none absolute left-full top-1/2 ml-2 -translate-y-1/2 whitespace-nowrap rounded-md px-2 py-0.5 text-[11px] font-semibold text-white"
+        <div class="pointer-events-none absolute left-full top-1/2 ml-2 -translate-y-1/2 whitespace-nowrap rounded-none px-2 py-0.5 text-[11px] font-semibold text-white"
              style="background: rgba(14, 8, 6, 0.95); border: 1px solid ${accent}88; box-shadow: 0 4px 12px rgba(0,0,0,0.6);">
           <span style="color:${accent}">Point ${badge}:</span> <span>${safeLabel}</span>
         </div>
@@ -594,7 +598,8 @@ export default function MarsMap({
       const [lon, lat] = getCentroid(feature);
       const isSelected = selectedFeature?.properties.id === id;
       const resolvedScore =
-        markerScores?.[id] ?? feature.properties.score ?? null;
+        pointUnavailable(lon, lat) ? null :
+        id in (markerScores ?? {}) ? markerScores![id] : feature.properties.score ?? null;
       const markerIcon = createPointDivIcon(feature, isSelected, resolvedScore);
       const zIndexOffset =
         (isSelected ? 400 : 0) +
@@ -649,12 +654,13 @@ export default function MarsMap({
   ]);
 
   const overviewZoom = Math.max(zoomMetrics.minZoom, 2.25);
-  const scalePercent = Math.round(
-    Math.pow(2, zoomMetrics.zoom - overviewZoom) * 100
-  );
-  const canZoomIn = zoomMetrics.zoom < zoomMetrics.maxZoom - 0.05;
-  const canZoomOut = zoomMetrics.zoom > zoomMetrics.minZoom + 0.05;
-  const isAtOverview = Math.abs(zoomMetrics.zoom - overviewZoom) < 0.1;
+  const safeZoom = Number.isFinite(zoomMetrics.zoom)
+    ? zoomMetrics.zoom
+    : overviewZoom;
+  const scalePercent = Math.round(Math.pow(2, safeZoom - overviewZoom) * 100);
+  const canZoomIn = safeZoom < zoomMetrics.maxZoom - 0.05;
+  const canZoomOut = safeZoom > zoomMetrics.minZoom + 0.05;
+  const isAtOverview = Math.abs(safeZoom - overviewZoom) < 0.1;
 
   return (
     <>
@@ -662,7 +668,7 @@ export default function MarsMap({
       <div
         ref={zoomControlRef}
         aria-label="Map zoom controls"
-        className="fixed right-3 bottom-[84px] z-[950] flex w-[60px] flex-col items-center gap-1 rounded-2xl border border-ares-line/90 bg-ares-panel/90 p-1.5 text-ares-text shadow-[0_12px_32px_rgba(0,0,0,0.55)] backdrop-blur-md select-none md:top-[88px] md:right-auto md:bottom-auto md:left-[284px]"
+        className="fixed right-3 bottom-[92px] z-[950] flex w-[56px] flex-col items-center rounded-none border border-[#f06423]/45 bg-[#100806]/92 text-ares-text shadow-[0_12px_32px_rgba(0,0,0,0.6)] backdrop-blur-md select-none md:top-[88px] md:right-auto md:bottom-auto md:left-[284px]"
       >
         <button
           type="button"
@@ -670,13 +676,13 @@ export default function MarsMap({
           disabled={!canZoomIn}
           aria-label="Zoom in"
           title="Zoom in (+)"
-          className="flex h-9 w-full items-center justify-center rounded-xl border border-transparent text-ares-text transition hover:border-ares-line hover:bg-ares-raised hover:text-ares-accent-soft active:scale-95 disabled:cursor-not-allowed disabled:opacity-35"
+          className="flex h-9 w-full items-center justify-center rounded-none border-b border-ares-line/70 text-ares-text transition hover:bg-ares-raised hover:text-ares-accent-soft active:bg-ares-raised disabled:cursor-not-allowed disabled:opacity-35"
         >
-          <PlusIcon size={16} weight="bold" />
+          <PlusIcon size={15} weight="bold" />
         </button>
 
         <div
-          className="w-full py-0.5 text-center font-mono text-[10px] font-medium tabular-nums text-ares-mute"
+          className="flex h-8 w-full items-center justify-center border-b border-ares-line/70 font-mono text-[10px] font-medium tabular-nums text-ares-mute"
           title={`Zoom z${zoomMetrics.zoom.toFixed(2)} (${scalePercent}%)`}
         >
           {scalePercent}%
@@ -688,22 +694,20 @@ export default function MarsMap({
           disabled={!canZoomOut}
           aria-label="Zoom out"
           title="Zoom out (-)"
-          className="flex h-9 w-full items-center justify-center rounded-xl border border-transparent text-ares-text transition hover:border-ares-line hover:bg-ares-raised hover:text-ares-accent-soft active:scale-95 disabled:cursor-not-allowed disabled:opacity-35"
+          className="flex h-9 w-full items-center justify-center rounded-none border-b border-ares-line/70 text-ares-text transition hover:bg-ares-raised hover:text-ares-accent-soft active:bg-ares-raised disabled:cursor-not-allowed disabled:opacity-35"
         >
-          <MinusIcon size={16} weight="bold" />
+          <MinusIcon size={15} weight="bold" />
         </button>
-
-        <div className="my-0.5 h-px w-full bg-ares-line/80" />
 
         <button
           type="button"
           onClick={handleResetZoom}
           aria-label="Reset zoom to 100%"
           title="Reset to 100% overview"
-          className={`flex h-8 w-full items-center justify-center gap-0.5 rounded-xl border font-mono text-[10px] font-semibold tracking-tight transition active:scale-95 ${
+          className={`flex h-8 w-full items-center justify-center gap-0.5 rounded-none font-mono text-[10px] font-semibold tracking-tight transition ${
             isAtOverview
-              ? "border-ares-line/60 bg-ares-raised/60 text-ares-mute"
-              : "border-ares-accent/40 bg-ares-accent/15 text-ares-accent-soft hover:border-ares-accent/70 hover:bg-ares-accent/25"
+              ? "bg-transparent text-ares-mute"
+              : "bg-ares-accent/15 text-ares-accent-soft hover:bg-ares-accent/25"
           }`}
         >
           <ArrowsOutSimpleIcon size={10} weight="bold" />

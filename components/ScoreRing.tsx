@@ -59,7 +59,10 @@ export default function ScoreRing({ score, size = 84 }: ScoreRingProps) {
       style={{
         width: size,
         height: size,
-        filter: target === null ? undefined : `drop-shadow(0 0 10px ${color}40)`,
+        filter:
+          target === null || target === 0
+            ? undefined
+            : `drop-shadow(0 0 10px ${color}40)`,
       }}
       role="meter"
       aria-valuenow={target ?? undefined}
@@ -107,11 +110,11 @@ export default function ScoreRing({ score, size = 84 }: ScoreRingProps) {
             N/A
           </span>
         ) : (
-          <div className="flex items-baseline leading-none">
-            <span className="font-mono text-2xl font-bold tracking-tight text-ares-text tabular-nums">
+          <div className="flex flex-col items-center leading-none">
+            <span className="font-sans text-[26px] font-bold tracking-tight text-ares-text tabular-nums">
               {displayScore}
             </span>
-            <span className="ml-0.5 font-mono text-[10px] text-ares-mute">
+            <span className="mt-1 font-mono text-[11px] font-medium text-ares-mute">
               /100
             </span>
           </div>

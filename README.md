@@ -1,4 +1,4 @@
-# ARES — Interplanetary Survival Guide: Martian Map
+# AreoPath — Interplanetary Survival Guide: Martian Map
 
 NASA Space Apps 2026 · Team **Claudemaxxing**
 

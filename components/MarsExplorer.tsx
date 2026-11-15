@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo, useCallback } from "react";
 import dynamic from "next/dynamic";
+import { AresPinIcon } from "@/components/AresIcons";
 import type {
   AppTab,
   BackendPointScoreResponse,
@@ -12,6 +13,8 @@ import type {
   MarsFeatureKind,
   MarsGeoJSONFeature,
   MissionPreset,
+  SavedLocationEntry,
+  SavedLocationItem,
   ScoringProfileId,
 } from "@/types/mars";
 import { type DistanceUnit } from "@/lib/geo";
@@ -22,6 +25,7 @@ import {
 } from "@/lib/mars-scoring";
 import { getSafePresetZoom } from "@/lib/mars-layers";
 import { formatCoord } from "@/lib/mars-time";
+import { NO_ROUTE, pointUnavailable } from "@/lib/terrain-availability";
 import Header from "@/components/Header";
 import LayersPanel from "@/components/LayersPanel";
 import LocationCard, { type RouteSlot } from "@/components/LocationCard";
@@ -36,7 +40,7 @@ const MarsMap = dynamic(() => import("@/components/MarsMap"), {
       <div className="flex flex-col items-center gap-3">
         <div className="h-9 w-9 animate-spin rounded-full border-2 border-ares-accent border-t-transparent" />
         <span className="font-mono text-xs tracking-widest text-ares-mute uppercase">
-          Initializing Ares Cartography...
+          Initializing AreoPath Cartography...
         </span>
       </div>
     </div>
@@ -45,25 +49,20 @@ const MarsMap = dynamic(() => import("@/components/MarsMap"), {
 
 const STORAGE_KEY_SAVED = "ares_mars_saved_locations_v1";
 
-function computeEnvMeanTemp(env?: EnvironmentSummary): number {
-  const summaryMean = env?.summary?.air_temp_c?.mean;
-  if (typeof summaryMean === "number" && Number.isFinite(summaryMean)) {
-    return summaryMean;
-  }
-  const series = env?.series ?? [];
-  const samples: number[] = [];
-  for (const pt of series) {
-    if (
-      typeof pt.air_temp_min_c === "number" &&
-      typeof pt.air_temp_max_c === "number"
-    ) {
-      samples.push((pt.air_temp_min_c + pt.air_temp_max_c) / 2);
+function extractApiError(payload: unknown, status: number): string {
+  if (payload && typeof payload === "object") {
+    const errField = (payload as { error?: unknown }).error;
+    if (typeof errField === "string" && errField.trim()) {
+      return errField;
+    }
+    if (errField && typeof errField === "object") {
+      const msg = (errField as { message?: unknown }).message;
+      if (typeof msg === "string" && msg.trim()) {
+        return msg;
+      }
     }
   }
-  if (samples.length > 0) {
-    return samples.reduce((acc, v) => acc + v, 0) / samples.length;
-  }
-  return -63;
+  return `HTTP ${status}`;
 }
 
 export interface MarsExplorerProps {
@@ -95,14 +94,9 @@ export default function MarsExplorer({
     landing_site: true,
   });
 
-  // Function 1: Selected location for inspection (open by default on right side)
+  // Function 1: Selected location for inspection (closed by default until user picks a point)
   const [selectedFeature, setSelectedFeature] =
-    useState<MarsGeoJSONFeature | null>(
-      () =>
-        features.find((f) => f.properties.id === "ls-msl") ??
-        features[0] ??
-        null
-    );
+    useState<MarsGeoJSONFeature | null>(null);
 
   // Function 2: Arbitrary Point A -> Point B routing (displayed in right-hand card)
   const [routePointA, setRoutePointA] = useState<MarsGeoJSONFeature | null>(
@@ -120,20 +114,51 @@ export default function MarsExplorer({
     zoom: number;
     seq: number;
   } | null>(null);
+  const [manualPresetId, setManualPresetId] = useState<string | null>(null);
 
-  const [savedIds, setSavedIds] = useState<string[]>(() => {
-    if (typeof window === "undefined") return [];
-    try {
-      const raw = window.localStorage.getItem(STORAGE_KEY_SAVED);
-      if (raw) {
-        const parsed = JSON.parse(raw);
-        if (Array.isArray(parsed)) return parsed;
+  const [savedEntries, setSavedEntries] = useState<SavedLocationEntry[]>([]);
+
+  useEffect(() => {
+    Promise.resolve().then(() => {
+      try {
+        const raw = window.localStorage.getItem(STORAGE_KEY_SAVED);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (Array.isArray(parsed)) {
+            const fallbackDate = new Date().toISOString();
+            const entries: SavedLocationEntry[] = [];
+            for (const item of parsed) {
+              if (typeof item === "string") {
+                entries.push({ id: item, savedAt: fallbackDate, score: null });
+              } else if (
+                item &&
+                typeof item === "object" &&
+                typeof (item as SavedLocationEntry).id === "string"
+              ) {
+                const entry = item as SavedLocationEntry;
+                entries.push({
+                  id: entry.id,
+                  savedAt:
+                    typeof entry.savedAt === "string"
+                      ? entry.savedAt
+                      : fallbackDate,
+                  score:
+                    typeof entry.score === "number" &&
+                    Number.isFinite(entry.score)
+                      ? entry.score
+                      : null,
+                  ...(entry.feature ? { feature: entry.feature } : {}),
+                });
+              }
+            }
+            setSavedEntries(entries);
+          }
+        }
+      } catch {
+        // Ignore storage errors
       }
-    } catch {
-      // Ignore storage errors
-    }
-    return [];
-  });
+    });
+  }, []);
 
   // Backend scoring state for Selected Location (Function 1)
   const [scoreCache, setScoreCache] = useState<{
@@ -233,7 +258,7 @@ export default function MarsExplorer({
     currentRouteKey && !backendRouteProperties && !routeError
   );
 
-  // Pre-fetch landing-site scores (preset MOLA grid for Jezero/Gale, conditional global estimate elsewhere)
+  // Pre-fetch landing-site scores (preset MOLA grid for Jezero/Gale, unavailable elsewhere)
   useEffect(() => {
     const controller = new AbortController();
     const candidates = features.filter(
@@ -259,8 +284,11 @@ export default function MarsExplorer({
           { signal: controller.signal }
         );
         if (!res.ok) return null;
-        const data = (await res.json()) as BackendPointScoreResponse;
-        return [feature.properties.id, data.properties.score ?? null] as const;
+        const data = (await res.json().catch(() => null)) as
+          | BackendPointScoreResponse
+          | null;
+        if (!data || typeof data !== "object" || !data.properties) return null;
+        return [feature.properties.id, pointUnavailable(lon, lat, data) ? null : data.properties.score ?? null] as const;
       })
     ).then((results) => {
       if (controller.signal.aborted) return;
@@ -283,6 +311,7 @@ export default function MarsExplorer({
   useEffect(() => {
     if (!selectedFeature || !currentScoreKey) return;
 
+    const featureId = selectedFeature.properties.id;
     const [lon, lat] = getCentroid(selectedFeature);
     const controller = new AbortController();
     const params = new URLSearchParams({
@@ -298,29 +327,35 @@ export default function MarsExplorer({
       .then(async (res) => {
         const payload = await res.json().catch(() => null);
         if (!res.ok) {
-          throw new Error(
-            (payload && typeof payload.error === "string" && payload.error) ||
-              `HTTP ${res.status}`
-          );
+          throw new Error(extractApiError(payload, res.status));
+        }
+        if (
+          !payload ||
+          typeof payload !== "object" ||
+          !("properties" in payload) ||
+          !payload.properties ||
+          typeof payload.properties !== "object"
+        ) {
+          throw new Error("Invalid point scoring payload");
         }
         return payload as BackendPointScoreResponse;
       })
       .then((data: BackendPointScoreResponse) => {
+        if (controller.signal.aborted) return;
         setScoreErrorState(null);
         setScoreCache({ key: currentScoreKey, data });
         setMarkerScores((prev) => ({
           ...prev,
-          [selectedFeature.properties.id]: data.properties.score ?? null,
+          [featureId]: pointUnavailable(lon, lat, data) ? null : data.properties.score ?? null,
         }));
       })
       .catch((err) => {
-        if (err.name !== "AbortError") {
-          console.error("Point scoring error:", err);
-          setScoreErrorState({
-            key: currentScoreKey,
-            message: err instanceof Error ? err.message : "Score unavailable",
-          });
-        }
+        if (controller.signal.aborted || err?.name === "AbortError") return;
+        console.error("Point scoring error:", err);
+        setScoreErrorState({
+          key: currentScoreKey,
+          message: err instanceof Error ? err.message : "Score unavailable",
+        });
       });
 
     return () => controller.abort();
@@ -350,21 +385,34 @@ export default function MarsExplorer({
       .then(async (res) => {
         const payload = await res.json().catch(() => null);
         if (!res.ok) {
-          throw new Error(
-            (payload && typeof payload.error === "string" && payload.error) ||
-              `HTTP ${res.status}`
-          );
+          throw new Error(extractApiError(payload, res.status));
+        }
+        if (
+          !payload ||
+          typeof payload !== "object" ||
+          !Array.isArray((payload as BackendRouteResponse).features)
+        ) {
+          throw new Error("Invalid route response payload");
         }
         return payload as BackendRouteResponse;
       })
       .then((data: BackendRouteResponse) => {
+        if (controller.signal.aborted) return;
         const firstFeature = data.features?.[0];
-        if (!firstFeature) {
+        if (!firstFeature || !firstFeature.properties) {
           setRouteErrorState({
             key: currentRouteKey,
             message: "Empty route response",
           });
           return;
+        }
+        if (activeRoutePresetId === "global") {
+          firstFeature.geometry = null;
+          firstFeature.properties = {
+            distance_km: null, elevation_gain_m: null, elevation_loss_m: null,
+            max_slope_deg: null, mean_score: null, steps: 0, reachable: false,
+            unreachable_reason: "terrain_unavailable", message: NO_ROUTE,
+          };
         }
         setRouteErrorState(null);
         setRouteCache({
@@ -375,13 +423,12 @@ export default function MarsExplorer({
         });
       })
       .catch((err) => {
-        if (err.name !== "AbortError") {
-          console.error("Route computation error:", err);
-          setRouteErrorState({
-            key: currentRouteKey,
-            message: err instanceof Error ? err.message : "Route error",
-          });
-        }
+        if (controller.signal.aborted || err?.name === "AbortError") return;
+        console.error("Route computation error:", err);
+        setRouteErrorState({
+          key: currentRouteKey,
+          message: err instanceof Error ? err.message : "Route error",
+        });
       });
 
     return () => controller.abort();
@@ -393,19 +440,63 @@ export default function MarsExplorer({
     currentRouteKey,
   ]);
 
-  const handleToggleSave = useCallback((id: string) => {
-    setSavedIds((prev) => {
-      const next = prev.includes(id)
-        ? prev.filter((item) => item !== id)
-        : [...prev, id];
-      try {
-        window.localStorage.setItem(STORAGE_KEY_SAVED, JSON.stringify(next));
-      } catch {
-        // Ignore storage errors
-      }
-      return next;
-    });
-  }, []);
+  const handleToggleSave = useCallback(
+    (id: string) => {
+      setSavedEntries((prev) => {
+        const exists = prev.some((item) => item.id === id);
+        let next: SavedLocationEntry[];
+        if (exists) {
+          next = prev.filter((item) => item.id !== id);
+        } else {
+          const matchedFeature =
+            [selectedFeature, routePointA, routePointB, ...features].find(
+              (f): f is MarsGeoJSONFeature =>
+                Boolean(f && f.properties.id === id)
+            ) ?? null;
+          const activeScore =
+            selectedFeature?.properties.id === id
+              ? backendScore?.properties.score
+              : undefined;
+          const resolvedScore =
+            matchedFeature && pointUnavailable(...getCentroid(matchedFeature),
+              selectedFeature?.properties.id === id ? backendScore : null) ? null :
+            typeof activeScore === "number"
+              ? activeScore
+              : typeof markerScores[id] === "number"
+                ? markerScores[id]
+                : typeof matchedFeature?.properties.score === "number"
+                  ? matchedFeature.properties.score
+                  : null;
+          const isProbe =
+            matchedFeature?.properties.dataset_id === "ares_surface_probe";
+
+          next = [
+            {
+              id,
+              savedAt: new Date().toISOString(),
+              score: resolvedScore,
+              ...(isProbe && matchedFeature ? { feature: matchedFeature } : {}),
+            },
+            ...prev,
+          ];
+        }
+        try {
+          window.localStorage.setItem(STORAGE_KEY_SAVED, JSON.stringify(next));
+        } catch {
+          // Ignore storage errors
+        }
+        return next;
+      });
+    },
+    [
+      selectedFeature,
+      routePointA,
+      routePointB,
+      features,
+      backendScore,
+      markerScores,
+    ]
+  );
 
   const handleToggleKind = useCallback((kind: MarsFeatureKind) => {
     setVisibleKinds((prev) => ({
@@ -414,8 +505,13 @@ export default function MarsExplorer({
     }));
   }, []);
 
-  // Saved features list (including custom/probed points if saved during session)
-  const savedFeatures = useMemo(() => {
+  const savedIdSet = useMemo(
+    () => new Set(savedEntries.map((entry) => entry.id)),
+    [savedEntries]
+  );
+
+  // Saved features list with score & date metadata (persisting custom probes across selection & reload)
+  const savedLocations = useMemo(() => {
     const pool = [...features];
     for (const extra of [selectedFeature, routePointA, routePointB]) {
       if (
@@ -425,12 +521,52 @@ export default function MarsExplorer({
         pool.push(extra);
       }
     }
-    return pool.filter((f) => savedIds.includes(f.properties.id));
-  }, [features, savedIds, selectedFeature, routePointA, routePointB]);
+    const items: SavedLocationItem[] = [];
+    for (const entry of savedEntries) {
+      const feature =
+        pool.find((f) => f.properties.id === entry.id) ?? entry.feature;
+      if (!feature) continue;
+      const activeScore =
+        selectedFeature?.properties.id === entry.id
+          ? backendScore?.properties.score
+          : undefined;
+      const markerScore = markerScores[entry.id];
+      const score =
+        pointUnavailable(...getCentroid(feature),
+          selectedFeature?.properties.id === entry.id ? backendScore : null) ? null :
+        typeof activeScore === "number"
+          ? activeScore
+          : typeof markerScore === "number"
+            ? markerScore
+            : typeof entry.score === "number"
+              ? entry.score
+              : typeof feature.properties.score === "number"
+                ? feature.properties.score
+                : null;
+      items.push({
+        feature,
+        score,
+        savedAt: entry.savedAt,
+      });
+    }
+    return items;
+  }, [
+    features,
+    savedEntries,
+    selectedFeature,
+    routePointA,
+    routePointB,
+    markerScores,
+    backendScore,
+  ]);
 
   // Unified handler when a user clicks an existing feature marker or selects a point
   const applySelectedOrPickedFeature = useCallback(
     (feature: MarsGeoJSONFeature, shouldFly = false) => {
+      const center = getCentroid(feature);
+      const matchedPreset = findPresetForPoint(center[0], center[1], presets);
+      setManualPresetId(matchedPreset?.id ?? null);
+
       if (pickingRouteSlot === "A") {
         setRoutePointA(feature);
         setSelectedFeature(feature);
@@ -446,8 +582,6 @@ export default function MarsExplorer({
       }
 
       if (shouldFly) {
-        const center = getCentroid(feature);
-        const matchedPreset = findPresetForPoint(center[0], center[1], presets);
         setFlyToTarget((prev) => ({
           center,
           zoom: matchedPreset
@@ -471,7 +605,7 @@ export default function MarsExplorer({
   // Clicking any arbitrary point on the Mars map
   const handleSelectPoint = useCallback(
     ({ lon, lat }: { lon: number; lat: number }) => {
-      const id = `probe-${lat.toFixed(3)}-${lon.toFixed(3)}`;
+      const id = `probe-${lat.toFixed(4)}-${lon.toFixed(4)}`;
       const coordLabel = formatCoord(lat, lon);
       const customFeature: MarsGeoJSONFeature = {
         type: "Feature",
@@ -484,13 +618,13 @@ export default function MarsExplorer({
           kind: "science_target",
           name: `Surface Point (${coordLabel})`,
           description:
-            "Arbitrary surface coordinates analyzed in real time by the ARES backend multi-criteria terrain & habitability engine.",
+            "Point coordinates queried against AreoPath local MOLA terrain grids (Jezero and Gale presets).",
           dataset_id: "ares_surface_probe",
           preset_ids: [],
           confidence: "medium",
           caveat:
-            "Evaluated dynamically from MOLA elevation, slope, roughness, and orbital thermal/ice datasets.",
-          source_ref: "ARES Backend Engine (/api/score/point)",
+            "Evaluated on ~460 m MOLA terrain grids when inside Jezero or Gale; outside those presets no local grid is loaded.",
+          source_ref: "AreoPath Backend Engine (/api/score/point)",
         },
       };
       applySelectedOrPickedFeature(customFeature, false);
@@ -505,6 +639,7 @@ export default function MarsExplorer({
       const baseFeature =
         features.find((f) => f.properties.id === preset.base_point.id) ?? null;
 
+      setManualPresetId(preset.id);
       setRouteErrorState(null);
       setRouteCache(null);
       setFlyToTarget((prev) => ({
@@ -542,6 +677,13 @@ export default function MarsExplorer({
     (presetId: string | null) => {
       setActiveTab("map");
       if (!presetId) {
+        setManualPresetId(null);
+        setSelectedFeature(null);
+        setRoutePointA(null);
+        setRoutePointB(null);
+        setPickingRouteSlot(null);
+        setRouteCache(null);
+        setRouteErrorState(null);
         setFlyToTarget((prev) => ({
           center: [15, 70],
           zoom: 2.25,
@@ -552,6 +694,7 @@ export default function MarsExplorer({
       const preset = presets.find((p) => p.id === presetId);
       if (!preset) return;
 
+      setManualPresetId(preset.id);
       const baseFeature =
         features.find((f) => f.properties.id === preset.base_point.id) ?? null;
       if (baseFeature) {
@@ -638,22 +781,26 @@ export default function MarsExplorer({
   }, []);
 
   const handleResetView = useCallback(() => {
+    setManualPresetId(null);
+    setSelectedFeature(null);
+    handleClearRoute();
     setFlyToTarget((prev) => ({
       center: [15, 70],
       zoom: 2.25,
       seq: (prev?.seq ?? 0) + 1,
     }));
     setActiveTab("map");
-  }, []);
+  }, [handleClearRoute]);
 
-  const activePresetId =
-    activeRoutePreset?.id ?? selectedPointPreset?.id ?? null;
-  const activeEnvKey = activePresetId === "gale" ? "gale" : "jezero";
-  const avgTempC = useMemo(
-    () => computeEnvMeanTemp(environments[activeEnvKey]),
-    [environments, activeEnvKey]
-  );
-  const solNumber = environments[activeEnvKey]?.sol_range?.[1] ?? 1846;
+  const activePresetId = routePointA || routePointB || pickingRouteSlot
+    ? (activeRoutePreset?.id ?? null)
+    : selectedFeature ? (selectedPointPreset?.id ?? null) : manualPresetId;
+  const activeEnvironment =
+    activePresetId === "jezero"
+      ? environments.jezero
+      : activePresetId === "gale"
+        ? environments.gale
+        : null;
   const showRightCard = Boolean(
     selectedFeature || routePointA || routePointB || pickingRouteSlot
   );
@@ -664,8 +811,7 @@ export default function MarsExplorer({
       <Header
         activeTab={activeTab}
         onTabChange={setActiveTab}
-        avgTempC={avgTempC}
-        solNumber={solNumber}
+        environment={activeEnvironment}
       />
 
       {/* Base 2D Map Layer (isolated stacking context so vignette stays behind HUD) */}
@@ -709,30 +855,70 @@ export default function MarsExplorer({
             onToggleKind={handleToggleKind}
           />
 
+          {/* Default Inspect Hint Banner (shown when no location or route panel is open) */}
+          {!showRightCard && !pickingRouteSlot && (
+            <div className="pointer-events-none fixed top-[88px] right-5 z-[900] hidden md:block xl:right-auto xl:left-1/2 xl:-translate-x-1/2">
+              <div
+                className="bg-[#f06423]/40 p-[1px] shadow-[0_14px_36px_rgba(0,0,0,0.75)] backdrop-blur-md"
+                style={{
+                  clipPath:
+                    "polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px)",
+                }}
+              >
+                <div
+                  className="flex items-center gap-2.5 bg-[#120906]/92 px-5 py-2.5 text-[13px] font-medium tracking-[0.01em] whitespace-nowrap text-[#f5ece4]"
+                  style={{
+                    clipPath:
+                      "polygon(11.5px 0, 100% 0, 100% calc(100% - 11.5px), calc(100% - 11.5px) 100%, 0 100%, 0 11.5px)",
+                  }}
+                >
+                  <AresPinIcon className="h-4 w-4 shrink-0 text-[#f5ece4]" />
+                  <span>
+                    Click any location or point on the map to inspect it.
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+
           {/* Active Route Picking Banner */}
           {pickingRouteSlot && (
-            <div className="pointer-events-none fixed top-24 left-1/2 z-[1000] -translate-x-1/2">
-              <div className="pointer-events-auto flex items-center gap-3 rounded-full border border-ares-accent/80 bg-[#1a0c06]/95 px-5 py-2 text-xs font-semibold text-white shadow-[0_0_25px_rgba(255,107,43,0.4)] backdrop-blur-md">
-                <span
-                  className={`flex h-5 w-5 items-center justify-center rounded-full text-[11px] font-bold ${
-                    pickingRouteSlot === "A"
-                      ? "bg-emerald-500 text-black"
-                      : "bg-ares-accent text-black"
-                  }`}
+            <div className="pointer-events-none fixed top-[88px] left-1/2 z-[1000] -translate-x-1/2">
+              <div
+                className="pointer-events-auto bg-ares-accent/80 p-[1px] shadow-[0_0_25px_rgba(255,107,43,0.4)] backdrop-blur-md"
+                style={{
+                  clipPath:
+                    "polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px)",
+                }}
+              >
+                <div
+                  className="flex items-center gap-3 bg-[#1a0c06]/95 px-5 py-2 text-xs font-semibold text-white"
+                  style={{
+                    clipPath:
+                      "polygon(11.5px 0, 100% 0, 100% calc(100% - 11.5px), calc(100% - 11.5px) 100%, 0 100%, 0 11.5px)",
+                  }}
                 >
-                  {pickingRouteSlot}
-                </span>
-                <span>
-                  Click any location or point on the map to set{" "}
-                  <strong>Point {pickingRouteSlot}</strong>
-                </span>
-                <button
-                  type="button"
-                  onClick={() => setPickingRouteSlot(null)}
-                  className="ml-1 cursor-pointer rounded-full border border-white/20 px-2 py-0.5 text-[10px] text-ares-mute hover:border-white/50 hover:text-white"
-                >
-                  Cancel
-                </button>
+                  <span
+                    className={`flex h-5 w-5 items-center justify-center rounded-none text-[11px] font-bold ${
+                      pickingRouteSlot === "A"
+                        ? "bg-emerald-500 text-black"
+                        : "bg-ares-accent text-black"
+                    }`}
+                  >
+                    {pickingRouteSlot}
+                  </span>
+                  <span className="whitespace-nowrap">
+                    Click any location or point on the map to set{" "}
+                    <strong>Point {pickingRouteSlot}</strong>
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => setPickingRouteSlot(null)}
+                    className="ml-1 cursor-pointer rounded-none border border-white/25 px-2 py-0.5 text-[10px] text-ares-mute hover:border-white/50 hover:text-white"
+                  >
+                    Cancel
+                  </button>
+                </div>
               </div>
             </div>
           )}
@@ -742,12 +928,13 @@ export default function MarsExplorer({
             <LocationCard
               feature={selectedFeature}
               allFeatures={features}
+              environment={activeEnvironment}
               backendScore={backendScore}
               isScoringLoading={isScoringLoading}
               scoreError={scoreError}
               isSaved={
                 selectedFeature
-                  ? savedIds.includes(selectedFeature.properties.id)
+                  ? savedIdSet.has(selectedFeature.properties.id)
                   : false
               }
               pointA={routePointA}
@@ -797,8 +984,9 @@ export default function MarsExplorer({
         <SettingsView
           distanceUnit={distanceUnit}
           onChangeDistanceUnit={setDistanceUnit}
-          savedFeatures={savedFeatures}
+          savedLocations={savedLocations}
           onJumpToFeature={handleSelectFeature}
+          onRemoveSaved={handleToggleSave}
           onResetView={handleResetView}
         />
       )}

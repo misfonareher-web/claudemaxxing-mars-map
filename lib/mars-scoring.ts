@@ -56,7 +56,7 @@ const KNOWN_SITE_METRICS: Record<string, Partial<SurvivalMetrics>> = {
       "Séítah sand dunes",
       "Context-only ice proxy",
     ],
-    resources: ["Hydrated clay minerals", "Solar energy", "Basaltic regolith"],
+    resources: ["Hydrated clay minerals"],
   },
   "ls-msl": {
     elevation_m: -4500,
@@ -72,7 +72,7 @@ const KNOWN_SITE_METRICS: Record<string, Partial<SurvivalMetrics>> = {
       "Steep Mount Sharp slopes",
       "Abrasive ventifacts",
     ],
-    resources: ["Solar energy", "Clay & sulfate beds", "Dense CO2 air"],
+    resources: ["Clay & sulfate beds", "Dense CO2 air"],
   },
   "ls-insight": {
     elevation_m: -2655,
@@ -88,7 +88,7 @@ const KNOWN_SITE_METRICS: Record<string, Partial<SurvivalMetrics>> = {
       "Scarce near-surface ice",
       "Open wind exposure",
     ],
-    resources: ["Solar energy", "Unconsolidated regolith"],
+    resources: ["Unconsolidated regolith"],
   },
   "ls-phoenix": {
     elevation_m: -4100,
@@ -136,7 +136,7 @@ const KNOWN_SITE_METRICS: Record<string, Partial<SurvivalMetrics>> = {
       "Limited ice evidence",
       "Regional dust events",
     ],
-    resources: ["Iron-rich regolith", "Solar energy"],
+    resources: ["Iron-rich regolith"],
   },
   "ls-viking2": {
     elevation_m: -4500,
@@ -167,7 +167,7 @@ const KNOWN_SITE_METRICS: Record<string, Partial<SurvivalMetrics>> = {
       "Frequent dust devils",
       "Limited local water",
     ],
-    resources: ["Solar energy", "Diverse mineral suite"],
+    resources: ["Diverse mineral suite"],
   },
   "ls-spirit": {
     elevation_m: -1940,
@@ -183,7 +183,7 @@ const KNOWN_SITE_METRICS: Record<string, Partial<SurvivalMetrics>> = {
       "Higher crater elevation",
       "Rocky Columbia Hills",
     ],
-    resources: ["Amorphous silica", "Solar energy"],
+    resources: ["Amorphous silica"],
   },
   "ls-opportunity": {
     elevation_m: -1400,
@@ -199,7 +199,7 @@ const KNOWN_SITE_METRICS: Record<string, Partial<SurvivalMetrics>> = {
       "Global dust storms",
       "Low bulk ground ice",
     ],
-    resources: ["Hematite & sulfates", "Solar energy"],
+    resources: ["Hematite & sulfates"],
   },
 };
 
@@ -334,7 +334,6 @@ export function getSurvivalMetrics(
       ],
       resources: props.resources ?? [
         "Hydrated sediments",
-        "Solar energy",
       ],
     };
   }
@@ -346,6 +345,6 @@ export function getSurvivalMetrics(
     summary: props.description,
     pros: props.pros ?? [props.description],
     risks: props.risks ?? [props.caveat],
-    resources: props.resources ?? ["Solar energy", "Basaltic regolith"],
+    resources: props.resources ?? [],
   };
 }

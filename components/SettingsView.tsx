@@ -4,17 +4,39 @@ import React from "react";
 import {
   ArrowCounterClockwiseIcon,
   BookmarkSimpleIcon,
-  MapPinIcon,
   RulerIcon,
+  XIcon,
 } from "@phosphor-icons/react/ssr";
-import { MarsGeoJSONFeature } from "@/types/mars";
+import { MarsGeoJSONFeature, SavedLocationItem } from "@/types/mars";
 import { DistanceUnit } from "@/lib/geo";
+
+const SAVED_MONTHS = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+] as const;
+
+function formatSavedDate(iso: string): string | null {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return null;
+  return `${d.getDate()} ${SAVED_MONTHS[d.getMonth()]} ${d.getFullYear()}`;
+}
 
 interface SettingsViewProps {
   distanceUnit: DistanceUnit;
   onChangeDistanceUnit: (unit: DistanceUnit) => void;
-  savedFeatures: MarsGeoJSONFeature[];
+  savedLocations: SavedLocationItem[];
   onJumpToFeature: (feature: MarsGeoJSONFeature) => void;
+  onRemoveSaved: (id: string) => void;
   onResetView: () => void;
 }
 
@@ -38,8 +60,9 @@ const UNIT_OPTIONS: {
 export default function SettingsView({
   distanceUnit,
   onChangeDistanceUnit,
-  savedFeatures,
+  savedLocations,
   onJumpToFeature,
+  onRemoveSaved,
   onResetView,
 }: SettingsViewProps) {
   return (
@@ -55,7 +78,7 @@ export default function SettingsView({
           <button
             type="button"
             onClick={onResetView}
-            className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-ares-accent/45 bg-ares-panel px-3.5 py-2 text-xs font-medium text-ares-text transition-colors hover:border-ares-accent"
+            className="inline-flex cursor-pointer items-center gap-2 rounded-none border border-ares-accent/45 bg-ares-panel px-3.5 py-2 text-xs font-medium text-ares-text transition-colors hover:border-ares-accent"
           >
             <ArrowCounterClockwiseIcon
               weight="bold"
@@ -66,7 +89,7 @@ export default function SettingsView({
         </div>
 
         {/* Distance Units (km / mi) */}
-        <section className="rounded-2xl border border-ares-accent/30 bg-ares-panel p-5">
+        <section className="rounded-none border border-ares-accent/30 bg-ares-panel p-5">
           <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-ares-text">
             <RulerIcon weight="duotone" className="h-4 w-4 text-ares-accent-soft" />
             <h2>Distance Units</h2>
@@ -79,7 +102,7 @@ export default function SettingsView({
                   key={opt.unit}
                   type="button"
                   onClick={() => onChangeDistanceUnit(opt.unit)}
-                  className={`flex cursor-pointer flex-col rounded-xl border p-3.5 text-left transition-colors ${
+                  className={`flex cursor-pointer flex-col rounded-none border p-3.5 text-left transition-colors ${
                     selected
                       ? "border-ares-accent bg-ares-accent/15 text-ares-text shadow-[0_0_16px_rgba(240,100,35,0.16)]"
                       : "border-ares-line bg-ares-raised/60 text-ares-mute hover:border-ares-accent/40 hover:text-ares-text"
@@ -96,44 +119,85 @@ export default function SettingsView({
         </section>
 
         {/* Saved Locations */}
-        <section className="rounded-2xl border border-ares-accent/30 bg-ares-panel p-5">
-          <div className="mb-3 flex items-center gap-2 text-sm font-semibold text-ares-text">
+        <section className="rounded-none border border-ares-line/90 bg-ares-panel p-5">
+          <div className="mb-1 flex items-center gap-2.5 border-b border-ares-line/70 pb-3.5 text-base font-semibold text-white">
             <BookmarkSimpleIcon
-              weight="duotone"
-              className="h-4 w-4 text-ares-accent-soft"
+              weight="regular"
+              className="h-5 w-5 text-ares-text/90"
             />
-            <h2>Saved Locations ({savedFeatures.length})</h2>
+            <h2>Saved locations ({savedLocations.length})</h2>
           </div>
-          {savedFeatures.length === 0 ? (
-            <p className="text-xs text-ares-mute">
+          {savedLocations.length === 0 ? (
+            <p className="pt-3 text-xs text-ares-mute">
               No saved locations yet. Click any marker or point on the map and
               press{" "}
               <span className="font-semibold text-ares-text">
-                Save Location
+                Save location
               </span>
               .
             </p>
           ) : (
-            <div className="space-y-2">
-              {savedFeatures.map((feat) => (
-                <button
-                  key={feat.properties.id}
-                  type="button"
-                  onClick={() => onJumpToFeature(feat)}
-                  className="flex w-full cursor-pointer items-center justify-between rounded-xl border border-ares-line bg-ares-raised/60 px-3.5 py-2.5 text-left text-xs transition-colors hover:border-ares-accent/50"
-                >
-                  <span className="flex items-center gap-2 font-medium text-ares-text">
-                    <MapPinIcon
-                      weight="duotone"
-                      className="h-3.5 w-3.5 text-ares-accent-soft"
-                    />
-                    {feat.properties.name}
-                  </span>
-                  <span className="text-[11px] text-ares-accent-soft">
-                    View on Map
-                  </span>
-                </button>
-              ))}
+            <div className="divide-y divide-ares-line/65">
+              {savedLocations.map(({ feature: feat, score, savedAt }) => {
+                const displayName =
+                  feat.properties.dataset_id === "ares_surface_probe"
+                    ? "Surface Point"
+                    : feat.properties.name;
+                const dateLabel = formatSavedDate(savedAt);
+
+                return (
+                  <div
+                    key={feat.properties.id}
+                    className="flex items-center justify-between gap-4 py-3.5"
+                  >
+                    <div className="min-w-0 flex-1">
+                      <p
+                        title={feat.properties.name}
+                        className="truncate text-sm font-semibold text-white"
+                      >
+                        {displayName}
+                      </p>
+                      {dateLabel && (
+                        <p className="mt-0.5 text-xs text-ares-mute">
+                          Saved {dateLabel}
+                        </p>
+                      )}
+                    </div>
+
+                    <div className="flex shrink-0 items-center gap-4">
+                      <span
+                        className={`font-mono text-sm font-bold tabular-nums ${
+                          typeof score === "number"
+                            ? "text-[#ff6924]"
+                            : "text-ares-mute"
+                        }`}
+                      >
+                        {typeof score === "number"
+                          ? `${Math.round(score)}/100`
+                          : "—/100"}
+                      </span>
+
+                      <button
+                        type="button"
+                        onClick={() => onJumpToFeature(feat)}
+                        className="cursor-pointer rounded-none border border-ares-line/90 bg-[#170b07]/85 px-4 py-1.5 text-xs font-semibold text-white transition-colors hover:border-ares-accent hover:text-ares-accent"
+                      >
+                        Open
+                      </button>
+
+                      <button
+                        type="button"
+                        onClick={() => onRemoveSaved(feat.properties.id)}
+                        aria-label={`Remove ${displayName}`}
+                        title={`Remove ${displayName}`}
+                        className="cursor-pointer p-1 text-ares-text/80 transition-colors hover:text-rose-400"
+                      >
+                        <XIcon weight="bold" className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           )}
         </section>
