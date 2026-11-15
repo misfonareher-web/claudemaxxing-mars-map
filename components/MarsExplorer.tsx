@@ -25,7 +25,7 @@ import {
 } from "@/lib/mars-scoring";
 import { getSafePresetZoom } from "@/lib/mars-layers";
 import { formatCoord } from "@/lib/mars-time";
-import { NO_ROUTE, pointUnavailable } from "@/lib/terrain-availability";
+import { pointUnavailable } from "@/lib/terrain-availability";
 import Header from "@/components/Header";
 import LayersPanel from "@/components/LayersPanel";
 import LocationCard, { type RouteSlot } from "@/components/LocationCard";
@@ -36,7 +36,7 @@ import SettingsView from "@/components/SettingsView";
 const MarsMap = dynamic(() => import("@/components/MarsMap"), {
   ssr: false,
   loading: () => (
-    <div className="flex h-full w-full items-center justify-center bg-[#0d0704]">
+    <div className="flex h-full w-full items-center justify-center bg-ares-bg">
       <div className="flex flex-col items-center gap-3">
         <div className="h-9 w-9 animate-spin rounded-full border-2 border-ares-accent border-t-transparent" />
         <span className="font-mono text-xs tracking-widest text-ares-mute uppercase">
@@ -109,12 +109,19 @@ export default function MarsExplorer({
     null
   );
 
+  // Bumped when the same preset route is re-requested so the fetch effect re-runs.
+  const [routeRequestNonce, setRouteRequestNonce] = useState(0);
   const [flyToTarget, setFlyToTarget] = useState<{
     center: [number, number]; // [lon, lat]
     zoom: number;
     seq: number;
   } | null>(null);
   const [manualPresetId, setManualPresetId] = useState<string | null>(null);
+  const [mobileLayersOpen, setMobileLayersOpen] = useState(false);
+  const [desktopLayersCollapsed, setDesktopLayersCollapsed] = useState(false);
+  const [mobileSheetExpanded, setMobileSheetExpanded] = useState(false);
+  const [pickingPresetsOpen, setPickingPresetsOpen] = useState(false);
+  const [commsExpanded, setCommsExpanded] = useState(false);
 
   const [savedEntries, setSavedEntries] = useState<SavedLocationEntry[]>([]);
 
@@ -192,9 +199,9 @@ export default function MarsExplorer({
   }, [selectedFeature, presets]);
 
   const currentScoreKey = useMemo(() => {
-    if (!selectedFeature) return null;
+    if (!selectedFeature || !selectedPointPreset) return null;
     const [lon, lat] = getCentroid(selectedFeature);
-    const presetPart = selectedPointPreset?.id ?? "global";
+    const presetPart = selectedPointPreset.id;
     return `${lon.toFixed(5)}:${lat.toFixed(5)}:${presetPart}:${scoringProfile}`;
   }, [selectedFeature, selectedPointPreset, scoringProfile]);
 
@@ -227,10 +234,10 @@ export default function MarsExplorer({
     routePresets.presetA.id === routePresets.presetB.id
       ? routePresets.presetA
       : null;
-  const activeRoutePresetId = activeRoutePreset?.id ?? "global";
+  const activeRoutePresetId = activeRoutePreset?.id;
 
   const currentRouteKey = useMemo(() => {
-    if (!routePointA || !routePointB) return null;
+    if (!routePointA || !routePointB || !activeRoutePresetId) return null;
     const [fromLon, fromLat] = getCentroid(routePointA);
     const [toLon, toLat] = getCentroid(routePointB);
     return `${fromLon.toFixed(5)},${fromLat.toFixed(5)}->${toLon.toFixed(5)},${toLat.toFixed(5)}:${activeRoutePresetId}:${scoringProfile}`;
@@ -273,10 +280,11 @@ export default function MarsExplorer({
       candidates.map(async (feature) => {
         const [lon, lat] = getCentroid(feature);
         const preset = findPresetForPoint(lon, lat, presets);
+        if (!preset) return null;
         const params = new URLSearchParams({
           lon: String(lon),
           lat: String(lat),
-          preset: preset?.id ?? "global",
+          preset: preset.id,
           profile: scoringProfile,
         });
         const res = await fetch(
@@ -309,7 +317,7 @@ export default function MarsExplorer({
 
   // Fetch backend point score whenever selectedFeature or scoringProfile changes
   useEffect(() => {
-    if (!selectedFeature || !currentScoreKey) return;
+    if (!selectedFeature || !selectedPointPreset || !currentScoreKey) return;
 
     const featureId = selectedFeature.properties.id;
     const [lon, lat] = getCentroid(selectedFeature);
@@ -317,7 +325,7 @@ export default function MarsExplorer({
     const params = new URLSearchParams({
       lon: String(lon),
       lat: String(lat),
-      preset: selectedPointPreset?.id ?? "global",
+      preset: selectedPointPreset.id,
       profile: scoringProfile,
     });
 
@@ -363,7 +371,7 @@ export default function MarsExplorer({
 
   // Fetch backend route whenever both Point A and Point B are set
   useEffect(() => {
-    if (!routePointA || !routePointB || !currentRouteKey) {
+    if (!routePointA || !routePointB || !activeRoutePresetId || !currentRouteKey) {
       return;
     }
 
@@ -406,14 +414,6 @@ export default function MarsExplorer({
           });
           return;
         }
-        if (activeRoutePresetId === "global") {
-          firstFeature.geometry = null;
-          firstFeature.properties = {
-            distance_km: null, elevation_gain_m: null, elevation_loss_m: null,
-            max_slope_deg: null, mean_score: null, steps: 0, reachable: false,
-            unreachable_reason: "terrain_unavailable", message: NO_ROUTE,
-          };
-        }
         setRouteErrorState(null);
         setRouteCache({
           key: currentRouteKey,
@@ -438,6 +438,7 @@ export default function MarsExplorer({
     activeRoutePresetId,
     scoringProfile,
     currentRouteKey,
+    routeRequestNonce,
   ]);
 
   const handleToggleSave = useCallback(
@@ -570,16 +571,22 @@ export default function MarsExplorer({
       if (pickingRouteSlot === "A") {
         setRoutePointA(feature);
         setSelectedFeature(feature);
+        setPickingPresetsOpen(false);
+        setMobileSheetExpanded(false);
         setPickingRouteSlot((prev) =>
           prev === "A" ? (routePointB ? null : "B") : null
         );
       } else if (pickingRouteSlot === "B") {
         setRoutePointB(feature);
         setSelectedFeature(feature);
+        setPickingPresetsOpen(false);
+        setMobileSheetExpanded(false);
         setPickingRouteSlot(null);
       } else {
         setSelectedFeature(feature);
+        setMobileSheetExpanded(false);
       }
+      setMobileLayersOpen(false);
 
       if (shouldFly) {
         setFlyToTarget((prev) => ({
@@ -642,6 +649,10 @@ export default function MarsExplorer({
       setManualPresetId(preset.id);
       setRouteErrorState(null);
       setRouteCache(null);
+      setRouteRequestNonce((n) => n + 1);
+      setPickingPresetsOpen(false);
+      setMobileSheetExpanded(false);
+      setMobileLayersOpen(false);
       setFlyToTarget((prev) => ({
         center: preset.center,
         zoom: getSafePresetZoom(preset.default_zoom, activeBasemapKey),
@@ -676,6 +687,9 @@ export default function MarsExplorer({
   const handleSelectPreset = useCallback(
     (presetId: string | null) => {
       setActiveTab("map");
+      setPickingPresetsOpen(false);
+      setMobileSheetExpanded(false);
+      setMobileLayersOpen(false);
       if (!presetId) {
         setManualPresetId(null);
         setSelectedFeature(null);
@@ -685,7 +699,7 @@ export default function MarsExplorer({
         setRouteCache(null);
         setRouteErrorState(null);
         setFlyToTarget((prev) => ({
-          center: [15, 70],
+          center: [70, 15], // [lon, lat]
           zoom: 2.25,
           seq: (prev?.seq ?? 0) + 1,
         }));
@@ -722,6 +736,8 @@ export default function MarsExplorer({
       setRoutePointA(feature);
       setRoutePointB(null);
       setRouteCache(null);
+      setPickingPresetsOpen(false);
+      setMobileLayersOpen(false);
       setPickingRouteSlot("B");
       if (matchedPreset) {
         setFlyToTarget((prev) => ({
@@ -739,15 +755,21 @@ export default function MarsExplorer({
     setRoutePointA(null);
     setRoutePointB(null);
     setRouteCache(null);
+    setPickingPresetsOpen(false);
+    setMobileLayersOpen(false);
     setPickingRouteSlot("A");
   }, []);
 
   const handleStartPickSlot = useCallback((slot: RouteSlot) => {
+    setPickingPresetsOpen(false);
+    setMobileLayersOpen(false);
     setPickingRouteSlot((prev) => (prev === slot ? null : slot));
   }, []);
 
   // Bottom bar "Start Navigation" button
   const handleStartNavigation = useCallback(() => {
+    setPickingPresetsOpen(false);
+    setMobileLayersOpen(false);
     if (routePointA && !routePointB) {
       setPickingRouteSlot("B");
       return;
@@ -776,6 +798,8 @@ export default function MarsExplorer({
     setRoutePointA(null);
     setRoutePointB(null);
     setPickingRouteSlot(null);
+    setPickingPresetsOpen(false);
+    setMobileSheetExpanded(false);
     setRouteCache(null);
     setRouteErrorState(null);
   }, []);
@@ -785,7 +809,7 @@ export default function MarsExplorer({
     setSelectedFeature(null);
     handleClearRoute();
     setFlyToTarget((prev) => ({
-      center: [15, 70],
+      center: [70, 15], // [lon, lat]
       zoom: 2.25,
       seq: (prev?.seq ?? 0) + 1,
     }));
@@ -804,9 +828,12 @@ export default function MarsExplorer({
   const showRightCard = Boolean(
     selectedFeature || routePointA || routePointB || pickingRouteSlot
   );
+  const mobileSheetVisible = Boolean(
+    showRightCard && (!pickingRouteSlot || pickingPresetsOpen)
+  );
 
   return (
-    <div className="relative h-screen w-screen overflow-hidden bg-ares-bg select-none">
+    <div className="relative h-screen w-screen overflow-hidden bg-ares-bg select-none supports-[height:100dvh]:h-dvh">
       {/* Top HUD Header */}
       <Header
         activeTab={activeTab}
@@ -815,7 +842,11 @@ export default function MarsExplorer({
       />
 
       {/* Base 2D Map Layer (isolated stacking context so vignette stays behind HUD) */}
-      <div className="relative z-0 h-full w-full">
+      <div
+        inert={activeTab === "settings"}
+        aria-hidden={activeTab === "settings"}
+        className="relative z-0 h-full w-full"
+      >
         <MarsMap
           features={features}
           presets={presets}
@@ -829,6 +860,8 @@ export default function MarsExplorer({
           flyToTarget={flyToTarget}
           onSelectFeature={handleSelectFeature}
           onSelectPoint={handleSelectPoint}
+          mobileSheetOpen={mobileSheetVisible}
+          tabletRightOpen={showRightCard}
         />
 
         {/* Subtle warm vignette around screen edges */}
@@ -836,7 +869,7 @@ export default function MarsExplorer({
           className="pointer-events-none absolute inset-0 z-10"
           style={{
             background:
-              "radial-gradient(circle at center, transparent 58%, rgba(12, 5, 2, 0.65) 100%)",
+              "radial-gradient(circle at center, transparent 58%, rgba(36, 23, 20, 0.55) 100%)",
           }}
         />
       </div>
@@ -853,77 +886,117 @@ export default function MarsExplorer({
             onSelectBasemap={setActiveBasemapKey}
             visibleKinds={visibleKinds}
             onToggleKind={handleToggleKind}
+            mobileOpen={mobileLayersOpen}
+            onMobileOpenChange={setMobileLayersOpen}
+            desktopCollapsed={desktopLayersCollapsed}
+            onDesktopCollapsedChange={setDesktopLayersCollapsed}
+            hideMobileTrigger={Boolean(pickingRouteSlot)}
           />
 
-          {/* Default Inspect Hint Banner (shown when no location or route panel is open) */}
+          {/* Default Inspect Hint Banner (Desktop top bar + Mobile/Tablet non-blocking bottom pill) */}
           {!showRightCard && !pickingRouteSlot && (
-            <div className="pointer-events-none fixed top-[88px] right-5 z-[900] hidden md:block xl:right-auto xl:left-1/2 xl:-translate-x-1/2">
-              <div
-                className="bg-[#f06423]/40 p-[1px] shadow-[0_14px_36px_rgba(0,0,0,0.75)] backdrop-blur-md"
-                style={{
-                  clipPath:
-                    "polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px)",
-                }}
-              >
+            <>
+              <div className="pointer-events-none fixed top-[88px] right-5 z-[900] hidden lg:block xl:right-auto xl:left-1/2 xl:-translate-x-1/2">
                 <div
-                  className="flex items-center gap-2.5 bg-[#120906]/92 px-5 py-2.5 text-[13px] font-medium tracking-[0.01em] whitespace-nowrap text-[#f5ece4]"
+                  className="bg-[rgba(255,249,235,0.2)] p-[1px] shadow-[0_14px_36px_rgba(0,0,0,0.55)] backdrop-blur-md"
                   style={{
                     clipPath:
-                      "polygon(11.5px 0, 100% 0, 100% calc(100% - 11.5px), calc(100% - 11.5px) 100%, 0 100%, 0 11.5px)",
+                      "polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px)",
                   }}
                 >
-                  <AresPinIcon className="h-4 w-4 shrink-0 text-[#f5ece4]" />
-                  <span>
-                    Click any location or point on the map to inspect it.
-                  </span>
+                  <div
+                    className="flex items-center gap-2.5 bg-ares-panel/95 px-5 py-2.5 text-[13px] font-medium tracking-[0.01em] whitespace-nowrap text-ares-text"
+                    style={{
+                      clipPath:
+                        "polygon(11.5px 0, 100% 0, 100% calc(100% - 11.5px), calc(100% - 11.5px) 100%, 0 100%, 0 11.5px)",
+                    }}
+                  >
+                    <AresPinIcon className="h-4 w-4 shrink-0 text-ares-text" />
+                    <span>
+                      Click any location or point on the map to inspect it.
+                    </span>
+                  </div>
                 </div>
               </div>
-            </div>
+
+              {!mobileLayersOpen && !commsExpanded && (
+                <div className="pointer-events-none fixed inset-x-3 bottom-[calc(76px+env(safe-area-inset-bottom))] z-20 flex justify-center lg:hidden">
+                  <div className="flex items-center gap-2 border border-[rgba(255,249,235,0.2)] bg-ares-panel/92 px-3.5 py-1.5 text-[11.5px] font-medium text-ares-text shadow-[0_10px_28px_rgba(0,0,0,0.55)] backdrop-blur-md">
+                    <AresPinIcon className="h-3.5 w-3.5 shrink-0 text-ares-accent" />
+                    <span>Tap any marker or map point to inspect</span>
+                  </div>
+                </div>
+              )}
+            </>
           )}
 
-          {/* Active Route Picking Banner */}
+          {/* Active Route Picking Banner (always z-[1020] on top so never buried behind cards) */}
           {pickingRouteSlot && (
-            <div className="pointer-events-none fixed top-[88px] left-1/2 z-[1000] -translate-x-1/2">
+            <div className="pointer-events-none fixed inset-x-3 top-[78px] z-[1020] flex justify-center md:inset-x-auto md:top-[88px] md:left-1/2 md:-translate-x-1/2">
               <div
-                className="pointer-events-auto bg-ares-accent/80 p-[1px] shadow-[0_0_25px_rgba(255,107,43,0.4)] backdrop-blur-md"
+                className="pointer-events-auto w-full bg-ares-accent/85 p-[1px] shadow-[0_14px_36px_rgba(0,0,0,0.55)] backdrop-blur-md md:w-auto"
                 style={{
                   clipPath:
                     "polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px)",
                 }}
               >
                 <div
-                  className="flex items-center gap-3 bg-[#1a0c06]/95 px-5 py-2 text-xs font-semibold text-white"
+                  className="flex flex-wrap items-center justify-between gap-2 bg-ares-panel/96 px-3.5 py-2 text-xs font-semibold text-ares-text md:flex-nowrap md:gap-3 md:px-5"
                   style={{
                     clipPath:
                       "polygon(11.5px 0, 100% 0, 100% calc(100% - 11.5px), calc(100% - 11.5px) 100%, 0 100%, 0 11.5px)",
                   }}
                 >
-                  <span
-                    className={`flex h-5 w-5 items-center justify-center rounded-none text-[11px] font-bold ${
-                      pickingRouteSlot === "A"
-                        ? "bg-emerald-500 text-black"
-                        : "bg-ares-accent text-black"
-                    }`}
-                  >
-                    {pickingRouteSlot}
-                  </span>
-                  <span className="whitespace-nowrap">
-                    Click any location or point on the map to set{" "}
-                    <strong>Point {pickingRouteSlot}</strong>
-                  </span>
-                  <button
-                    type="button"
-                    onClick={() => setPickingRouteSlot(null)}
-                    className="ml-1 cursor-pointer rounded-none border border-white/25 px-2 py-0.5 text-[10px] text-ares-mute hover:border-white/50 hover:text-white"
-                  >
-                    Cancel
-                  </button>
+                  <div className="flex min-w-0 items-center gap-2">
+                    <span
+                      className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-none text-[11px] font-bold ${
+                        pickingRouteSlot === "A"
+                          ? "bg-emerald-500 text-ares-bg"
+                          : "bg-ares-accent text-ares-bg"
+                      }`}
+                    >
+                      {pickingRouteSlot}
+                    </span>
+                    <span className="leading-snug md:whitespace-nowrap">
+                      <span className="md:hidden">
+                        Tap map for <strong>Point {pickingRouteSlot}</strong>
+                      </span>
+                      <span className="hidden md:inline">
+                        Click any location or point on the map to set{" "}
+                        <strong>Point {pickingRouteSlot}</strong>
+                      </span>
+                    </span>
+                  </div>
+
+                  <div className="flex shrink-0 items-center gap-1.5">
+                    <button
+                      type="button"
+                      onClick={() => setPickingPresetsOpen((prev) => !prev)}
+                      className={`min-h-[36px] cursor-pointer rounded-none border px-2.5 py-1 text-[11px] font-semibold transition-colors md:hidden ${
+                        pickingPresetsOpen
+                          ? "border-ares-accent bg-[rgba(254,127,45,0.16)] text-ares-text"
+                          : "border-[rgba(255,249,235,0.2)] bg-ares-bg/50 text-ares-text hover:border-ares-accent/70"
+                      }`}
+                    >
+                      {pickingPresetsOpen ? "Hide list" : "Presets"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPickingRouteSlot(null);
+                        setPickingPresetsOpen(false);
+                      }}
+                      className="min-h-[36px] cursor-pointer rounded-none border border-[rgba(255,249,235,0.2)] bg-ares-bg/45 px-3 py-1 text-[11px] font-medium text-ares-text hover:border-ares-accent md:min-h-0 md:px-2.5 md:py-1 md:text-[11px]"
+                    >
+                      Cancel
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
           )}
 
-          {/* Right Panel: Switches cleanly between Selected Location and Route A -> B */}
+          {/* Right Panel (Desktop) / Bottom Sheet (Mobile) */}
           {showRightCard && (
             <LocationCard
               feature={selectedFeature}
@@ -957,13 +1030,26 @@ export default function MarsExplorer({
                   handleClearRoute();
                 } else {
                   setSelectedFeature(null);
+                  setMobileSheetExpanded(false);
                 }
               }}
+              mobileSheetExpanded={mobileSheetExpanded}
+              onToggleMobileSheetExpanded={() =>
+                setMobileSheetExpanded((prev) => !prev)
+              }
+              hideOnMobilePicking={Boolean(
+                pickingRouteSlot && !pickingPresetsOpen
+              )}
             />
           )}
 
-          {/* Bottom-Left Communications Delay & Relay Status Bar */}
-          <CommsStatusBar commsStatus={commsStatus} />
+          {/* Communications Delay & Telemetry Status Bar (Bottom-Left desktop / Top-Right pill mobile & tablet) */}
+          <CommsStatusBar
+            commsStatus={commsStatus}
+            environment={activeEnvironment}
+            hideCompactPill={Boolean(pickingRouteSlot || mobileLayersOpen)}
+            onExpandChange={setCommsExpanded}
+          />
 
           {/* Bottom-Right Navigation Bar ("Start Navigation" -> "End Navigation" when 2 points are chosen) */}
           <BottomNavBar

@@ -119,13 +119,13 @@ MISSIONS = [
        ['Collecting and caching rock cores from Jezero crater for possible return to Earth.', 'MOXIE produced oxygen from atmospheric CO2, an in-situ resource demonstration.']),
     _m('mars-global-surveyor', 'Mars Global Surveyor', 'NASA', 'orbiter', '1996-11-07', None, '2006-11-02', 'ended', None,
        ['MOLA', 'MOC', 'TES', 'MAG/ER'],
-       ['MOLA mapped global topography used for slope and route analysis in ARES.', 'TES mapped global thermal inertia and mineralogy.']),
+       ['MOLA mapped global topography used for slope and route analysis in AreoPath.', 'TES mapped global thermal inertia and mineralogy.']),
     _m('mars-odyssey', '2001 Mars Odyssey', 'NASA', 'orbiter', '2001-04-07', None, None, 'active', None,
        ['THEMIS', 'GRS/NS/HEND'],
-       ['GRS detected abundant near-surface hydrogen (water ice) at high latitudes.', 'ARES uses the THEMIS day infrared mosaic.']),
+       ['GRS detected abundant near-surface hydrogen (water ice) at high latitudes.', 'AreoPath uses the THEMIS day infrared mosaic.']),
     _m('tianwen-1-zhurong', 'Tianwen-1 / Zhurong', 'CNSA', 'rover', '2020-07-23', '2021-05-14', None, 'ended', 'ls-zhurong',
        ['NaTeCam', 'MarSCoDe', 'RoPeR radar', 'MCS'],
-       ['First Chinese rover on Mars, operating in southern Utopia Planitia.', 'Entered hibernation in May 2022 and has not resumed operations.']),
+       ['First Chinese rover on Mars, operating in southern Utopia Planitia.', 'Landing site and early surface operations reported in Nature Astronomy (2021); later operational status is not tracked here.']),
 ]
 
 PROVENANCE_HISTORY = dict(dataset_id='mission_history', title='NASA Mars mission history (curated)', mission='NASA Mars exploration', instrument='Mission records',
@@ -149,7 +149,7 @@ PROVENANCE_SEITAH = dict(dataset_id='m2020_photogeologic_map', title='Stack et a
     units='degrees (east-positive longitude, planetocentric latitude)', format='GeoJSON (derived from GIS shapefile)',
     processing='GIS supplement https://static-content.springer.com/esm/art%3A10.1007%2Fs11214-020-00739-x/MediaObjects/11214_2020_739_MOESM3_ESM.zip ; SHA-256 970e4c78ae6dc689c99e46eddb4be184704a56952008d0558f643e816e29b118. Select Crater floor fractured 1 / Aeolian bedforms, large; repair, dissolve, select connected component at [77.441,18.439], fill 100 holes, simplify exterior at 150 native meters, analytically invert Mars spherical equirectangular projection (R=3396190 m). See docs/hazard_outlines/seitah/NOTES.md.',
     limitations=['Estimated regional uncertainty 250-500 m, not measured ground-truth accuracy.', 'Includes internal bedrock gaps and adjoining dune tongues; not continuous sand or an exact named-region boundary.', 'Not for navigation. Absence of a mapped hazard does not mean the terrain is safe.'],
-    license='Open access article CC BY 4.0; derived from its published GIS supplement with attribution to Stack et al. (2020).', synthetic=False, used_for=['hazard overlay', 'approximate scoring penalty'])
+    license='Open access article, CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/); geometry derived from its published GIS supplement (units selected, dissolved, simplified, reprojected by the team) with attribution to Stack et al. (2020).', synthetic=False, used_for=['hazard overlay', 'approximate scoring penalty'])
 PROVENANCE_BAGNOLD = dict(dataset_id='msl_mmgis_ctx', title='NASA MMGIS MSL CTX ortho mosaic: Bagnold Dunes derived envelope',
     mission='Mars Science Laboratory / Curiosity; Mars Reconnaissance Orbiter', instrument='CTX', data_type='hazard_outlines',
     source_url='https://mars.nasa.gov/maps/location/api/configure/get?mission=MSL', temporal_coverage='Composite acquisition dates unknown; digitized 2026-11-14',

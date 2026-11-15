@@ -10,6 +10,7 @@ interface PathSegment {
   d: string;
   strokeWidth: number;
   roundCaps?: boolean;
+  lineCap?: "round" | "square";
 }
 
 interface FigmaIconSpec {
@@ -34,7 +35,7 @@ function createFigmaIcon(spec: FigmaIconSpec, displayName: string) {
             key={idx}
             d={seg.d}
             strokeWidth={seg.strokeWidth}
-            strokeLinecap={seg.roundCaps ? "round" : undefined}
+            strokeLinecap={seg.lineCap ?? (seg.roundCaps ? "round" : undefined)}
             strokeLinejoin={seg.roundCaps ? "round" : undefined}
           />
         ))}
@@ -264,22 +265,18 @@ export const AresGearIcon = createFigmaIcon(
   "AresGearIcon"
 );
 
-export const AresUserIcon = createFigmaIcon(
+export const AresSignalIcon = createFigmaIcon(
   {
-    viewBox: "1218 0 24 24",
+    viewBox: "0 0 25.6 26.238",
     paths: [
       {
-        d: "M1234.44 6.44444C1234.44 8.89904 1232.45 10.8889 1230 10.8889C1227.55 10.8889 1225.56 8.89904 1225.56 6.44444C1225.56 3.98985 1227.55 2 1230 2C1232.45 2 1234.44 3.98985 1234.44 6.44444Z",
-        strokeWidth: 2,
-      },
-      {
-        d: "M1221.11 22V19.7778C1221.11 12.5555 1238.89 12.5555 1238.89 19.7778V22H1221.11Z",
-        strokeWidth: 2,
-        roundCaps: true,
+        d: "M7.5599 5.61898C6.86276 6.59662 6.30893 7.76353 5.93083 9.05136C5.55274 10.3392 5.35799 11.7221 5.35799 13.119C5.35799 14.5159 5.55274 15.8988 5.93083 17.1866C6.30893 18.4744 6.86276 19.6413 7.5599 20.619M18.0401 5.61898C18.7372 6.59662 19.2911 7.76353 19.6692 9.05136C20.0473 10.3392 20.242 11.7221 20.242 13.119C20.242 14.5159 20.0473 15.8988 19.6692 17.1866C19.2911 18.4744 18.7372 19.6413 18.0401 20.619M4.41584 1.11898C3.27397 2.66135 2.36426 4.5213 1.74249 6.58478C1.12072 8.64826 0.8 10.8718 0.8 13.119C0.8 15.3662 1.12072 17.5897 1.74249 19.6532C2.36426 21.7167 3.27397 23.5766 4.41584 25.119M21.1842 1.11898C22.326 2.66135 23.2357 4.5213 23.8575 6.58478C24.4793 8.64826 24.8 10.8718 24.8 13.119C24.8 15.3662 24.4793 17.5897 23.8575 19.6532C23.2357 21.7167 22.326 23.5766 21.1842 25.119M12.8 10.119C13.3559 10.119 13.889 10.4351 14.2821 10.9977C14.6752 11.5603 14.896 12.3233 14.896 13.119C14.896 13.9146 14.6752 14.6777 14.2821 15.2403C13.889 15.8029 13.3559 16.119 12.8 16.119C12.2441 16.119 11.711 15.8029 11.3179 15.2403C10.9248 14.6777 10.704 13.9146 10.704 13.119C10.704 12.3233 10.9248 11.5603 11.3179 10.9977C11.711 10.4351 12.2441 10.119 12.8 10.119Z",
+        strokeWidth: 1.6,
+        lineCap: "square",
       },
     ],
   },
-  "AresUserIcon"
+  "AresSignalIcon"
 );
 
 export const AresRouteIcon = createFigmaIcon(
@@ -303,4 +300,37 @@ export const AresRouteIcon = createFigmaIcon(
   },
   "AresRouteIcon"
 );
+
+/** Brand emblem SVG for AreoPath (transparent cropped emblem for HUD headers). */
+export function AresLogoIcon({
+  className,
+  ariaLabel = "AreoPath Logo",
+}: {
+  className?: string;
+  ariaLabel?: string;
+}) {
+  return (
+    <svg
+      viewBox="116.5 187 860 706"
+      fill="none"
+      role="img"
+      aria-label={ariaLabel}
+      className={className}
+    >
+      <path
+        d="M957.49 592.442 C957.49 606.91 954.828 621.049 949.749 634.727 C912.602 534.686 746.183 459.226 546.504 459.226 C346.825 459.226 180.405 534.686 143.259 634.727 C138.18 621.049 135.518 606.91 135.518 592.442 C135.518 472.162 319.522 374.656 546.504 374.656 C773.485 374.656 957.49 472.162 957.49 592.442 Z"
+        fill="#241714"
+      />
+      <polygon
+        points="150.966,876.913 540,203.087 929.034,876.913 646.875,876.913 540,691.8 433.125,876.913"
+        fill="#fe7f2d"
+      />
+      <path
+        d="M132.266 605.648 C132.266 591.18 134.95 577.042 140.069 563.363 C177.509 663.404 345.245 738.864 546.504 738.864 C747.763 738.864 915.499 663.404 952.939 563.363 C958.058 577.042 960.742 591.18 960.742 605.648 C960.742 725.928 775.281 823.434 546.504 823.434 C317.727 823.434 132.266 725.928 132.266 605.648 Z"
+        fill="#97300c"
+      />
+    </svg>
+  );
+}
+
 

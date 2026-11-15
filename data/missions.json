@@ -295,7 +295,7 @@
       ],
       "key_results": [
         {
-          "text": "MOLA mapped global topography used for slope and route analysis in ARES.",
+          "text": "MOLA mapped global topography used for slope and route analysis in AreoPath.",
           "source_url": "https://science.nasa.gov/mission/mars-global-surveyor/"
         },
         {
@@ -326,7 +326,7 @@
           "source_url": "https://science.nasa.gov/mission/odyssey/"
         },
         {
-          "text": "ARES uses the THEMIS day infrared mosaic.",
+          "text": "AreoPath uses the THEMIS day infrared mosaic.",
           "source_url": "https://science.nasa.gov/mission/odyssey/"
         }
       ],
@@ -355,7 +355,7 @@
           "source_url": "https://doi.org/10.1038/s41550-021-01519-5"
         },
         {
-          "text": "Entered hibernation in May 2022 and has not resumed operations.",
+          "text": "Landing site and early surface operations reported in Nature Astronomy (2021); later operational status is not tracked here.",
           "source_url": "https://doi.org/10.1038/s41550-021-01519-5"
         }
       ],
