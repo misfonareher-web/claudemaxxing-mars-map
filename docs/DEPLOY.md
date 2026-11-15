@@ -110,7 +110,7 @@ Give Arkadii the actual HTTPS origin. For a Next.js server proxy set its server-
 API_BASE_URL to that origin (without /api) and replace the local-engine handlers.
 For direct browser access configure its public API base and rebuild. CORS alone
 does not wire the Next.js frontend; confirm point/route calls in the deployed UI.
-No global scoring is provided outside Jezero/Gale. Preserve methodology 0.2.0 and
+No global scoring is provided outside Jezero/Gale. Preserve methodology 0.2.1 and
 the response disclaimers: this demo is not a validated EVA safety model.
 
 ## 4. Update, logs and rollback

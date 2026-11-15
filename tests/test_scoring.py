@@ -93,7 +93,7 @@ class ScoringTests(unittest.TestCase):
                 self.assertEqual(w['ice'], 0)
                 self.assertEqual(w['thermal'], 0)
                 result = cli.execute('score', dict(preset='jezero', profile=profile))
-                self.assertEqual(result['meta']['methodology_version'], '0.2.0')
+                self.assertEqual(result['meta']['methodology_version'], '0.2.1')
                 for feature in result['features']:
                     for name in ('ice', 'thermal'):
                         factor = feature['properties']['factors'][name]
@@ -204,6 +204,45 @@ class ScoringTests(unittest.TestCase):
         path.write_text(json.dumps(dict(features=[hazard])))
         result = cli.execute('score',{'preset':'jezero'})
         self.assertIn('hazard:hz-test',result['features'][0]['properties']['exclusion_reasons'])
+
+    def test_score_exempt_hazard_kinds(self):
+        np.save(self.root/'data/grids/jezero/slope_deg.npy',np.full((8,8),12,dtype=np.float32))
+        baseline = cli.execute('score',{'preset':'jezero'})['features'][0]['properties']
+        w,s,e,n = self.preset['bbox']
+        path = self.root/'data/hazards.geojson'
+        for kind,factor in (('steep_slope',1),('sand_dunes',.7)):
+            with self.subTest(kind=kind):
+                hazard = dict(type='Feature',geometry=dict(type='Polygon',coordinates=[[[w,s],[e,s],[e,n],[w,n],[w,s]]]),properties=dict(id='hz-'+kind,preset_ids=['jezero'],dataset_id='fixture',severity=2,hazard_kind=kind,derived=True))
+                path.write_text(json.dumps(dict(features=[hazard])))
+                p = cli.clean(cli.execute('score',{'preset':'jezero'}))['features'][0]['properties']
+                self.assertEqual(p['hazard_ids'],['hz-'+kind])
+                self.assertLessEqual(abs(p['score']-baseline['score']*factor),1)
+                self.assertEqual(p['hazard_multiplier'],factor)
+                self.assertLessEqual(abs(sum(v['contribution'] for v in p['factors'].values())-p['score']),.51)
+                if kind == 'steep_slope':
+                    self.assertEqual(p['score'],baseline['score'])
+                    self.assertEqual(p['hazard_penalties'],[])
+
+    def test_real_steep_slope_outlines_do_not_change_score(self):
+        with patch.dict(os.environ,CLAUDEMAXXING_ROOT=str(REPO)):
+            root,missions,cfg = config.load()
+            original = index.read
+            def without(path):
+                document = original(path)
+                if Path(path).name == 'hazards.geojson':
+                    document['features'] = [f for f in document['features'] if f['properties'].get('hazard_kind') != 'steep_slope']
+                return document
+            for preset in missions['presets']:
+                with self.subTest(preset=preset['id']):
+                    w = config.weights(cfg['profiles']['balanced']['weights'])
+                    state = index.compute(root,preset,cfg,w)
+                    slope_ids = [f['properties']['id'] for f in original(root/'data/hazards.geojson')['features'] if f['properties'].get('hazard_kind') == 'steep_slope' and preset['id'] in f['properties']['preset_ids']]
+                    self.assertTrue(slope_ids)
+                    self.assertTrue(any(mask.any() for ident,mask,_ in state['hazards'] if ident in slope_ids))
+                    with patch.object(index,'read',side_effect=without):
+                        removed = index.compute(root,preset,cfg,w)
+                    np.testing.assert_array_equal(state['score'],removed['score'])
+                    np.testing.assert_array_equal(state['hazard_multiplier'],removed['hazard_multiplier'])
 
     def test_point_and_missing_data(self):
         b = self.preset['base_point']

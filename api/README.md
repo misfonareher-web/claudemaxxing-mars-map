@@ -41,16 +41,17 @@ curl localhost:8080/api/provenance
 curl -H 'Content-Type: application/json' -d '{"preset":"jezero","from":[77.45,18.44],"to":[77.40,18.50]}' localhost:8080/api/route
 ```
 
-Weights are a URL-encoded JSON object with nonnegative values and positive sum;
-allowed keys come from `config/scoring_weights.json`. Profiles and coordinates are
-validated against the configured presets. Methodology 0.2.0 profiles are
+Weights are a URL-encoded JSON object with nonnegative values (each at most 100) and
+positive sum; allowed keys come from `config/scoring_weights.json`. Weights are relative:
+the API normalises them to sum 1 and rounds to two decimals before scoring and caching. Profiles and coordinates are
+validated against the configured presets. Methodology 0.2.1 profiles are
 `balanced`, `safety_first`, `science_first`, and `terrain_first` ("Terrain and proximity").
 Legacy `profile=resource_first` resolves to `terrain_first` before cache-key generation;
 score, point and route responses report the canonical `meta.profile`.
 Ice and thermal are context only: nonzero custom weights for either return HTTP 400.
 Both remain in score/point `properties.factors` with weight/contribution zero,
 `context_only: true`, and a `note`; raw values, subscores and availability remain.
-`meta.methodology_version` is now `0.2.0` on score/point responses. Coordinates are east-positive Mars
+`meta.methodology_version` is now `0.2.1` on score/point responses. Coordinates are east-positive Mars
 longitude/latitude, not Earth coordinates.
 
 `POST /api/route` returns the Python GeoJSON FeatureCollection unchanged. Its route
@@ -89,8 +90,9 @@ is in `properties.factors.base_distance.value` (km). These describe the returned
 grid cell, rather than the exact requested coordinates.
 
 The API skips its PostgreSQL score cache when the database is down and reads
-vector files directly. Cache keys include the canonical request and config/grid
-manifest modification times. Feature loading at container startup uses upserts;
+vector files directly. Cache keys include the canonical request, methodology version and the size and
+modification time of config, scoring code, hazard/science vectors and the preset's grid files.
+Each cache write prunes rows older than one day and keeps at most the newest 200. Feature loading at container startup uses upserts;
 missing files are skipped. Never use `docker compose down -v` on the VPS: it deletes DB state.
 
 The 0–100 index is a conditional heuristic methodology for comparison, not a safety certification or a validated model.
