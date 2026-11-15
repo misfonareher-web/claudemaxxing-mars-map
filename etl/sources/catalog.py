@@ -22,7 +22,7 @@ LANDING_SITES = [
     ('ls-opportunity', 'Opportunity (MER-B) landing site', 'Mars Exploration Rover Opportunity', 'NASA', '2004-01-25', 'ended', -1.9462, 354.4734, ODE_SITES, 'high', 'ODE cartographic triangulation solution (Doppler solution: 1.9483 S, 354.47417 E).'),
     ('ls-phoenix', 'Phoenix landing site', 'Phoenix', 'NASA', '2008-05-25', 'ended', 68.22, 234.25, ODE_SITES, 'high', 'PDS Geosciences ODE landing-site table (2-decimal precision).'),
     ('ls-insight', 'InSight lander', 'InSight', 'NASA', '2018-11-26', 'ended', 4.502384, 135.623447, 'https://doi.org/10.1029/2020EA001248', 'high', 'Golombek et al. (2020), Earth and Space Science, located on a georeferenced HiRISE image.'),
-    ('ls-zhurong', 'Zhurong rover landing site (Tianwen-1)', 'Tianwen-1 / Zhurong', 'CNSA', '2021-05-14', 'ended', 25.066, 109.925, 'https://doi.org/10.1038/s41550-021-01519-5', 'medium', 'Published landing-site value (Nature Astronomy, 2021); landing date in UTC (15 May Beijing time). Non-NASA mission record.'),
+    ('ls-zhurong', 'Zhurong rover landing site (Tianwen-1)', 'Tianwen-1 / Zhurong', 'CNSA', '2021-05-14', 'status not confirmed', 25.066, 109.925, 'https://doi.org/10.1038/s41550-021-01519-5', 'medium', 'Published landing-site value (Nature Astronomy, 2021); landing date in UTC (15 May Beijing time). Non-NASA mission record.'),
 ]
 
 # Preset base points come from config; these are their citations.
@@ -79,7 +79,8 @@ MISSION_SOURCE = {
     'mars-2020-perseverance': 'https://science.nasa.gov/mission/mars-2020-perseverance/',
     'mars-global-surveyor': 'https://science.nasa.gov/mission/mars-global-surveyor/',
     'mars-odyssey': 'https://science.nasa.gov/mission/odyssey/',
-    'tianwen-1-zhurong': 'https://doi.org/10.1038/s41550-021-01519-5',
+    'mars-reconnaissance-orbiter': 'https://www.jpl.nasa.gov/missions/mars-reconnaissance-orbiter-mro/',
+    'tianwen-1-zhurong': 'https://english.www.gov.cn/news/topnews/202207/06/content_WS62c576bdc6d02e533532d46e.html',
 }
 
 
@@ -125,9 +126,13 @@ MISSIONS = [
     _m('mars-odyssey', '2001 Mars Odyssey', 'NASA', 'orbiter', '2001-04-07', None, None, 'active', None,
        ['THEMIS', 'GRS/NS/HEND'],
        ['GRS detected abundant near-surface hydrogen (water ice) at high latitudes.', 'ARES uses the THEMIS day infrared mosaic.']),
-    _m('tianwen-1-zhurong', 'Tianwen-1 / Zhurong', 'CNSA', 'rover', '2020-07-23', '2021-05-14', None, 'ended', 'ls-zhurong',
+    # landing_date records arrival/orbit insertion for this orbiter.
+    _m('mars-reconnaissance-orbiter', 'Mars Reconnaissance Orbiter (MRO)', 'NASA', 'orbiter', '2005-08-12', '2006-03-10', None, 'active', None,
+       ['HiRISE', 'CTX', 'CRISM', 'MARCI', 'SHARAD', 'MCS', 'accelerometers'],
+       ['Studied the Martian atmosphere and terrain from orbit since 2006; relays data for other Mars missions.']),
+    _m('tianwen-1-zhurong', 'Tianwen-1 / Zhurong', 'CNSA', 'rover', '2020-07-23', '2021-05-14', None, 'status not confirmed', 'ls-zhurong',
        ['NaTeCam', 'MarSCoDe', 'RoPeR radar', 'MCS'],
-       ['First Chinese rover on Mars, operating in southern Utopia Planitia.', 'Entered hibernation in May 2022 and has not resumed operations.']),
+       ['Zhurong began patrolling Mars on May 22, 2021, after landing in Utopia Planitia.', 'Switched to dormant mode on May 18, 2022; current status not confirmed.']),
 ]
 
 PROVENANCE_HISTORY = dict(dataset_id='mission_history', title='NASA Mars mission history (curated)', mission='NASA Mars exploration', instrument='Mission records',

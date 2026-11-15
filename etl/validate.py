@@ -208,7 +208,7 @@ def validate(root=ROOT):
                 require(key in m, f"mission {m.get('id')}: missing {key}")
             require(m['id'] not in seen, 'duplicate mission '+m['id']); seen.add(m['id'])
             require(m['mission_type'] in ('lander', 'rover', 'helicopter', 'orbiter'), m['id']+': bad mission_type')
-            require(m['status'] in ('active', 'ended', 'failed'), m['id']+': bad status')
+            require(m['status'] in ('active', 'ended', 'failed', 'status not confirmed'), m['id']+': bad status')
             for key in ('launch_date', 'landing_date', 'end_date'):
                 if m[key] is not None:
                     datetime.date.fromisoformat(m[key])
