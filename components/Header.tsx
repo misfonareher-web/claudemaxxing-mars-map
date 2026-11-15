@@ -7,7 +7,6 @@ import {
   AresLogoIcon,
   AresPinIcon,
   AresSunIcon,
-  AresUserIcon,
 } from "@/components/AresIcons";
 import { AppTab, EnvironmentSummary } from "@/types/mars";
 import { getMarsClock } from "@/lib/mars-time";
@@ -63,10 +62,10 @@ export default function Header({
     ...(environment ? [
       { label: "MARS SOL", value: String(environment.sol_range[1]), icon: null },
       { label: weatherLabel, value: displayTemp,
-        icon: <AresSunIcon className="h-4 w-4 shrink-0 text-[#ff5514] xl:h-[18px] xl:w-[18px]" /> },
+        icon: <AresSunIcon className="h-4 w-4 shrink-0 text-ares-accent xl:h-[18px] xl:w-[18px]" /> },
     ] : []),
     { label: "MARTIAN TIME", value: mtcTime,
-      icon: <ClockIcon weight="duotone" className="h-4 w-4 shrink-0 text-[#ff5514] xl:h-[18px] xl:w-[18px]" /> },
+      icon: <ClockIcon weight="duotone" className="h-4 w-4 shrink-0 text-ares-accent xl:h-[18px] xl:w-[18px]" /> },
   ];
 
   // Responsive layout coordinates for the unified seamless HUD chassis
@@ -90,13 +89,13 @@ export default function Header({
   const rightW = showTelemetry
     ? hasWeather
       ? width >= 1340
-        ? 508
+        ? 458
         : width >= 1200
-          ? 480
-          : 456
+          ? 432
+          : 408
       : width >= 1340
-        ? 228
-        : 216
+        ? 176
+        : 166
     : 0;
   const rightStart = showTelemetry ? width - rightW : width;
 
@@ -170,14 +169,14 @@ export default function Header({
       ref={hostRef}
       className="pointer-events-none fixed inset-x-0 top-0 z-40 h-[74px] w-full select-none"
     >
-      {/* Unified frosted obsidian backdrop clipped seamlessly to the single HUD contour */}
+      {/* Unified warm espresso cocoa backdrop clipped seamlessly to the single HUD contour */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 bg-[#0b0604]/90 backdrop-blur-md"
+        className="pointer-events-none absolute inset-0 bg-ares-panel/94 backdrop-blur-md"
         style={{ clipPath: `path('${shellFillPath}')` }}
       />
 
-      {/* Continuous glowing burnt-orange structural lines */}
+      {/* Continuous Figma signal-orange structural lines */}
       <svg
         aria-hidden="true"
         width={width}
@@ -186,20 +185,20 @@ export default function Header({
         className="pointer-events-none absolute inset-0 block overflow-visible"
       >
         <defs>
-          <radialGradient id="aresTabGlow" cx="50%" cy="100%" r="75%">
-            <stop offset="0%" stopColor="#ff6524" stopOpacity="0.48" />
-            <stop offset="65%" stopColor="#a8320c" stopOpacity="0.18" />
-            <stop offset="100%" stopColor="#140906" stopOpacity="0" />
+          <radialGradient id="aresTabGlow" cx="50%" cy="100%" r="80%">
+            <stop offset="0%" stopColor="#fe7f2d" stopOpacity="0.24" />
+            <stop offset="65%" stopColor="#fe7f2d" stopOpacity="0.13" />
+            <stop offset="100%" stopColor="#3e2723" stopOpacity="0" />
           </radialGradient>
           <linearGradient id="aresHudStroke" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#e85c22" stopOpacity="0.88" />
-            <stop offset="22%" stopColor="#8c3615" stopOpacity="0.7" />
-            <stop offset="50%" stopColor="#f06423" stopOpacity="0.92" />
-            <stop offset="78%" stopColor="#8c3615" stopOpacity="0.7" />
-            <stop offset="100%" stopColor="#e85c22" stopOpacity="0.88" />
+            <stop offset="0%" stopColor="#fe7f2d" stopOpacity="0.92" />
+            <stop offset="22%" stopColor="#d96b27" stopOpacity="0.78" />
+            <stop offset="50%" stopColor="#fe7f2d" stopOpacity="0.95" />
+            <stop offset="78%" stopColor="#d96b27" stopOpacity="0.78" />
+            <stop offset="100%" stopColor="#fe7f2d" stopOpacity="0.92" />
           </linearGradient>
           <filter id="aresLineGlow" x="-10%" y="-40%" width="120%" height="180%">
-            <feGaussianBlur stdDeviation="2.2" result="blur" />
+            <feGaussianBlur stdDeviation="1.8" result="blur" />
             <feMerge>
               <feMergeNode in="blur" />
               <feMergeNode in="SourceGraphic" />
@@ -207,7 +206,7 @@ export default function Header({
           </filter>
         </defs>
 
-        {/* Active tab warm interior glow */}
+        {/* Active tab warm interior tint */}
         <path d={activeTabBgPath} fill="url(#aresTabGlow)" />
 
         {/* Subtle dim upper hairline across left & right bridges (only when bridge gap exists) */}
@@ -217,8 +216,8 @@ export default function Header({
             y1={14}
             x2={tabsLeft - 24}
             y2={14}
-            stroke="#6b2b12"
-            strokeOpacity="0.38"
+            stroke="#fff9eb"
+            strokeOpacity="0.16"
             strokeWidth="1"
           />
         )}
@@ -228,8 +227,8 @@ export default function Header({
             y1={14}
             x2={rightStart - 26}
             y2={14}
-            stroke="#6b2b12"
-            strokeOpacity="0.38"
+            stroke="#fff9eb"
+            strokeOpacity="0.16"
             strokeWidth="1"
           />
         )}
@@ -244,23 +243,23 @@ export default function Header({
         <path
           d={tabsTopOutline}
           fill="none"
-          stroke="#b8471a"
-          strokeOpacity="0.72"
+          stroke="#fe7f2d"
+          strokeOpacity="0.58"
           strokeWidth="1.25"
         />
         <path
           d={tabsDividerLine}
           fill="none"
-          stroke="#913816"
-          strokeOpacity="0.75"
+          stroke="#fff9eb"
+          strokeOpacity="0.18"
           strokeWidth="1.25"
         />
         {showTelemetry && (
           <path
             d={rightTopOutline}
             fill="none"
-            stroke="#a84017"
-            strokeOpacity="0.65"
+            stroke="#fe7f2d"
+            strokeOpacity="0.55"
             strokeWidth="1.25"
           />
         )}
@@ -269,8 +268,8 @@ export default function Header({
         <path
           d={activeTabEdgeLine}
           fill="none"
-          stroke="#ff9f5a"
-          strokeWidth="2.5"
+          stroke="#fe7f2d"
+          strokeWidth="3"
           filter="url(#aresLineGlow)"
         />
       </svg>
@@ -280,14 +279,14 @@ export default function Header({
         className="pointer-events-auto absolute left-0 top-0 flex h-[68px] items-center gap-2 pl-3 pr-2 sm:gap-3 sm:pl-6 sm:pr-4"
         style={{ width: leftBevelX }}
       >
-        <AresLogoIcon className="h-6 w-auto shrink-0 sm:h-8 drop-shadow-[0_0_12px_rgba(255,82,24,0.6)]" />
-        <div className="h-6 w-px shrink-0 bg-[#6e2f16]/65 sm:h-8" />
+        <AresLogoIcon className="h-6 w-auto shrink-0 sm:h-8 drop-shadow-[0_0_8px_rgba(254,127,45,0.3)]" />
+        <div className="h-6 w-px shrink-0 bg-ares-line sm:h-8" />
         <div className="flex min-w-0 flex-col justify-center">
-          <span className="whitespace-nowrap text-[15px] font-bold leading-none tracking-[0.04em] text-[#ff561a] drop-shadow-[0_0_10px_rgba(255,86,26,0.4)] sm:text-[20px]">
+          <span className="whitespace-nowrap text-[15px] font-bold leading-none tracking-[0.04em] text-ares-accent sm:text-[20px]">
             AreoPath
           </span>
           {showBrandSubtitle && (
-            <span className="mt-1 truncate text-[11px] font-medium leading-none tracking-[0.01em] text-[#c2a89c] xl:text-[12px]">
+            <span className="mt-1 truncate text-[11px] font-medium leading-none tracking-[0.01em] text-ares-mute xl:text-[12px]">
               Martian Survival Guide
             </span>
           )}
@@ -308,15 +307,15 @@ export default function Header({
           <AresPinIcon
             className={`h-4 w-4 shrink-0 transition-colors sm:h-6 sm:w-6 ${
               activeTab === "map"
-                ? "text-[#ff5d1f] drop-shadow-[0_0_10px_rgba(255,93,31,0.85)]"
-                : "text-[#9c8176] group-hover:text-[#d9bfb2]"
+                ? "text-ares-accent"
+                : "text-ares-mute group-hover:text-ares-text"
             }`}
           />
           <span
             className={`text-[13px] font-semibold tracking-wide transition-colors sm:text-[15px] ${
               activeTab === "map"
-                ? "text-white"
-                : "text-[#9c8176] group-hover:text-[#e6d1c6]"
+                ? "text-ares-text"
+                : "text-ares-mute group-hover:text-ares-text"
             }`}
           >
             Map
@@ -331,15 +330,15 @@ export default function Header({
           <AresGearIcon
             className={`h-4 w-4 shrink-0 transition-colors sm:h-6 sm:w-6 ${
               activeTab === "settings"
-                ? "text-[#ff5d1f] drop-shadow-[0_0_10px_rgba(255,93,31,0.85)]"
-                : "text-[#9c8176] group-hover:text-[#d9bfb2]"
+                ? "text-ares-accent"
+                : "text-ares-mute group-hover:text-ares-text"
             }`}
           />
           <span
             className={`text-[13px] font-semibold tracking-wide transition-colors sm:text-[15px] ${
               activeTab === "settings"
-                ? "text-white"
-                : "text-[#9c8176] group-hover:text-[#e6d1c6]"
+                ? "text-ares-text"
+                : "text-ares-mute group-hover:text-ares-text"
             }`}
           >
             Settings
@@ -349,8 +348,10 @@ export default function Header({
 
       {/* RIGHT TELEMETRY CAPSULE */}
       {showTelemetry && (
-        <div
-          className="pointer-events-auto absolute top-[11px] flex h-[54px] items-center justify-between gap-2.5 xl:gap-3.5"
+          <div
+          className={`pointer-events-auto absolute top-[11px] flex h-[54px] items-center gap-2.5 xl:gap-3.5 ${
+            hasWeather ? "justify-between" : "justify-center"
+          }`}
           style={{ left: rightStart + 16, width: Math.max(0, rightW - 34) }}
         >
           {telemetryItems.map((item) => {
@@ -362,14 +363,14 @@ export default function Header({
                   <span
                     className={
                       isWeather
-                        ? "whitespace-nowrap text-[8.5px] font-semibold tracking-[0.02em] text-[#a38b7f] xl:text-[9.5px]"
-                        : "whitespace-nowrap text-[9.5px] font-semibold uppercase tracking-[0.07em] text-[#a38b7f] xl:text-[10px]"
+                        ? "whitespace-nowrap text-[8.5px] font-semibold tracking-[0.02em] text-ares-mute xl:text-[9.5px]"
+                        : "whitespace-nowrap text-[9.5px] font-semibold uppercase tracking-[0.07em] text-ares-mute xl:text-[10px]"
                     }
                   >
                     {item.label}
                   </span>
                   <span
-                    className={`mt-1.5 whitespace-nowrap font-mono font-bold tabular-nums text-[#f7efe8] ${
+                    className={`mt-1.5 whitespace-nowrap font-mono font-bold tabular-nums text-ares-text ${
                       isWeather
                         ? "text-[11px] xl:text-[12px]"
                         : "text-[13.5px] xl:text-[15px]"
@@ -382,15 +383,6 @@ export default function Header({
             );
           })}
 
-          <button
-            type="button"
-            onClick={() => onTabChange("settings")}
-            title="Open Mission Settings"
-            aria-label="Open Mission Settings"
-            className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-none border border-[#943a18]/80 bg-[#1a0d08]/95 text-[#c7a394] transition-colors hover:border-[#ff5d1f] hover:text-white xl:h-9 xl:w-9"
-          >
-            <AresUserIcon className="h-4 w-4 xl:h-5 xl:w-5" />
-          </button>
         </div>
       )}
     </header>

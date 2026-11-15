@@ -1,15 +1,17 @@
 @import "tailwindcss";
 
 @theme inline {
-  --color-ares-bg: #090605;
-  --color-ares-panel: #140e0b;
-  --color-ares-raised: #1e1510;
-  --color-ares-line: #3b2418;
-  --color-ares-accent: #f06423;
-  --color-ares-accent-soft: #ff8c4a;
-  --color-ares-text: #f7efe8;
-  --color-ares-mute: #b5a394;
-  --color-ares-dim: #7f6d60;
+  --color-ares-bg: #241714;
+  --color-ares-panel: #3e2723;
+  --color-ares-raised: #4b302b;
+  --color-ares-earth: #6e4330;
+  --color-ares-line: #5d4943;
+  --color-ares-accent: #fe7f2d;
+  --color-ares-accent-soft: #ff9f5a;
+  --color-ares-text: #fff9eb;
+  --color-ares-soft: #f2e6de;
+  --color-ares-mute: #bbb0a5;
+  --color-ares-dim: #ab9c8f;
   --font-sans: var(--font-geist-sans);
   --font-mono: var(--font-geist-mono);
 }
@@ -17,21 +19,21 @@
 html,
 body {
   height: 100%;
-  background: #090605;
-  color: #f7efe8;
+  background: #241714;
+  color: #fff9eb;
   font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
   overscroll-behavior: none;
   -webkit-tap-highlight-color: transparent;
 }
 
 ::selection {
-  background: rgba(240, 100, 35, 0.35);
-  color: #ffffff;
+  background: rgba(254, 127, 45, 0.35);
+  color: #fff9eb;
 }
 
 * {
   scrollbar-width: thin;
-  scrollbar-color: rgba(240, 100, 35, 0.35) transparent;
+  scrollbar-color: rgba(254, 127, 45, 0.4) transparent;
 }
 
 ::-webkit-scrollbar {
@@ -44,17 +46,17 @@ body {
 }
 
 ::-webkit-scrollbar-thumb {
-  background: rgba(240, 100, 35, 0.35);
+  background: rgba(254, 127, 45, 0.4);
   border-radius: 0px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(240, 100, 35, 0.65);
+  background: rgba(254, 127, 45, 0.72);
 }
 
 /* Leaflet Martian dark surface overrides */
 .leaflet-container {
-  background: #090605 !important;
+  background: #241714 !important;
   font-family: var(--font-geist-sans), system-ui, sans-serif !important;
   cursor: grab;
 }

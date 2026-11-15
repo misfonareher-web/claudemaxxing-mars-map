@@ -46,7 +46,7 @@ export default function ScoreRing({ score, size = 84 }: ScoreRingProps) {
 
   const effectiveProgress = target === null ? 0 : progress;
   const displayScore = Math.round(effectiveProgress);
-  const color = target === null ? "#6b5347" : getScoreAccent(target);
+  const color = target === null ? "#bbb0a5" : getScoreAccent(target);
 
   const strokeWidth = 6;
   const radius = (size - strokeWidth) / 2;
@@ -85,8 +85,8 @@ export default function ScoreRing({ score, size = 84 }: ScoreRingProps) {
           cx={size / 2}
           cy={size / 2}
           r={radius}
-          fill="rgba(16, 8, 6, 0.9)"
-          stroke="rgba(255, 255, 255, 0.1)"
+          fill="rgba(36, 23, 20, 0.88)"
+          stroke="rgba(255, 249, 235, 0.16)"
           strokeWidth={strokeWidth}
         />
         {/* Animated progress arc */}
