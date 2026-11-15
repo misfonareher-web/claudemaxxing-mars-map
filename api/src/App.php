@@ -10,6 +10,13 @@ function corsHeaders(?string $origin): array {
  if($origin!==null && $origin!=='' && $origin!=='*' && in_array($origin,$allowed,true)) $headers['Access-Control-Allow-Origin']=$origin;
  return $headers;
 }
+const MAX_WEIGHT=100; const SCORE_CACHE_MAX_ROWS=200;
+// Scoring treats weights as relative, so equivalent requests share one canonical form (and one cache row).
+function normaliseWeights(array $v,array $factors): array {
+ $sum=array_sum($v); $out=[]; foreach($factors as $f) $out[$f]=round(($v[$f]??0)/$sum,2); ksort($out);
+ if(array_sum($out)<=0) throw new ApiError(400,'Zero weights');
+ return $out;
+}
 function validate(array $q,string $cmd): array {
  $presets=readJson(root().'/config/mission_presets.json')['presets'];
  if(!array_key_exists('preset',$q) && in_array($cmd,['point','route'],true)) {
@@ -32,7 +39,7 @@ function validate(array $q,string $cmd): array {
  $cfg=readJson(root().'/config/scoring_weights.json'); $out=['preset'=>$p['id']];
  if(isset($q['profile']) && is_string($q['profile'])) $q['profile']=$cfg['profile_aliases'][$q['profile']]??$q['profile'];
  if(isset($q['profile'])) { if(!is_string($q['profile'])||!isset($cfg['profiles'][$q['profile']])) throw new ApiError(400,'Unknown profile'); $out['profile']=$q['profile']; }
- if(isset($q['weights'])) { $v=is_string($q['weights'])?json_decode($q['weights'],true):$q['weights']; if(!is_array($v)||!$v||array_is_list($v)) throw new ApiError(400,'Invalid weights'); foreach($v as $k=>$n) if(!isset($cfg['factor_params'][$k])||!is_numeric($n)||!is_finite((float)$n)||$n<0) throw new ApiError(400,'Invalid weight'); if(array_sum($v)<=0) throw new ApiError(400,'Zero weights'); foreach(['ice','thermal'] as $f) if(($v[$f]??0)!=0) throw new ApiError(400,'Ice and thermal are context-only; their weights must be zero'); ksort($v); $out['weights']=$v; }
+ if(isset($q['weights'])) { $v=is_string($q['weights'])?json_decode($q['weights'],true):$q['weights']; if(!is_array($v)||!$v||array_is_list($v)) throw new ApiError(400,'Invalid weights'); foreach($v as $k=>$n) if(!isset($cfg['factor_params'][$k])||!is_numeric($n)||!is_finite((float)$n)||$n<0) throw new ApiError(400,'Invalid weight'); $v=array_map('floatval',$v); if(max($v)>MAX_WEIGHT) throw new ApiError(400,'Weights must not exceed '.MAX_WEIGHT); if(array_sum($v)<=0) throw new ApiError(400,'Zero weights'); foreach(['ice','thermal'] as $f) if(($v[$f]??0)!=0) throw new ApiError(400,'Ice and thermal are context-only; their weights must be zero'); $out['weights']=normaliseWeights($v,array_keys($cfg['factor_params'])); }
  $coord=function($v)use($p){ if(!is_array($v)||!array_is_list($v)||count($v)!==2) throw new ApiError(400,'Invalid coordinate'); foreach($v as $n) if(!is_numeric($n)||!is_finite((float)$n)) throw new ApiError(400,'Invalid coordinate'); [$x,$y]=array_map('floatval',$v); [$a,$b,$c,$d]=$p['bbox']; if($x<$a||$x>$c||$y<$b||$y>$d) throw new ApiError(400,'Coordinate outside preset'); return [$x,$y]; };
  if($cmd==='point') [$out['lon'],$out['lat']]=$coord([$q['lon']??null,$q['lat']??null]);
  if($cmd==='route') foreach(['from','to'] as $k) $out[$k]=$coord($q[$k]??null);
@@ -56,6 +63,16 @@ function features(array $q,?array $files=null): array {
  if(!$c) foreach($files??glob(root().'/data/*.geojson') as $file) $all=array_merge($all,readJson($file)['features']);
  return ['type'=>'FeatureCollection','crs_note'=>'Mars 2000 planetocentric, east-positive, degrees','dataset_ids'=>array_values(array_unique(array_column(array_column($all,'properties'),'dataset_id'))),'features'=>array_values(array_filter($all,fn($f)=>(!isset($q['kind'])||$q['kind']===$f['properties']['kind'])&&(!isset($q['preset'])||!$f['properties']['preset_ids']||in_array($q['preset'],$f['properties']['preset_ids'],true))))];
 }
+function cacheKey(array $v): string {
+ $r=root(); $files=array_merge(glob($r.'/config/*.json'),glob($r.'/scoring/*.py'),[$r.'/data/hazards.geojson',$r.'/data/science_targets.geojson'],glob($r.'/data/grids/'.$v['preset'].'/*')); // code, config and every scoring input are part of the key so a deploy or data refresh invalidates cached grids
+ $stamps=[]; foreach($files as $f) $stamps[substr($f,strlen($r))]=is_file($f)?[filesize($f),filemtime($f)]:null; ksort($stamps);
+ return hash('sha256',json_encode([$v,readJson($r.'/config/scoring_weights.json')['methodology_version']??null,$stamps]));
+}
+// Bounds the cache: rows older than a day go, then all but the newest SCORE_CACHE_MAX_ROWS. Works with or without the created_at index.
+function scoreCachePruneSql(int $maxRows=SCORE_CACHE_MAX_ROWS): array {
+ return ["DELETE FROM score_cache WHERE created_at IS NULL OR created_at < now() - interval '1 day'",'DELETE FROM score_cache WHERE cache_key IN (SELECT cache_key FROM score_cache ORDER BY created_at DESC, cache_key OFFSET '.max(0,$maxRows).')'];
+}
+function pruneScoreCache(PDO $c,int $maxRows=SCORE_CACHE_MAX_ROWS): void { foreach(scoreCachePruneSql($maxRows) as $sql) $c->exec($sql); }
 function dispatch(string $method,string $path,array $q): array {
  if($method==='GET') switch($path) {
  case '/api/health': return ['status'=>'ok','db'=>db()!==null,'python'=>is_executable('/usr/bin/python3'),'version'=>'0.1.0'];
@@ -67,10 +84,9 @@ function dispatch(string $method,string $path,array $q): array {
  }
  $cmd=match([$method,$path]) { ['GET','/api/score']=>'score',['GET','/api/score/point']=>'point',['POST','/api/route']=>'route',default=>throw new ApiError(404,'Unknown route') };
  $v=validate($q,$cmd); $c=$cmd==='score'?db():null;
- $files=array_merge(glob(root().'/config/*.json'),glob(root().'/scoring/*.py'),[root().'/data/grids/'.$v['preset'].'/manifest.json']); // scoring code is part of the key so a deploy invalidates cached grids
- $key=hash('sha256',json_encode([$v,array_map(fn($f)=>is_file($f)?filemtime($f):null,$files)]));
+ $key=cacheKey($v);
  if($c) try { $s=$c->prepare('SELECT payload FROM score_cache WHERE cache_key=?'); $s->execute([$key]); if($hit=$s->fetchColumn()) return json_decode($hit,true); } catch(Throwable $e) { $c=null; }
  $result=scoring($cmd,$v);
- if($c) try { $s=$c->prepare('INSERT INTO score_cache(cache_key,payload) VALUES (?,?::jsonb) ON CONFLICT(cache_key) DO UPDATE SET payload=excluded.payload,created_at=now()'); $s->execute([$key,json_encode($result)]); } catch(Throwable $e) { error_log('Cache unavailable'); }
+ if($c) try { $s=$c->prepare('INSERT INTO score_cache(cache_key,payload) VALUES (?,?::jsonb) ON CONFLICT(cache_key) DO UPDATE SET payload=excluded.payload,created_at=now()'); $s->execute([$key,json_encode($result)]); pruneScoreCache($c); } catch(Throwable $e) { error_log('Cache unavailable'); }
  return $result;
 }

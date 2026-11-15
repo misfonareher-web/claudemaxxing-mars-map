@@ -41,8 +41,9 @@ curl localhost:8080/api/provenance
 curl -H 'Content-Type: application/json' -d '{"preset":"jezero","from":[77.45,18.44],"to":[77.40,18.50]}' localhost:8080/api/route
 ```
 
-Weights are a URL-encoded JSON object with nonnegative values and positive sum;
-allowed keys come from `config/scoring_weights.json`. Profiles and coordinates are
+Weights are a URL-encoded JSON object with nonnegative values (each at most 100) and
+positive sum; allowed keys come from `config/scoring_weights.json`. Weights are relative:
+the API normalises them to sum 1 and rounds to two decimals before scoring and caching. Profiles and coordinates are
 validated against the configured presets. Methodology 0.2.0 profiles are
 `balanced`, `safety_first`, `science_first`, and `terrain_first` ("Terrain and proximity").
 Legacy `profile=resource_first` resolves to `terrain_first` before cache-key generation;
@@ -89,8 +90,9 @@ is in `properties.factors.base_distance.value` (km). These describe the returned
 grid cell, rather than the exact requested coordinates.
 
 The API skips its PostgreSQL score cache when the database is down and reads
-vector files directly. Cache keys include the canonical request and config/grid
-manifest modification times. Feature loading at container startup uses upserts;
+vector files directly. Cache keys include the canonical request, methodology version and the size and
+modification time of config, scoring code, hazard/science vectors and the preset's grid files.
+Each cache write prunes rows older than one day and keeps at most the newest 200. Feature loading at container startup uses upserts;
 missing files are skipped. Never use `docker compose down -v` on the VPS: it deletes DB state.
 
 The 0–100 index is a conditional heuristic methodology for comparison, not a safety certification or a validated model.

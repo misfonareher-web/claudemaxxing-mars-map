@@ -11,12 +11,52 @@ foreach (['balanced','safety_first','science_first','terrain_first','resource_fi
  $v=validate(['preset'=>'jezero','profile'=>$profile],'score');
  check($v['profile']===($profile==='resource_first'?'terrain_first':$profile));
 }
-check(validate(['preset'=>'jezero','weights'=>['slope'=>1,'ice'=>0,'thermal'=>0]],'score')['weights']['ice']===0);
+check(validate(['preset'=>'jezero','weights'=>['slope'=>1,'ice'=>0,'thermal'=>0]],'score')['weights']['ice']===0.0);
 foreach (['ice','thermal'] as $f) {
  try { validate(['preset'=>'jezero','weights'=>['slope'=>1,$f=>.1]],'score'); throw new RuntimeException('Expected context weight error'); } catch(ApiError $e) { check($e->status===400); }
 }
 try { validate(['preset'=>'jezero','profile'=>'unknown'],'score'); throw new RuntimeException('Expected profile error'); } catch(ApiError $e) { check($e->status===400); }
 putenv('SCORING_CMD='.json_encode([PHP_BINARY,__DIR__.'/fixtures/fake.php']));
+// Weights are canonicalised (relative, sum 1, 2 decimals) so equivalent requests share one cache key.
+$w=fn($weights)=>validate(['preset'=>'jezero','weights'=>$weights],'score');
+check($w(['slope'=>1,'science'=>1])===$w(['slope'=>2,'science'=>2]));
+check($w(['slope'=>1,'science'=>1])['weights']===['base_distance'=>0.0,'ice'=>0.0,'roughness'=>0.0,'science'=>0.5,'slope'=>0.5,'thermal'=>0.0]);
+check($w(['slope'=>'1','science'=>'3'])===$w(['slope'=>1,'science'=>3.0]));
+check($w('{"slope":"1","science":3}')===$w(['science'=>3,'slope'=>1,'roughness'=>0]));
+check($w(['slope'=>0.30001,'science'=>0.7])===$w(['slope'=>0.30002,'science'=>0.7]));
+check(cacheKey($w(['slope'=>1,'science'=>1]))===cacheKey($w(['slope'=>2,'science'=>2])));
+check(cacheKey($w(['slope'=>1,'science'=>1]))!==cacheKey($w(['slope'=>1,'science'=>2])));
+check(cacheKey(['preset'=>'jezero'])!==cacheKey(['preset'=>'gale']));
+check(validate(['preset'=>'jezero','weights'=>['slope'=>100]],'score')['weights']['slope']===1.0);
+foreach([['slope'=>100.5],['slope'=>1,'science'=>'1e6'],['slope'=>1e308]] as $weights) {
+ try { $w($weights); throw new RuntimeException('Expected weight bound error'); } catch(ApiError $e) { check($e->status===400); }
+}
+[$expire,$cap]=scoreCachePruneSql(200);
+check(str_contains($expire,"created_at < now() - interval '1 day'") && str_starts_with($expire,'DELETE FROM score_cache'));
+check(str_contains($cap,'ORDER BY created_at DESC') && str_ends_with($cap,'OFFSET 200)') && str_ends_with(scoreCachePruneSql(-5)[1],'OFFSET 0)'));
+// Optional: exercise the pruning and cache path against a real PostgreSQL (TEST_DB_DSN, e.g. in CI or a throwaway container).
+if(getenv('TEST_DB_DSN')) {
+ $pg=new PDO(getenv('TEST_DB_DSN'),getenv('DB_USER')?:'mars',getenv('DB_PASSWORD')?:'',[PDO::ATTR_ERRMODE=>PDO::ERRMODE_EXCEPTION]);
+ $pg->exec('DROP TABLE IF EXISTS score_cache'); $pg->exec(file_get_contents(dirname(__DIR__,2).'/docker/postgres/init.sql'));
+ foreach([true,false] as $indexed) {
+  if(!$indexed) $pg->exec('DROP INDEX score_cache_created_at_idx');
+  $pg->exec('TRUNCATE score_cache');
+  $pg->exec("INSERT INTO score_cache(cache_key,payload,created_at) SELECT 'k'||i,'{}'::jsonb,now()-i*interval '1 second' FROM generate_series(1,250) i");
+  $pg->exec("INSERT INTO score_cache(cache_key,payload,created_at) VALUES ('old','{}'::jsonb,now()-interval '2 days'),('null','{}'::jsonb,NULL)");
+  pruneScoreCache($pg,200);
+  check((int)$pg->query('SELECT count(*) FROM score_cache')->fetchColumn()===200);
+  check($pg->query("SELECT array_agg(cache_key ORDER BY created_at DESC)::text FROM score_cache")->fetchColumn()==='{'.implode(',',array_map(fn($i)=>'k'.$i,range(1,200))).'}');
+ }
+ // End to end: equivalent weights hit one row; each insert prunes.
+ $pg->exec('TRUNCATE score_cache'); $pg->exec("INSERT INTO score_cache(cache_key,payload,created_at) VALUES ('old','{}'::jsonb,now()-interval '2 days')");
+ $oldDsn=getenv('DB_DSN'); putenv('DB_DSN='.getenv('TEST_DB_DSN'));
+ try {
+  dispatch('GET','/api/score',['preset'=>'jezero','weights'=>'{"slope":1,"science":1}']);
+  check(dispatch('GET','/api/score',['preset'=>'jezero','weights'=>['slope'=>'2','science'=>2.0]])['type']==='FeatureCollection');
+  check($pg->query('SELECT array_agg(cache_key)::text FROM score_cache')->fetchColumn()==='{'.cacheKey($w(['slope'=>1,'science'=>1])).'}');
+ } finally { putenv($oldDsn===false?'DB_DSN':'DB_DSN='.$oldDsn); }
+ $pg->exec('DROP TABLE score_cache'); echo "API PostgreSQL cache tests passed\n";
+}
 check(scoring('score',['preset'=>'jezero'])['type']==='FeatureCollection');
 foreach ([2=>400,3=>404,1=>500] as $exit=>$status) {
  putenv('FAKE_EXIT='.$exit);
