@@ -466,8 +466,11 @@ export default function MarsMap({
             opacity: 0.55,
             interactive: false,
           }
-        )
-          .bindTooltip("Terrain grid (demo area)", { permanent: true, direction: "center" })
+        ).addTo(group);
+
+        L.tooltip({ permanent: true, direction: "top", className: "terrain-grid-label" })
+          .setLatLng([n, (w + e) / 2 + offsetLng])
+          .setContent("Terrain grid (demo area)")
           .addTo(group);
 
         const pts: [number, number][] = [];
