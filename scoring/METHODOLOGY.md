@@ -50,3 +50,34 @@ Recomputed using `python -m scoring.cli` on the committed grids and targets from
 | safety_first | 98 / 68 | 95 / 95 |
 | science_first | 94 / 54 | 87 / 50 |
 | terrain_first | 96 / 64 | 85 / 81 |
+
+## Score explanation
+
+For finite, non-excluded native cells, `score = pre_hazard_score × hazard_multiplier`,
+rounded to the nearest integer. `pre_hazard_score` is the sum of the unrounded
+factor contributions on the 0–100 scale, reported to one decimal.
+`hazard_multiplier` is the product of all non-excluding hazard penalty factors,
+reported to three decimals (1.0 without penalties). `hazard_penalties` lists each
+applied hazard's `id`, `severity` and `factor`; excluding hazards are not penalties.
+The displayed rounded inputs reconstruct the integer score within ±1.
+
+At Pahrump Hills (137.3775, -4.6627), Gale cell r21c23 has contributions
+42.800 + 12.177 + 26.311 + 6.061 ≈ 87.35, displayed as `pre_hazard_score: 87.3`.
+The severity-2 `hz-gale-bagnold-dunes` penalty has factor 0.700, so
+87.3 × 0.700 ≈ 61.1 and the returned score is 61.
+
+Exclusion independently overrides the score with zero; it is never represented
+as a multiplier. Excluded cells retain their finite pre-hazard sum and any soft
+penalties. Required terrain nodata or no available weighted factors gives a null
+pre-hazard score wherever the native score is null.
+
+When block aggregation is required (factor k > 1), pre-hazard scores use the
+same finite native-score population as the score's nan-mean. Multipliers are the
+arithmetic mean of native cell multipliers; penalties are unioned once per hazard
+covering any native cell, with its original factor. The union's factors must not
+be multiplied to reconstruct the block multiplier: hazards can cover different
+subsets. Mean(pre × multiplier) generally differs from mean(pre) × mean(multiplier),
+so the reconstruction invariant applies only to native cells. Any exclusion in
+a block still overrides its returned score to zero. These fields describe the
+block's components without changing existing score aggregation or exclusions.
+Routes expose a path mean_score only, so have no per-cell explanation fields.

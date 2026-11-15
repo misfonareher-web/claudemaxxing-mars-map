@@ -55,6 +55,9 @@ def compute(root, preset, config, weights):
     effective = {f: np.divide(weights[f]*np.isfinite(subs[f]), denominator, out=np.zeros(shape), where=denominator>0) for f in FACTORS}
     contributions = {f: 100*effective[f]*np.nan_to_num(subs[f]) for f in FACTORS}
     score = sum(contributions.values())
+    pre_hazard_score = score.copy()
+    hazard_multiplier = np.ones(shape)
+    hazard_penalties = []
     excluded = values['slope'] > config['factor_params']['slope']['hard_max_deg']
     beyond = values['base_distance'] > preset['eva_max_radius_km']
     excluded |= beyond
@@ -66,17 +69,24 @@ def compute(root, preset, config, weights):
         if hard:
             excluded |= mask
         else:
-            score *= np.where(mask, max(0, 1-config['hazard_rules']['penalty_per_severity']*p['severity']), 1)
+            factor = max(0, 1-config['hazard_rules']['penalty_per_severity']*p['severity'])
+            score *= np.where(mask, factor, 1)
+            hazard_multiplier *= np.where(mask, factor, 1)
+            hazard_penalties.append((dict(id=p['id'], severity=p['severity'], factor=factor), mask))
         hazards.append((p['id'], mask, hard))
     # Required terrain nodata cannot establish traversability.
     nodata = ~np.isfinite(arrays['slope_deg']) | ~np.isfinite(arrays['elevation_m'])
     score = np.where(nodata | (denominator == 0), np.nan, np.where(excluded, 0, score))
-    return dict(manifest=m, arrays=arrays, values=values, subs=subs, effective=effective, contributions=contributions, score=score, excluded=excluded, beyond=beyond, hazards=hazards, flags=sorted(set(flags)), datasets=sorted(datasets), x=x, y=y)
+    pre_hazard_score = np.where(np.isfinite(score), pre_hazard_score, np.nan)
+    return dict(pre_hazard_score=pre_hazard_score, hazard_multiplier=hazard_multiplier, hazard_penalties=hazard_penalties, manifest=m, arrays=arrays, values=values, subs=subs, effective=effective, contributions=contributions, score=score, excluded=excluded, beyond=beyond, hazards=hazards, flags=sorted(set(flags)), datasets=sorted(datasets), x=x, y=y)
 
 def response(state, preset, config, weights, profile):
     m = state['manifest']
     k = grid.factor(m['shape'], config['score_grid']['max_cells'])
     scores = grid.aggregate(state['score'], k)
+    pre_scores = grid.aggregate(state['pre_hazard_score'], k)
+    multipliers = grid.aggregate(state['hazard_multiplier'], k)
+    penalties = [(p, grid.aggregate(mask.astype(float), k)>0) for p,mask in state['hazard_penalties']]
     rows, cols = scores.shape
     aggregated = {group: {f: grid.aggregate(a, k) for f,a in state[group].items()} for group in ('values','subs','effective','contributions')}
     dy, dx = m['cell_size_deg']
@@ -108,7 +118,7 @@ def response(state, preset, config, weights, profile):
                 if f in CONTEXT_NOTES:
                     breakdown[f].update(context_only=True, note=CONTEXT_NOTES[f])
             score = scores[r,c]
-            features.append(dict(type='Feature', id=ident, geometry=dict(type='Polygon', coordinates=[[[left,bottom],[right,bottom],[right,top],[left,top],[left,bottom]]]), properties=dict(cell_id=ident,row=r,col=c,center=[(left+right)/2,(bottom+top)/2],score=0 if reasons else int(round(score)) if np.isfinite(score) else None,excluded=bool(reasons),exclusion_reasons=reasons,factors=breakdown,hazard_ids=ids,data_flags=state['flags'])))
+            features.append(dict(type='Feature', id=ident, geometry=dict(type='Polygon', coordinates=[[[left,bottom],[right,bottom],[right,top],[left,top],[left,bottom]]]), properties=dict(cell_id=ident,row=r,col=c,center=[(left+right)/2,(bottom+top)/2],pre_hazard_score=round(float(pre_scores[r,c]),1) if np.isfinite(pre_scores[r,c]) else None,hazard_multiplier=round(float(multipliers[r,c]),3),hazard_penalties=[dict(p, factor=round(p['factor'],3)) for p,mask in penalties if mask[r,c]],score=0 if reasons else int(round(score)) if np.isfinite(score) else None,excluded=bool(reasons),exclusion_reasons=reasons,factors=breakdown,hazard_ids=ids,data_flags=state['flags'])))
     finite = [f['properties']['score'] for f in features if f['properties']['score'] is not None]
     meta = dict(preset_id=preset['id'],profile=profile,weights=weights,effective_weights={f:float(np.mean(state['effective'][f])) for f in FACTORS},methodology_version=config['methodology_version'],label='Conditional heuristic EVA suitability index (0–100)',disclaimers=DISCLAIMERS,datasets=state['datasets'],data_flags=state['flags'],grid=dict(rows=rows,cols=cols,cell_size_deg=[dy*k,dx*k],bbox=m['bbox']),stats=dict(min=min(finite) if finite else None,max=max(finite) if finite else None,mean=float(np.mean(finite)) if finite else None,excluded_cells=sum(f['properties']['excluded'] for f in features)),generated_at=datetime.now(timezone.utc).isoformat(timespec='seconds').replace('+00:00','Z'))
     return dict(type='FeatureCollection',crs_note=CRS,meta=meta,features=features)

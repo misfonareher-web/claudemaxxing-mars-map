@@ -154,7 +154,10 @@
           }
         },
         "hazard_ids": [],
-        "data_flags": []
+        "data_flags": [],
+        "pre_hazard_score": 59.5,
+        "hazard_multiplier": 1.0,
+        "hazard_penalties": []
       }
     }
   ]
