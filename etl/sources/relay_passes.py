@@ -66,16 +66,17 @@ def rows(result, column):
     return parsed
 
 
-def detect_passes(samples, orbiter, mask=10):
+def detect_passes(samples, orbiter, mask=10, min_duration_min=1):
+    """Passes are runs of consecutive 1-minute samples at or above the mask; single-sample grazes (0 min) are dropped."""
     passes = []
     current = []
     def finish():
-        if current:
+        if current and (current[-1][0]-current[0][0]).total_seconds()/60 >= min_duration_min:
             peak = max(current, key=lambda row: row[1])
             passes.append(dict(orbiter=orbiter, start=utc(current[0][0]), end=utc(current[-1][0]),
                                duration_min=(current[-1][0]-current[0][0]).total_seconds()/60,
                                max_elevation_deg=peak[1], time_of_max=utc(peak[0])))
-            current.clear()
+        current.clear()
     previous = None
     for stamp, elevation in samples:
         if previous is not None and stamp-previous != dt.timedelta(minutes=1):
@@ -111,9 +112,8 @@ $$SOE
 2026-Nov-17 00:04, , , 0,11,
 $$EOE'''
     passes = detect_passes(rows(fixture, 'Elev_(a-app)'), 'ODY')
-    assert len(passes) == 2 and passes[0]['duration_min'] == 1
+    assert len(passes) == 1 and passes[0]['duration_min'] == 1
     assert passes[0]['max_elevation_deg'] == 74 and passes[0]['time_of_max'].endswith('00:02:00Z')
-    assert passes[1]['duration_min'] == 0
     light = 'Date__(UT)__HR:MN, , , 1-way_down_LT,\n$$SOE\n2026-Nov-15 00:00, , ,10.9435,\n$$EOE'
     assert rows(light, '1-way_down_LT')[0][1] == 10.9435
 

@@ -60,7 +60,7 @@
       "note": "Prediction coverage ends March 2026; excluded."
     }
   ],
-  "sampling_note": "Endpoints are first/last above-mask samples, inclusive; duration is their elapsed time. No interpolation. Window-boundary passes may be clipped.",
+  "sampling_note": "Endpoints are first/last above-mask samples, inclusive; duration is their elapsed time. No interpolation. Window-boundary passes may be clipped. Single-sample grazes shorter than 1 minute are dropped.",
   "sites": {
     "jezero": {
       "name": "Jezero",
@@ -617,14 +617,6 @@
           "duration_min": 8.0,
           "max_elevation_deg": 67.692306,
           "time_of_max": "2026-11-15T17:58:00Z"
-        },
-        {
-          "orbiter": "TGO",
-          "start": "2026-11-15T19:33:00Z",
-          "end": "2026-11-15T19:33:00Z",
-          "duration_min": 0.0,
-          "max_elevation_deg": 10.119316,
-          "time_of_max": "2026-11-15T19:33:00Z"
         },
         {
           "orbiter": "ODY",
