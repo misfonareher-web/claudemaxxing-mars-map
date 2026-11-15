@@ -81,3 +81,49 @@ so the reconstruction invariant applies only to native cells. Any exclusion in
 a block still overrides its returned score to zero. These fields describe the
 block's components without changing existing score aggregation or exclusions.
 Routes expose a path mean_score only, so have no per-cell explanation fields.
+
+## Relief is counted more than once
+
+Relief enters through slope, derived slope hazards, and roughness. The slope subscore
+falls linearly from 1 at 5° to 0 at 25°; slopes above 25° are excluded.
+`etl/sources/features.py` dissolves cells with slope >5° and ≤25° into the
+severity-2 `hz-jezero-slope-2` / `hz-gale-slope-2` outlines, adding a ×0.70 penalty.
+Roughness is the edge-padded 3×3 elevation population standard deviation, not
+variability after removing a fitted slope, so it also penalises smooth inclined terrain.
+
+| Preset | Slope-outline cells / all | Pearson slope–roughness | Balanced mean with / without slope outline |
+|---|---:|---:|---:|
+| Jezero | 637 / 4118 | 0.992 | 23.609 / 24.289 |
+| Gale | 1366 / 2704 | 0.993 | 24.145 / 25.972 |
+
+Correlation uses all finite native pairs; means use unrounded finite native scores,
+including excluded zeros. The counterfactual removes only the named outline;
+all other hazards, factors and exclusions stay in place. A smooth north–south 10°
+plane at native spacing has interior roughness 66.211 m (Jezero), 65.645 m (Gale):
+`std = north–south spacing × tan(10°) × sqrt(2/3)`. Both exceed the 60 m zero-subscore
+threshold: roughness subscore is 0, despite no small-scale bumps.
+This demo model choice penalises steep terrain strongly. It is not a calibrated
+traversability model; separating these relief channels is future redesign work.
+
+## Hazards are sampled at cell centres
+
+`scoring/geo.py` evaluates outlines only at native cell centres, not at the queried
+point or over the cell area. Counts below cover each preset's entire native grid.
+
+| Preset / outline ID | Centre inside | Square touches/intersects |
+|---|---:|---:|
+| Jezero / hz-jezero-slope-2 | 637 | 1029 |
+| Jezero / hz-jezero-seitah | 18 | 42 |
+| Gale / hz-gale-slope-2 | 1366 | 1519 |
+| Gale / hz-gale-bagnold-dunes | 271 | 359 |
+
+Centre counts use the scorer's ray casting. Square counts use Shapely closed
+polygon/rectangle intersection, including edges and vertices; lattice coordinates
+within 1e-10 of an integer are snapped to remove grid-boundary roundoff.
+Partly covered edge cells may get no penalty; a point just outside an outline can
+be penalised through its cell centre. Pahrump Hills (137.3775, -4.6627) is about
+0.185 km outside the Bagnold envelope, but cell r21c23's centre is about 0.056 km
+inside: displayed score 61 = round(87.3 × 0.70). Distances use the nearest envelope
+boundary in a local equirectangular projection on the scorer's Mars sphere.
+Fractional coverage is future work. Reproduce both tables and the plane/point
+checks with `python -m scripts.methodology_numbers` (NumPy and Shapely required).
