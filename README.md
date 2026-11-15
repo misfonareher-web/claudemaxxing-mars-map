@@ -20,3 +20,4 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 - `data/` — Official NASA Mars GeoJSON layers (`landing_sites.geojson`, `ice.geojson`, `hazards.geojson` with `steep_slope` & `sand_dunes`, `science_targets.geojson`), environment series (`environment/*.json`), and elevation/slope grids (`grids/`)
 - `config/` — Mission presets (`mission_presets.json`) and survival scoring weights (`scoring_weights.json`)
 - `docs/DATA_PROVENANCE.md` — Full NASA dataset sources, instruments, and scientific caveats
+- `docs/classroom/score_by_hand.md` — Classroom worksheet: students recompute two real cell scores by hand from NASA-derived inputs and check them against the map (teacher key included)

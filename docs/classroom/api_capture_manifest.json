@@ -1,0 +1,37 @@
+{
+  "bradbury": {
+    "url": "https://celc0r-realm.lol/api/score/point?lon=137.4417&lat=-4.5895&preset=gale&profile=balanced",
+    "bytes": 2323,
+    "content_type": "application/geo+json; charset=utf-8",
+    "content_encoding": null,
+    "utc": "2026-11-15T15:13:00.000687+00:00"
+  },
+  "pahrump": {
+    "url": "https://celc0r-realm.lol/api/score/point?lon=137.3775&lat=-4.6627&preset=gale&profile=balanced",
+    "bytes": 2409,
+    "content_type": "application/geo+json; charset=utf-8",
+    "content_encoding": null,
+    "utc": "2026-11-15T15:13:00.436582+00:00"
+  },
+  "environment": {
+    "url": "https://celc0r-realm.lol/api/environment?preset=gale",
+    "bytes": 37437,
+    "content_type": "application/json; charset=utf-8",
+    "content_encoding": null,
+    "utc": "2026-11-15T15:13:00.653589+00:00"
+  },
+  "gale_grid": {
+    "url": "https://celc0r-realm.lol/api/score?preset=gale",
+    "bytes": 3755930,
+    "content_type": "application/geo+json; charset=utf-8",
+    "content_encoding": null,
+    "utc": "2026-11-15T15:13:02.563191+00:00"
+  },
+  "jezero_grid": {
+    "url": "https://celc0r-realm.lol/api/score?preset=jezero",
+    "bytes": 5575615,
+    "content_type": "application/geo+json; charset=utf-8",
+    "content_encoding": null,
+    "utc": "2026-11-15T15:13:05.639557+00:00"
+  }
+}
