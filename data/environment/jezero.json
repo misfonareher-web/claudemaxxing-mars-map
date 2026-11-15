@@ -1570,5 +1570,138 @@
     "quality": "Instrument confidence flags not applied; no rover-heating correction. Historical sensor-local data, no forecast or safe EVA window. Wind/dust/UV/ionizing radiation unavailable.",
     "relative_humidity_pct": "RH is local to sensor temperature. Observed RH minimum unavailable in reduced cache; summary min remains the minimum of per-sol means. RH = 0 % samples may have been dropped by an earlier filter; RH statistics unverified.",
     "legacy_filter": "Cached MEDA air/pressure statistics predate physical screening; sample-level validation is unavailable offline."
+  },
+  "radiation_context": {
+    "dataset_id": "msl_rad_surface_dose",
+    "title": "Surface radiation (historical context)",
+    "value": 0.64,
+    "uncertainty": 0.12,
+    "unit": "mSv/day",
+    "quantity": "dose equivalent rate, galactic cosmic rays, mission average",
+    "absorbed_dose": {
+      "value": 0.21,
+      "uncertainty": 0.04,
+      "unit": "mGy/day"
+    },
+    "site": "Gale crater (Curiosity / MSL RAD)",
+    "site_lon": 137.4417,
+    "site_lat": -4.5895,
+    "period": "7 Aug 2012 - 1 Jun 2013 (~300 sols, near solar maximum)",
+    "comparison": {
+      "value": 1.84,
+      "unit": "mSv/day",
+      "label": "Same instrument inside the spacecraft during the cruise to Mars"
+    },
+    "source": {
+      "label": "Hassler et al. 2014, Science 343:1244797, Table 1",
+      "url": "https://doi.org/10.1126/science.1244797",
+      "press_release": "https://swri.org/node/9079"
+    },
+    "caveat": "Historical average measured by Curiosity in Gale crater. Not a measurement at this site or for today, not a safety limit, and not part of the score or the route.",
+    "in_score": false,
+    "measured_here": false,
+    "site_note": "No radiation measurement exists for this site; the value shown is from Gale crater."
+  },
+  "hazard_coverage": {
+    "title": "Hazard coverage",
+    "rows": [
+      {
+        "hazard": "steep_slope",
+        "status": "assessed",
+        "how": "Coarse MOLA slope on ~460 m cells. Slope is a score factor; cells above 25 deg are excluded; cells in the severity-2 slope outline get score x0.70.",
+        "limits": "Grid too coarse for EVA-scale slopes; local steps and short steep walls are not resolved."
+      },
+      {
+        "hazard": "sand_dunes",
+        "status": "assessed",
+        "how": "Mapped dune outline (severity 2): cells whose centre falls inside it get score x0.70.",
+        "limits": "Outline uncertainty 200-500 m (locally ~1 km); sampled at cell centres only; smaller dune patches may be missing.",
+        "source": "Seitah dune complex (simplified from Stack et al. 2020 GIS map)"
+      },
+      {
+        "hazard": "crater_rims",
+        "status": "not_assessed",
+        "limits": "No crater-rim layer; only partly reflected in coarse slope."
+      },
+      {
+        "hazard": "boulders_rocks",
+        "status": "not_assessed",
+        "limits": "Rock abundance is not ingested; MOLA roughness cannot resolve rocks."
+      },
+      {
+        "hazard": "scarps_cliffs",
+        "status": "not_assessed",
+        "limits": "No scarp mapping; short scarps are below grid resolution."
+      },
+      {
+        "hazard": "loose_regolith",
+        "status": "not_assessed",
+        "limits": "Soft or loose ground outside the mapped dunes is not mapped."
+      },
+      {
+        "hazard": "dust_storms",
+        "status": "not_assessed",
+        "limits": "No dust or opacity data; weather series are historical point context only."
+      },
+      {
+        "hazard": "radiation_dose",
+        "status": "not_assessed",
+        "limits": "No dose model per point or route; see radiation_context for one historical Gale value."
+      }
+    ],
+    "note": "Only the assessed rows affect the score. Not assessed means unknown, not safe."
+  },
+  "dust_season_context": {
+    "dataset_id": "dust_season_literature",
+    "title": "Dust storm season (context)",
+    "summary": "Global and regional dust storms are most common in southern spring-summer, roughly Ls 180-360 degrees. Planet-encircling storms occur in some Mars years, not every year (e.g. 2001, 2007, 2018).",
+    "sources": [
+      {
+        "label": "NASA Ames: regional dust storm season",
+        "url": "https://ntrs.nasa.gov/citations/20230015679"
+      },
+      {
+        "label": "NASA: The 2001 Great Dust Storms",
+        "url": "https://science.nasa.gov/photojournal/the-2001-great-dust-storms-tharsis/"
+      },
+      {
+        "label": "NASA: Dusty Differences Between Mars and Earth",
+        "url": "https://science.nasa.gov/earth/earth-observatory/dusty-differences-between-mars-and-earth-149926/"
+      }
+    ],
+    "caveat": "No dust opacity (tau) data are ingested; this is seasonal context only, not a forecast and not part of the score.",
+    "in_score": false
+  },
+  "ice_isru_context": {
+    "dataset_id": "ice_isru_literature",
+    "title": "Water ice / ISRU (regional context)",
+    "summary": "SWIM maps likely buried ice in the northern mid-latitudes. Phoenix excavated near-surface ice at ~68 N; Dundas et al. mapped exposed mid-latitude ice scarps; Stuurman et al. found SHARAD evidence for buried ice in Utopia Planitia.",
+    "sources": [
+      {
+        "label": "Morgan et al. 2021, Nature Astronomy (SWIM)",
+        "url": "https://doi.org/10.1038/s41550-020-01290-z",
+        "manuscript_url": "https://ntrs.nasa.gov/api/citations/20205008958/downloads/Morgan_etal_NA_Perspective_NATASTRON_19122833C%20.pdf"
+      },
+      {
+        "label": "NASA/JPL SWIM map, PIA26045",
+        "url": "https://science.nasa.gov/photojournal/swim-map-shows-subsurface-water-ice-on-mars/"
+      },
+      {
+        "label": "Mellon et al. 2009: Phoenix ground ice",
+        "url": "https://agupubs.onlinelibrary.wiley.com/doi/full/10.1029/2009JE003417"
+      },
+      {
+        "label": "Dundas et al. 2018, Science",
+        "url": "https://doi.org/10.1126/science.aao1619",
+        "abstract_url": "https://www.usgs.gov/publications/exposed-subsurface-ice-sheets-martian-mid-latitudes"
+      },
+      {
+        "label": "Stuurman et al. 2016, GRL (SHARAD)",
+        "url": "https://agupubs.onlinelibrary.wiley.com/doi/full/10.1002/2016GL070138"
+      }
+    ],
+    "caveat": "The project ice layer is regional context only: latitude bands and a regional neutron proxy, not local ice. Nothing here indicates extractable water at Jezero or Gale. This card is not part of the score.",
+    "in_score": false,
+    "site_note": "Jezero (~18 N) is about 17 degrees of latitude south of the ~35 N ice-bearing features reported by SWIM, far from these mid/high-latitude deposits."
   }
 }

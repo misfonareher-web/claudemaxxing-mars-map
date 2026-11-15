@@ -40,7 +40,7 @@ const MarsMap = dynamic(() => import("@/components/MarsMap"), {
       <div className="flex flex-col items-center gap-3">
         <div className="h-9 w-9 animate-spin rounded-full border-2 border-ares-accent border-t-transparent" />
         <span className="font-mono text-xs tracking-widest text-ares-mute uppercase">
-          Initializing AREOPATH Cartography...
+          Initializing AreoPath Cartography...
         </span>
       </div>
     </div>
@@ -618,13 +618,13 @@ export default function MarsExplorer({
           kind: "science_target",
           name: `Surface Point (${coordLabel})`,
           description:
-            "Point coordinates queried against AREOPATH local MOLA terrain grids (Jezero and Gale presets).",
+            "Point coordinates queried against AreoPath local MOLA terrain grids (Jezero and Gale presets).",
           dataset_id: "ares_surface_probe",
           preset_ids: [],
           confidence: "medium",
           caveat:
             "Evaluated on ~460 m MOLA terrain grids when inside Jezero or Gale; outside those presets no local grid is loaded.",
-          source_ref: "AREOPATH Backend Engine (/api/score/point)",
+          source_ref: "AreoPath Backend Engine (/api/score/point)",
         },
       };
       applySelectedOrPickedFeature(customFeature, false);
@@ -928,6 +928,7 @@ export default function MarsExplorer({
             <LocationCard
               feature={selectedFeature}
               allFeatures={features}
+              environment={activeEnvironment}
               backendScore={backendScore}
               isScoringLoading={isScoringLoading}
               scoreError={scoreError}

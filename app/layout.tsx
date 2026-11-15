@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "AREOPATH — Martian Survival Guide",
+  title: "AreoPath — Martian Survival Guide",
   description:
     "Interactive 2D Mars exploration and survival guide powered by NASA Mars Trek, PDS, MEDA, and REMS datasets.",
 };

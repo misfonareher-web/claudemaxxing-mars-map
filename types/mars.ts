@@ -118,6 +118,67 @@ export interface EnvironmentSeriesPoint {
   relative_humidity_mean_pct?: number;
 }
 
+export interface RadiationContext {
+  dataset_id: string;
+  title: string;
+  value: number;
+  uncertainty: number;
+  unit: string;
+  quantity: string;
+  absorbed_dose?: {
+    value: number;
+    uncertainty: number;
+    unit: string;
+  };
+  site: string;
+  site_lon: number;
+  site_lat: number;
+  period: string;
+  comparison?: {
+    value: number;
+    unit: string;
+    label: string;
+  };
+  source: {
+    label: string;
+    url: string;
+    press_release?: string;
+  };
+  caveat: string;
+  in_score: boolean;
+  measured_here: boolean;
+  site_note?: string;
+}
+
+export interface HazardCoverageRow {
+  hazard: string;
+  status: "assessed" | "not_assessed";
+  how?: string;
+  limits: string;
+  source?: string;
+}
+
+export interface HazardCoverage {
+  title: string;
+  rows: HazardCoverageRow[];
+  note: string;
+}
+
+export interface LiteratureContextCard {
+  dataset_id: string;
+  title: string;
+  summary: string;
+  sources: {
+    label: string;
+    url: string;
+    manuscript_url?: string;
+    abstract_url?: string;
+  }[];
+  caveat: string;
+  in_score: boolean;
+  site_note?: string;
+}
+
 export interface EnvironmentSummary {
   preset_id: string;
   dataset_id: string;
@@ -131,6 +192,10 @@ export interface EnvironmentSummary {
   };
   series?: EnvironmentSeriesPoint[];
   caveat: string;
+  radiation_context?: RadiationContext;
+  hazard_coverage?: HazardCoverage;
+  dust_season_context?: LiteratureContextCard;
+  ice_isru_context?: LiteratureContextCard;
 }
 
 export type AppTab = "map" | "settings";

@@ -29,7 +29,7 @@ export default function CommsStatusBar({ commsStatus }: CommsStatusBarProps) {
   return (
     <aside
       aria-label="Earth-Mars Communications Status"
-      className="pointer-events-auto fixed bottom-4 left-3 z-[990] max-w-[calc(100vw-24px)] sm:left-4 lg:max-w-[calc(100vw-600px)]"
+      className="pointer-events-auto fixed bottom-4 left-3 z-[990] hidden max-w-[calc(100vw-24px)] lg:block lg:left-4 lg:max-w-[calc(100vw-600px)]"
     >
       {expanded && (
         <div

@@ -20,6 +20,7 @@ import {
 import {
   BackendPointScoreResponse,
   BackendRouteProperties,
+  EnvironmentSummary,
   MarsFeatureKind,
   MarsGeoJSONFeature,
 } from "@/types/mars";
@@ -41,12 +42,17 @@ import {
 import { formatCoord, getVikingTilePreview } from "@/lib/mars-time";
 import { NO_TERRAIN, NO_ROUTE, terrainPreset, pointUnavailable } from "@/lib/terrain-availability";
 import ScoreRing from "@/components/ScoreRing";
+import {
+  HazardCoverageCard,
+  RadiationContextCard,
+} from "@/components/EnvironmentContextCards";
 
 export type RouteSlot = "A" | "B";
 
 interface LocationCardProps {
   feature: MarsGeoJSONFeature | null;
   allFeatures: MarsGeoJSONFeature[];
+  environment?: EnvironmentSummary | null;
   backendScore?: BackendPointScoreResponse | null;
   isScoringLoading?: boolean;
   scoreError?: string | null;
@@ -204,7 +210,7 @@ function HudSidePanel({
   return (
     <aside
       aria-label={ariaLabel}
-      className="pointer-events-auto fixed top-[88px] right-5 z-[1000] flex max-h-[calc(100vh-172px)] w-[372px] max-w-[calc(100vw-24px)] flex-col bg-[#f06423]/60 p-[1px] shadow-[0_22px_60px_rgba(0,0,0,0.85),0_0_28px_rgba(240,100,35,0.22)] backdrop-blur-xl"
+      className="pointer-events-auto fixed top-[88px] right-3 z-[1000] flex max-h-[calc(100vh-172px)] w-[372px] max-w-[calc(100vw-24px)] flex-col bg-[#f06423]/60 p-[1px] shadow-[0_22px_60px_rgba(0,0,0,0.85),0_0_28px_rgba(240,100,35,0.22)] backdrop-blur-xl sm:right-5"
       style={{
         clipPath:
           "polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px)",
@@ -299,6 +305,7 @@ function RouteEndpointSlot({
 export default function LocationCard({
   feature,
   allFeatures,
+  environment = null,
   backendScore,
   isScoringLoading = false,
   scoreError = null,
@@ -633,6 +640,10 @@ export default function LocationCard({
                   </p>
                 )}
               </div>
+
+              {environment?.hazard_coverage && (
+                <HazardCoverageCard coverage={environment.hazard_coverage} />
+              )}
             </>
           ) : pointA && pointB && isRouteLoading ? (
             <div className="flex items-start gap-2.5 rounded-none border border-ares-accent/85 bg-[#1c0c06]/65 px-3.5 py-2.5 text-[12px] leading-snug text-ares-text">
@@ -819,7 +830,10 @@ export default function LocationCard({
       </div>
 
       {/* Scrollable Card Body */}
-      <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-4 pb-4">
+      <div
+        key={feature.properties.id}
+        className="min-h-0 flex-1 space-y-3 overflow-y-auto px-4 pb-4"
+      >
         {/* NASA Viking Mosaic Banner */}
         <div className="relative h-[84px] w-full overflow-hidden rounded-none border border-ares-line bg-ares-raised">
           {showPreview ? (
@@ -879,6 +893,13 @@ export default function LocationCard({
           </div>
         </div>
 
+        )}
+
+        {environment?.hazard_coverage && !unavailable && (
+          <HazardCoverageCard
+            key={environment.preset_id}
+            coverage={environment.hazard_coverage}
+          />
         )}
 
         {/* Advantages & Risks (2 clean columns) */}
@@ -961,6 +982,10 @@ export default function LocationCard({
             <span>{isSaved ? "Location saved" : "Save location"}</span>
           </button>
         </div>
+
+        {environment?.radiation_context && !unavailable && (
+          <RadiationContextCard radiation={environment.radiation_context} />
+        )}
 
         {/* Location Features & Disclaimers (below primary actions for clean fold fit) */}
         <div className="space-y-3 border-t border-ares-line/60 pt-3">

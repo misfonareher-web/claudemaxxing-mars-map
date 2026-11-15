@@ -57,34 +57,34 @@ export default function BottomNavBar({
         : "Select Destination";
 
   return (
-    <div className="pointer-events-none fixed right-3 bottom-3 z-[1000] flex items-end sm:right-5">
-      <div className="pointer-events-auto relative flex items-center drop-shadow-[0_14px_34px_rgba(0,0,0,0.88)]">
+    <div className="pointer-events-none fixed right-3 bottom-3 z-[1000] flex max-w-[calc(100vw-24px)] items-end sm:right-5 sm:max-w-none">
+      <div className="pointer-events-auto relative flex w-full items-center drop-shadow-[0_14px_34px_rgba(0,0,0,0.88)] sm:w-auto">
         {/* Left Trajectory Info Box (top-left chamfer + nested right notch) */}
         <div
-          className="h-[64px] min-w-[286px] bg-[#f06423]/60 p-[1px] backdrop-blur-xl"
+          className="h-[64px] min-w-0 flex-1 bg-[#f06423]/60 p-[1px] backdrop-blur-xl sm:flex-none sm:min-w-[286px]"
           style={{
             clipPath:
               "polygon(14px 0, 100% 0, calc(100% - 16px) 50%, 100% 100%, 0 100%, 0 14px)",
           }}
         >
           <div
-            className="flex h-full w-full items-center gap-3.5 bg-gradient-to-r from-[#130905]/95 via-[#1c0d07]/95 to-[#241008]/95 pr-8 pl-4 shadow-[inset_0_0_24px_rgba(255,95,30,0.08)]"
+            className="flex h-full w-full items-center gap-2.5 bg-gradient-to-r from-[#130905]/95 via-[#1c0d07]/95 to-[#241008]/95 pr-6 pl-3 shadow-[inset_0_0_24px_rgba(255,95,30,0.08)] sm:gap-3.5 sm:pr-8 sm:pl-4"
             style={{
               clipPath:
                 "polygon(13.5px 0, calc(100% - 1px) 0, calc(100% - 16px) 50%, calc(100% - 1px) 100%, 0 100%, 0 13.5px)",
             }}
           >
             {/* Route Icon */}
-            <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-none border border-ares-accent/35 bg-ares-accent/10">
+            <div className="relative flex h-8 w-8 shrink-0 items-center justify-center rounded-none border border-ares-accent/35 bg-ares-accent/10 sm:h-10 sm:w-10">
               <AresRouteIcon
-                className={`h-5 w-5 text-ares-accent drop-shadow-[0_0_8px_rgba(255,107,43,0.75)] ${
+                className={`h-4 w-4 text-ares-accent drop-shadow-[0_0_8px_rgba(255,107,43,0.75)] sm:h-5 sm:w-5 ${
                   isRouteLoading ? "animate-pulse" : ""
                 }`}
               />
             </div>
 
             {/* Destination & Distance/Time */}
-            <div className="min-w-[184px] max-w-[290px]">
+            <div className="min-w-0 flex-1 sm:min-w-[184px] sm:max-w-[290px]">
               <div
                 className={`truncate text-xs font-medium tracking-wide ${
                   isUnreachable ? "text-rose-300" : "text-ares-mute"
@@ -134,7 +134,7 @@ export default function BottomNavBar({
           }}
         >
           <span
-            className={`flex h-full w-full items-center gap-3 px-8 text-[15px] font-semibold text-white ${
+            className={`flex h-full w-full items-center gap-1.5 px-4 text-[13px] font-semibold text-white sm:gap-3 sm:px-8 sm:text-[15px] ${
               hasTwoPoints
                 ? "bg-gradient-to-r from-[#4b1111] via-[#7c1919] to-[#a32222] shadow-[inset_0_1px_12px_rgba(255,160,160,0.24)]"
                 : "bg-gradient-to-r from-[#58210c] via-[#8b3413] to-[#b54418] shadow-[inset_0_1px_12px_rgba(255,190,140,0.26)]"

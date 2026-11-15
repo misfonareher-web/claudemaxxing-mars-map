@@ -63,27 +63,55 @@ export default function Header({
     ...(environment ? [
       { label: "MARS SOL", value: String(environment.sol_range[1]), icon: null },
       { label: weatherLabel, value: displayTemp,
-        icon: <AresSunIcon className="h-[19px] w-[19px] shrink-0 text-[#ff5514]" /> },
+        icon: <AresSunIcon className="h-4 w-4 shrink-0 text-[#ff5514] xl:h-[18px] xl:w-[18px]" /> },
     ] : []),
     { label: "MARTIAN TIME", value: mtcTime,
-      icon: <ClockIcon weight="duotone" className="h-[19px] w-[19px] shrink-0 text-[#ff5514]" /> },
+      icon: <ClockIcon weight="duotone" className="h-4 w-4 shrink-0 text-[#ff5514] xl:h-[18px] xl:w-[18px]" /> },
   ];
 
   // Responsive layout coordinates for the unified seamless HUD chassis
   const showTelemetry = width >= 1024;
   const showBrandSubtitle = width >= 640;
+  const hasWeather = Boolean(environment);
+  const isCompactMobile = width < 640;
+  const tabBevel = isCompactMobile ? 12 : 20;
+  const tabTopInset = isCompactMobile ? 4 : 8;
+  const tabBottomInset = isCompactMobile ? 4 : 6;
 
-  const leftEnd = width >= 1200 ? 314 : width >= 640 ? 294 : 186;
-  const leftBevelX = leftEnd - 28;
-  const rightW = showTelemetry ? (width >= 1320 ? 420 : 396) : 0;
+  const leftEnd =
+    width >= 1280
+      ? 304
+      : width >= 1024
+        ? 258
+        : width >= 640
+          ? 274
+          : Math.min(168, Math.round(width * 0.41));
+  const leftBevelX = leftEnd - (isCompactMobile ? 16 : 28);
+  const rightW = showTelemetry
+    ? hasWeather
+      ? width >= 1340
+        ? 508
+        : width >= 1200
+          ? 480
+          : 456
+      : width >= 1340
+        ? 228
+        : 216
+    : 0;
   const rightStart = showTelemetry ? width - rightW : width;
 
+  const minTabsLeft = leftEnd + tabBevel + (isCompactMobile ? 6 : 2);
   const tabsW =
-    width >= 1200 ? 316 : width >= 1024 ? 268 : width >= 640 ? 300 : 210;
-  const minTabsLeft = leftEnd + 22;
+    width >= 1280
+      ? 306
+      : width >= 1024
+        ? 236
+        : width >= 640
+          ? 290
+          : Math.max(146, Math.min(188, width - minTabsLeft - tabBevel - 4));
   const maxTabsLeft = showTelemetry
-    ? rightStart - tabsW - 44
-    : width - tabsW - 12;
+    ? rightStart - tabsW - (hasWeather ? 34 : 44)
+    : width - tabsW - tabBevel - (isCompactMobile ? 4 : 2);
   const idealTabsLeft = Math.round(width / 2 - tabsW / 2);
   const tabsLeft = Math.max(
     minTabsLeft,
@@ -98,10 +126,10 @@ export default function Header({
         `M 0 68`,
         `L ${leftBevelX} 68`,
         `L ${leftEnd} ${BRIDGE_Y}`,
-        `L ${tabsLeft - 20} ${BRIDGE_Y}`,
-        `L ${tabsLeft + 6} 64`,
-        `L ${tabsRight - 6} 64`,
-        `L ${tabsRight + 20} ${BRIDGE_Y}`,
+        `L ${tabsLeft - tabBevel} ${BRIDGE_Y}`,
+        `L ${tabsLeft + tabBottomInset} 64`,
+        `L ${tabsRight - tabBottomInset} 64`,
+        `L ${tabsRight + tabBevel} ${BRIDGE_Y}`,
         `L ${rightStart - 22} ${BRIDGE_Y}`,
         `L ${rightStart + 8} 66`,
         `L ${width - 14} 66`,
@@ -111,17 +139,17 @@ export default function Header({
         `M 0 68`,
         `L ${leftBevelX} 68`,
         `L ${leftEnd} ${BRIDGE_Y}`,
-        `L ${tabsLeft - 20} ${BRIDGE_Y}`,
-        `L ${tabsLeft + 6} 64`,
-        `L ${tabsRight - 6} 64`,
-        `L ${tabsRight + 20} ${BRIDGE_Y}`,
+        `L ${tabsLeft - tabBevel} ${BRIDGE_Y}`,
+        `L ${tabsLeft + tabBottomInset} 64`,
+        `L ${tabsRight - tabBottomInset} 64`,
+        `L ${tabsRight + tabBevel} ${BRIDGE_Y}`,
         `L ${width} ${BRIDGE_Y}`,
       ].join(" ");
 
   const shellFillPath = `${bottomContourPath} L ${width} 0 L 0 0 Z`;
 
   // Raised upper bezel outlines for center tabs & right capsule
-  const tabsTopOutline = `M ${tabsLeft - 20} ${BRIDGE_Y} L ${tabsLeft + 8} 10 L ${tabsRight - 8} 10 L ${tabsRight + 20} ${BRIDGE_Y}`;
+  const tabsTopOutline = `M ${tabsLeft - tabBevel} ${BRIDGE_Y} L ${tabsLeft + tabTopInset} 10 L ${tabsRight - tabTopInset} 10 L ${tabsRight + tabBevel} ${BRIDGE_Y}`;
   const tabsDividerLine = `M ${tabsMid + 11} 10 L ${tabsMid - 11} 64`;
   const rightTopOutline = showTelemetry
     ? `M ${rightStart - 22} ${BRIDGE_Y} L ${rightStart + 8} 10 L ${width - 16} 10 L ${width} 24`
@@ -129,13 +157,13 @@ export default function Header({
 
   const activeTabBgPath =
     activeTab === "map"
-      ? `M ${tabsLeft - 20} ${BRIDGE_Y} L ${tabsLeft + 8} 10 L ${tabsMid + 11} 10 L ${tabsMid - 11} 64 L ${tabsLeft + 6} 64 Z`
-      : `M ${tabsMid + 11} 10 L ${tabsRight - 8} 10 L ${tabsRight + 20} ${BRIDGE_Y} L ${tabsRight - 6} 64 L ${tabsMid - 11} 64 Z`;
+      ? `M ${tabsLeft - tabBevel} ${BRIDGE_Y} L ${tabsLeft + tabTopInset} 10 L ${tabsMid + 11} 10 L ${tabsMid - 11} 64 L ${tabsLeft + tabBottomInset} 64 Z`
+      : `M ${tabsMid + 11} 10 L ${tabsRight - tabTopInset} 10 L ${tabsRight + tabBevel} ${BRIDGE_Y} L ${tabsRight - tabBottomInset} 64 L ${tabsMid - 11} 64 Z`;
 
   const activeTabEdgeLine =
     activeTab === "map"
-      ? `M ${tabsLeft + 6} 64 L ${tabsMid - 11} 64`
-      : `M ${tabsMid - 11} 64 L ${tabsRight - 6} 64`;
+      ? `M ${tabsLeft + tabBottomInset} 64 L ${tabsMid - 11} 64`
+      : `M ${tabsMid - 11} 64 L ${tabsRight - tabBottomInset} 64`;
 
   return (
     <header
@@ -247,24 +275,24 @@ export default function Header({
 
       {/* LEFT BRAND ZONE */}
       <div
-        className="pointer-events-auto absolute left-0 top-0 flex h-[68px] items-center gap-2.5 pl-4 pr-3 sm:gap-3 sm:pl-6 sm:pr-4"
+        className="pointer-events-auto absolute left-0 top-0 flex h-[68px] items-center gap-2 pl-3 pr-2 sm:gap-3 sm:pl-6 sm:pr-4"
         style={{ width: leftBevelX }}
       >
         <Image
           src="/ares-logo.webp"
-          alt="AREOPATH Logo"
+          alt="AreoPath Logo"
           width={44}
           height={32}
           priority
-          className="h-7 w-auto shrink-0 object-contain sm:h-8 drop-shadow-[0_0_12px_rgba(255,82,24,0.75)]"
+          className="h-6 w-auto shrink-0 object-contain sm:h-8 drop-shadow-[0_0_12px_rgba(255,82,24,0.75)]"
         />
-        <div className="h-8 w-px shrink-0 bg-[#6e2f16]/65" />
+        <div className="h-6 w-px shrink-0 bg-[#6e2f16]/65 sm:h-8" />
         <div className="flex min-w-0 flex-col justify-center">
-          <span className="whitespace-nowrap text-[17px] font-bold leading-none tracking-[0.06em] text-[#ff561a] drop-shadow-[0_0_10px_rgba(255,86,26,0.4)] sm:text-[20px]">
-            AREOPATH
+          <span className="whitespace-nowrap text-[15px] font-bold leading-none tracking-[0.04em] text-[#ff561a] drop-shadow-[0_0_10px_rgba(255,86,26,0.4)] sm:text-[20px]">
+            AreoPath
           </span>
           {showBrandSubtitle && (
-            <span className="mt-1 truncate text-[12px] font-medium leading-none tracking-[0.01em] text-[#c2a89c]">
+            <span className="mt-1 truncate text-[11px] font-medium leading-none tracking-[0.01em] text-[#c2a89c] xl:text-[12px]">
               Martian Survival Guide
             </span>
           )}
@@ -280,17 +308,17 @@ export default function Header({
         <button
           type="button"
           onClick={() => onTabChange("map")}
-          className="group flex h-full w-1/2 cursor-pointer items-center justify-center gap-2 sm:gap-2.5 focus:outline-none"
+          className="group flex h-full w-1/2 cursor-pointer items-center justify-center gap-1.5 sm:gap-2.5 focus:outline-none"
         >
           <AresPinIcon
-            className={`h-5 w-5 shrink-0 transition-colors sm:h-6 sm:w-6 ${
+            className={`h-4 w-4 shrink-0 transition-colors sm:h-6 sm:w-6 ${
               activeTab === "map"
                 ? "text-[#ff5d1f] drop-shadow-[0_0_10px_rgba(255,93,31,0.85)]"
                 : "text-[#9c8176] group-hover:text-[#d9bfb2]"
             }`}
           />
           <span
-            className={`text-[15px] font-semibold tracking-wide transition-colors ${
+            className={`text-[13px] font-semibold tracking-wide transition-colors sm:text-[15px] ${
               activeTab === "map"
                 ? "text-white"
                 : "text-[#9c8176] group-hover:text-[#e6d1c6]"
@@ -303,17 +331,17 @@ export default function Header({
         <button
           type="button"
           onClick={() => onTabChange("settings")}
-          className="group flex h-full w-1/2 cursor-pointer items-center justify-center gap-2 sm:gap-2.5 focus:outline-none"
+          className="group flex h-full w-1/2 cursor-pointer items-center justify-center gap-1.5 sm:gap-2.5 focus:outline-none"
         >
           <AresGearIcon
-            className={`h-5 w-5 shrink-0 transition-colors sm:h-6 sm:w-6 ${
+            className={`h-4 w-4 shrink-0 transition-colors sm:h-6 sm:w-6 ${
               activeTab === "settings"
                 ? "text-[#ff5d1f] drop-shadow-[0_0_10px_rgba(255,93,31,0.85)]"
                 : "text-[#9c8176] group-hover:text-[#d9bfb2]"
             }`}
           />
           <span
-            className={`text-[15px] font-semibold tracking-wide transition-colors ${
+            className={`text-[13px] font-semibold tracking-wide transition-colors sm:text-[15px] ${
               activeTab === "settings"
                 ? "text-white"
                 : "text-[#9c8176] group-hover:text-[#e6d1c6]"
@@ -324,36 +352,49 @@ export default function Header({
         </button>
       </nav>
 
-      {/* RIGHT TELEMETRY CAPSULE (Mars planet removed per request) */}
+      {/* RIGHT TELEMETRY CAPSULE */}
       {showTelemetry && (
         <div
-          className="pointer-events-auto absolute right-0 top-[10px] flex h-[56px] items-center justify-between gap-3 pl-6 pr-4 xl:gap-4 xl:pl-7 xl:pr-5"
-          style={{ width: rightW - 8 }}
+          className="pointer-events-auto absolute top-[11px] flex h-[54px] items-center justify-between gap-2.5 xl:gap-3.5"
+          style={{ left: rightStart + 16, width: Math.max(0, rightW - 34) }}
         >
-          {telemetryItems.map((item) => (
-            <div key={item.label} className="flex min-w-0 items-center gap-2">
-              {item.icon}
-              <div className="flex flex-col leading-none">
-                <span className={item.label === weatherLabel
-                    ? "text-[9px] font-semibold tracking-[0.03em] text-[#a38b7f]"
-                    : "whitespace-nowrap text-[10px] font-semibold uppercase tracking-[0.07em] text-[#a38b7f]"}>
-                  {item.label}
-                </span>
-                <span className={`mt-1 whitespace-nowrap font-mono font-bold tabular-nums text-[#f7efe8] ${item.label === weatherLabel ? "text-[11px]" : "text-[15px]"}`}>
-                  {item.value}
-                </span>
+          {telemetryItems.map((item) => {
+            const isWeather = item.label === weatherLabel;
+            return (
+              <div key={item.label} className="flex shrink-0 items-center gap-1.5 xl:gap-2">
+                {item.icon}
+                <div className="flex flex-col leading-none">
+                  <span
+                    className={
+                      isWeather
+                        ? "whitespace-nowrap text-[8.5px] font-semibold tracking-[0.02em] text-[#a38b7f] xl:text-[9.5px]"
+                        : "whitespace-nowrap text-[9.5px] font-semibold uppercase tracking-[0.07em] text-[#a38b7f] xl:text-[10px]"
+                    }
+                  >
+                    {item.label}
+                  </span>
+                  <span
+                    className={`mt-1.5 whitespace-nowrap font-mono font-bold tabular-nums text-[#f7efe8] ${
+                      isWeather
+                        ? "text-[11px] xl:text-[12px]"
+                        : "text-[13.5px] xl:text-[15px]"
+                    }`}
+                  >
+                    {item.value}
+                  </span>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
 
           <button
             type="button"
             onClick={() => onTabChange("settings")}
             title="Open Mission Settings"
             aria-label="Open Mission Settings"
-            className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-none border border-[#943a18]/80 bg-[#1a0d08]/95 text-[#c7a394] transition-colors hover:border-[#ff5d1f] hover:text-white"
+            className="flex h-8 w-8 shrink-0 cursor-pointer items-center justify-center rounded-none border border-[#943a18]/80 bg-[#1a0d08]/95 text-[#c7a394] transition-colors hover:border-[#ff5d1f] hover:text-white xl:h-9 xl:w-9"
           >
-            <AresUserIcon className="h-5 w-5" />
+            <AresUserIcon className="h-4 w-4 xl:h-5 xl:w-5" />
           </button>
         </div>
       )}
