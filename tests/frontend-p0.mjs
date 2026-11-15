@@ -26,7 +26,7 @@ for (const extension of [".ts", ".tsx"]) {
     }).outputText, filename);
   };
 }
-const { scoreArbitraryPoint, computeMarsRoute } = require("../lib/backend-engine.ts");
+const { scoreArbitraryPoint, computeMarsRoute, scorePreset } = require("../lib/backend-engine.ts");
 const { pointUnavailable, NO_TERRAIN, NO_ROUTE } = require("../lib/terrain-availability.ts");
 const LocationCard = require("../components/LocationCard.tsx").default;
 const Header = require("../components/Header.tsx").default;
@@ -111,6 +111,31 @@ assert(!emptySections.includes("Advantages") && !emptySections.includes("Resourc
 const noWeather = renderToStaticMarkup(React.createElement(Header, { activeTab: "map" }));
 assert(!noWeather.includes("historical") && !noWeather.includes("Min ") && !noWeather.includes("Mars Sol"));
 console.log("PASS: global engine/card/route guards, both preset radius paths, supported labels, historical min/max weather.");
+
+// Python and TS engines agree cell by cell; derived steep_slope polygons are display-only
+// (the slope subscore already ramps 5-25 deg) and contributions include soft hazard multipliers.
+const { spawnSync } = await import("node:child_process");
+for (const preset of presets) {
+  const python = spawnSync(process.env.PYTHON ?? "python", ["-m", "scoring.cli", "score"], {
+    cwd: root, input: JSON.stringify({ preset: preset.id, profile: "balanced" }), encoding: "utf8", maxBuffer: 1 << 28 });
+  assert.equal(python.status, 0, python.error?.message ?? python.stderr);
+  const py = JSON.parse(python.stdout);
+  const tsScore = await scorePreset({ preset: preset.id, profile: "balanced" });
+  assert.equal(tsScore.meta.methodology_version, py.meta.methodology_version);
+  assert.equal(tsScore.features.length, py.features.length);
+  let steepCells = 0;
+  tsScore.features.forEach((f, i) => {
+    const p = f.properties;
+    assert.equal(p.score, py.features[i].properties.score, `${preset.id} ${p.cell_id}`);
+    if (p.hazard_ids.some(id => id.endsWith("-slope-2"))) steepCells += 1;
+    if (!p.excluded && p.hazard_ids.every(id => id.endsWith("-slope-2"))) {
+      const sum = Object.values(p.factors).reduce((s, x) => s + (x.contribution ?? 0), 0);
+      assert(Math.abs(sum - p.score) <= 0.51, `${preset.id} ${p.cell_id}: ${sum} vs ${p.score}`);
+    }
+  });
+  assert(steepCells > 0, `${preset.id} has steep_slope cells`);
+}
+console.log("PASS: Python and TS scores match on both presets; steep_slope polygons do not penalise.");
 
 // Exercise Explorer's request effects without a browser or additional test dependency.
 let stateIndex = 0;

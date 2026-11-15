@@ -81,6 +81,7 @@ interface ScoringWeightsConfig {
   hazard_rules: {
     exclude_severity_at_least: number;
     penalty_per_severity: number;
+    score_exempt_kinds?: string[];
   };
   route: { score_cost_factor: number; max_snap_km?: number | null };
 }
@@ -627,10 +628,13 @@ function computeGridState(
   }
 
   const hazards: { id: string; mask: Uint8Array; hard: boolean }[] = [];
+  const exemptKinds = new Set(cfg.hazard_rules.score_exempt_kinds ?? []);
   for (const feat of hazardFeatures) {
     const mask = new Uint8Array(total);
     const sev = feat.properties.severity ?? 1;
     const hard = sev >= cfg.hazard_rules.exclude_severity_at_least;
+    // Display-only kinds (e.g. steep_slope, already in the slope subscore) are not penalised again.
+    const exempt = exemptKinds.has(feat.properties.hazard_kind ?? "");
     const softMult = Math.max(0, 1 - cfg.hazard_rules.penalty_per_severity * sev);
 
     for (let i = 0; i < total; i++) {
@@ -639,8 +643,9 @@ function computeGridState(
         mask[i] = 1;
         if (hard) {
           excluded[i] = 1;
-        } else if (Number.isFinite(score[i])) {
+        } else if (!exempt && Number.isFinite(score[i])) {
           score[i] *= softMult;
+          for (const f of FACTORS) contributions[f][i] *= softMult;
         }
       }
     }

@@ -20,7 +20,7 @@
       "science": 0.286,
       "base_distance": 0.143
     },
-    "methodology_version": "0.2.0",
+    "methodology_version": "0.2.1",
     "label": "Conditional heuristic EVA suitability index (0\u2013100)",
     "disclaimers": [
       "The 0\u2013100 index is a conditional heuristic methodology for comparison, not a safety certification or a validated model.",
@@ -52,7 +52,7 @@
     "stats": {
       "min": 0,
       "max": 96,
-      "mean": 23.607,
+      "mean": 24.288,
       "excluded_cells": 2548
     },
     "generated_at": "2026-11-14T17:38:07Z"

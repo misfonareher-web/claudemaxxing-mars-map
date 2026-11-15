@@ -13,7 +13,7 @@ Actual displayed API values, captured 15 Nov 2026, approximately 15:13 UTC / 17:
 | Bradbury Landing | 137.4417, −4.5895 | r11c31 | 137.442308, −4.588462 |
 | Pahrump Hills | 137.3775, −4.6627 | r21c23 | 137.380769, −4.665385 |
 
-Each entry below is **input / API subscore / API contribution**. Contributions are pre-hazard score points.
+Each entry below is **input / API subscore / API contribution**. Contributions are pre-hazard score points (as captured at 0.2.0; from methodology 0.2.1 the live API scales contributions by M, so Pahrump's live points sum to ≈61.1, and the point card shows the pre-hazard total).
 
 | Factor (units) | Weight | Bradbury: input / s / contribution | Pahrump: input / s / contribution |
 |---|---:|---:|---:|

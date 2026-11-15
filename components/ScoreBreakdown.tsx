@@ -39,6 +39,9 @@ const UNIT_LABELS: Record<string, string> = {
 
 const PENALTY_PER_SEVERITY: number =
   scoringWeights.hazard_rules.penalty_per_severity;
+// Display-only hazard kinds (steep_slope is already in the slope subscore).
+const SCORE_EXEMPT_KINDS: string[] =
+  scoringWeights.hazard_rules.score_exempt_kinds ?? [];
 
 function fmt(v: number | null | undefined, digits: number): string {
   return typeof v === "number" && Number.isFinite(v) ? v.toFixed(digits) : "—";
@@ -72,9 +75,8 @@ export default function ScoreBreakdown({
     key: k,
     ...factors[k],
   }));
-  const summedPre = rows.reduce((sum, r) => sum + (r.contribution ?? 0), 0);
-  const preHazard =
-    typeof pre_hazard_score === "number" ? pre_hazard_score : summedPre;
+  // Points already include the hazard multiplier, so Σ points = score.
+  const summedPoints = rows.reduce((sum, r) => sum + (r.contribution ?? 0), 0);
 
   const hazardName = (id: string) => {
     const feat = allFeatures.find(
@@ -99,16 +101,27 @@ export default function ScoreBreakdown({
           (f) => f.properties.kind === "hazard" && f.properties.id === id
         );
         const severity = feat?.properties.severity ?? 1;
+        const exempt = SCORE_EXEMPT_KINDS.includes(
+          feat?.properties.hazard_kind ?? ""
+        );
         return {
           id,
           name: hazardName(id),
-          multiplier: Math.max(0, 1 - PENALTY_PER_SEVERITY * severity),
+          multiplier: exempt
+            ? 1
+            : Math.max(0, 1 - PENALTY_PER_SEVERITY * severity),
         };
       });
   const multiplier =
     typeof hazard_multiplier === "number"
       ? hazard_multiplier
       : hazards.reduce((m, h) => m * h.multiplier, 1);
+  const preHazard =
+    typeof pre_hazard_score === "number"
+      ? pre_hazard_score
+      : multiplier > 0
+        ? summedPoints / multiplier
+        : summedPoints;
   const penaltyNames = hazards
     .filter((h) => h.multiplier < 1)
     .map((h) => h.name)
@@ -187,9 +200,9 @@ export default function ScoreBreakdown({
         )}
       </p>
       <p className="mt-1 text-[10px] leading-snug text-ares-mute">
-        Points = 100 × weight × subscore; pre-hazard score = Σ points; final =
-        round(pre-hazard × hazard multiplier). Context factors are shown but
-        weighted 0.
+        Pre-hazard score = Σ (100 × weight × subscore); final = round(pre-hazard
+        × hazard multiplier). Points shown already include the multiplier, so
+        they add up to the score. Context factors are shown but weighted 0.
         {partial &&
           " This display cell averages several grid cells and a hazard covers only part of it, so the product is only an estimate; the API score is the cell average."}
       </p>

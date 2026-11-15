@@ -53,6 +53,7 @@ def load():
         assert params['thermal'].get('mode') in ('prefer_high','prefer_low')
         assert config['hazard_rules']['exclude_severity_at_least'] > 0
         assert 0 <= config['hazard_rules']['penalty_per_severity'] <= 1
+        assert all(isinstance(k, str) for k in config['hazard_rules'].get('score_exempt_kinds', []))
         assert math.isfinite(config.get('route',{}).get('score_cost_factor',2.0)) and config.get('route',{}).get('score_cost_factor',2.0) >= 0
         max_snap = config.get('route', {}).get('max_snap_km')
         assert max_snap is None or (not isinstance(max_snap, bool) and isinstance(max_snap, (int, float)) and math.isfinite(max_snap) and max_snap >= 0)

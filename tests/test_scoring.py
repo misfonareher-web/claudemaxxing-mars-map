@@ -93,7 +93,7 @@ class ScoringTests(unittest.TestCase):
                 self.assertEqual(w['ice'], 0)
                 self.assertEqual(w['thermal'], 0)
                 result = cli.execute('score', dict(preset='jezero', profile=profile))
-                self.assertEqual(result['meta']['methodology_version'], '0.2.0')
+                self.assertEqual(result['meta']['methodology_version'], '0.2.1')
                 for feature in result['features']:
                     for name in ('ice', 'thermal'):
                         factor = feature['properties']['factors'][name]
@@ -204,6 +204,42 @@ class ScoringTests(unittest.TestCase):
         path.write_text(json.dumps(dict(features=[hazard])))
         result = cli.execute('score',{'preset':'jezero'})
         self.assertIn('hazard:hz-test',result['features'][0]['properties']['exclusion_reasons'])
+
+    def test_steep_slope_hazard_exempt(self):
+        baseline = [f['properties']['score'] for f in cli.execute('score',{'preset':'jezero'})['features']]
+        w,s,e,n = self.preset['bbox']
+        path = self.root/'data/hazards.geojson'
+        for kind,factor in (('steep_slope',1),('sand_dunes',.7)):
+            with self.subTest(kind=kind):
+                hazard = dict(type='Feature',geometry=dict(type='Polygon',coordinates=[[[w,s],[e,s],[e,n],[w,n],[w,s]]]),properties=dict(id='hz-'+kind,preset_ids=['jezero'],dataset_id='fixture',severity=2,hazard_kind=kind,derived=True))
+                path.write_text(json.dumps(dict(features=[hazard])))
+                for f,before in zip(cli.execute('score',{'preset':'jezero'})['features'],baseline):
+                    p = f['properties']
+                    self.assertIn('hz-'+kind,p['hazard_ids'])
+                    self.assertFalse(p['excluded'])
+                    if factor == 1: self.assertEqual(p['score'],before)
+                    else: self.assertLessEqual(abs(p['score']-before*factor),1)
+                    self.assertLessEqual(abs(sum(v['contribution'] for v in p['factors'].values())-p['score']),.51)
+
+    def test_real_steep_slope_polygons_do_not_change_score(self):
+        cfg = json.loads((REPO/'config/scoring_weights.json').read_text())
+        w = config.weights(cfg['profiles']['balanced']['weights'])
+        real = lambda path: json.loads(Path(path).read_text(encoding='utf-8'))
+        without = lambda path: (lambda d: dict(d,features=[f for f in d['features'] if f['properties'].get('hazard_kind')!='steep_slope']))(real(path))
+        for preset in json.loads((REPO/'config/mission_presets.json').read_text())['presets']:
+            if not (REPO/'data/grids'/preset['id']/'manifest.json').exists(): continue
+            with self.subTest(preset=preset['id']):
+                with patch.object(index,'read',real):
+                    state = index.compute(REPO,preset,cfg,w)
+                with patch.object(index,'read',without):
+                    plain = index.compute(REPO,preset,cfg,w)
+                self.assertTrue(any(ident.endswith('-slope-2') and mask.any() for ident,mask,_ in state['hazards']))
+                np.testing.assert_array_equal(state['score'],plain['score'])
+                lenient = dict(cfg,hazard_rules=dict(cfg['hazard_rules'],score_exempt_kinds=['steep_slope','sand_dunes']))
+                with patch.object(index,'read',real):
+                    self.assertTrue((index.compute(REPO,preset,lenient,w)['score']>state['score']).any())
+                ok = np.isfinite(state['score'])&~state['excluded']
+                np.testing.assert_allclose(sum(state['contributions'].values())[ok],state['score'][ok],atol=1e-9)
 
     def test_point_and_missing_data(self):
         b = self.preset['base_point']
