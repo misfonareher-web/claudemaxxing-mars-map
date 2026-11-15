@@ -43,6 +43,7 @@ import {
 import { formatCoord, getVikingTilePreview } from "@/lib/mars-time";
 import { NO_TERRAIN, NO_ROUTE, terrainPreset, pointUnavailable } from "@/lib/terrain-availability";
 import ScoreRing from "@/components/ScoreRing";
+import ScoreBreakdown from "@/components/ScoreBreakdown";
 import {
   HazardCoverageCard,
   RadiationContextCard,
@@ -938,6 +939,14 @@ export default function LocationCard({
           </div>
         </div>
 
+        )}
+
+        {!unavailable && backendScore && activeScore !== null && (
+          <ScoreBreakdown
+            key={`breakdown-${feature.properties.id}`}
+            backendScore={backendScore}
+            allFeatures={allFeatures}
+          />
         )}
 
         {environment?.hazard_coverage && !unavailable && (
