@@ -9,7 +9,7 @@ ROOT = Path(__file__).resolve().parents[2]
 def test_environment_files_carry_current_context():
     for preset in ('jezero', 'gale'):
         env = json.loads((ROOT / 'data/environment' / f'{preset}.json').read_text(encoding='utf-8'))
-        assert {k: env[k] for k in ('radiation_context', 'hazard_coverage')} == context.for_preset(preset)
+        assert {k: env[k] for k in context.for_preset(preset)} == context.for_preset(preset)
 
 
 def test_radiation_card_is_gale_only_context():

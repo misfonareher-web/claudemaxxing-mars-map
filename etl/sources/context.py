@@ -1,11 +1,13 @@
 """Curated context cards attached to each preset's environment JSON.
 
-Nothing here enters the 0-100 score. Two blocks are added to data/environment/<preset>.json
+Nothing here enters the 0-100 score. Context blocks are added to data/environment/<preset>.json
 (served unchanged by GET /api/environment?preset=<id>):
 
 - radiation_context: one historical MSL RAD surface dose figure from Gale crater, with its
   place, period and caveats. It is not a Jezero measurement and not a safety limit.
 - hazard_coverage: which hazard classes the model actually assesses and which it does not.
+- dust_season_context: seasonal literature context, without opacity data or forecasts.
+- ice_isru_context: regional ice evidence, without local water or extractability claims.
 """
 
 RAD_PAPER = 'https://doi.org/10.1126/science.1244797'
@@ -81,5 +83,79 @@ def radiation_context(preset_id):
     return card
 
 
+DUST_SOURCES = [
+    dict(label='NASA Ames: regional dust storm season', url='https://ntrs.nasa.gov/citations/20230015679'),
+    dict(label='NASA: The 2001 Great Dust Storms', url='https://science.nasa.gov/photojournal/the-2001-great-dust-storms-tharsis/'),
+    dict(label='NASA: Dusty Differences Between Mars and Earth', url='https://science.nasa.gov/earth/earth-observatory/dusty-differences-between-mars-and-earth-149926/'),
+]
+ICE_SOURCES = [
+    dict(label='Morgan et al. 2021, Nature Astronomy (SWIM)', url='https://doi.org/10.1038/s41550-020-01290-z',
+         manuscript_url='https://ntrs.nasa.gov/api/citations/20205008958/downloads/Morgan_etal_NA_Perspective_NATASTRON_19122833C%20.pdf'),
+    dict(label='NASA/JPL SWIM map, PIA26045', url='https://science.nasa.gov/photojournal/swim-map-shows-subsurface-water-ice-on-mars/'),
+    dict(label='Mellon et al. 2009: Phoenix ground ice', url='https://agupubs.onlinelibrary.wiley.com/doi/full/10.1029/2009JE003417'),
+    dict(label='Dundas et al. 2018, Science', url='https://doi.org/10.1126/science.aao1619',
+         abstract_url='https://www.usgs.gov/publications/exposed-subsurface-ice-sheets-martian-mid-latitudes'),
+    dict(label='Stuurman et al. 2016, GRL (SHARAD)', url='https://agupubs.onlinelibrary.wiley.com/doi/full/10.1002/2016GL070138'),
+]
+
+PROVENANCE_DUST = dict(
+    dataset_id='dust_season_literature', title='Mars dust storm seasonal context',
+    mission='NASA Mars observations', instrument='Literature synthesis', data_type='context',
+    source_url='; '.join(s['url'] for s in DUST_SOURCES),
+    temporal_coverage='Seasonal climatology; historical global events in 2001, 2007 and 2018',
+    spatial_coverage='Mars, global and regional storms', resolution='Seasonal context only',
+    units='degrees solar longitude (Ls)', format='Cited literature summary; no opacity data ingested',
+    processing='Summarize southern spring-summer storm season, roughly Ls 180-360, and intermittent planet-encircling events.',
+    limitations=['No dust opacity (tau) data are ingested; this is seasonal context only, not a forecast and not part of the score.',
+                 'Not a local storm probability, warning or route hazard assessment.'],
+    license='Citation only (NASA publications)', synthetic=False, used_for=['dust season context card'])
+
+PROVENANCE_ICE_ISRU = dict(
+    dataset_id='ice_isru_literature', title='Mars regional water ice and ISRU context',
+    mission='SWIM / Phoenix / Mars Reconnaissance Orbiter', instrument='Orbital synthesis / robotic arm / HiRISE / SHARAD',
+    data_type='context', source_url='; '.join(url for s in ICE_SOURCES for key, url in s.items() if key.endswith('url')),
+    temporal_coverage='Published evidence: Phoenix 2009; Stuurman 2016; Dundas 2018; Morgan 2021; SWIM map 2023',
+    spatial_coverage='Mid/high latitudes: SWIM northern plains, Phoenix (~68 N), ice scarps and Utopia Planitia',
+    resolution='Regional literature context, not a local ice map', units='degrees latitude',
+    format='Cited literature summary; no SWIM raster or ice deposit geometry ingested',
+    processing=('Summarize SWIM, Phoenix excavation, exposed ice scarps and SHARAD evidence. '
+                'Compare rounded preset latitudes (Jezero ~18 N, Gale ~5 S) with Morgan et al. ice-bearing features near 35 N; '
+                'latitude separation is not distance to a deposit or a universal ice boundary.'),
+    limitations=['Project ice layer contains generalized latitude bands and a regional neutron proxy, not local ice.',
+                 'Nothing here indicates extractable water at Jezero or Gale; no yield, purity, depth or engineering feasibility is inferred.',
+                 'Context card is not part of the score; underlying ice proxy scoring is unchanged.'],
+    license='Citation only (peer-reviewed articles and NASA map)', synthetic=False, used_for=['ice ISRU context card'])
+
+
+def dust_season_context():
+    return dict(
+        dataset_id='dust_season_literature', title='Dust storm season (context)',
+        summary=('Global and regional dust storms are most common in southern spring-summer, roughly Ls 180-360 degrees. '
+                 'Planet-encircling storms occur in some Mars years, not every year (e.g. 2001, 2007, 2018).'),
+        sources=[dict(s) for s in DUST_SOURCES],
+        caveat='No dust opacity (tau) data are ingested; this is seasonal context only, not a forecast and not part of the score.',
+        in_score=False,
+    )
+
+
+def ice_isru_context(preset_id):
+    card = dict(
+        dataset_id='ice_isru_literature', title='Water ice / ISRU (regional context)',
+        summary=('SWIM maps likely buried ice in the northern mid-latitudes. Phoenix excavated near-surface ice at ~68 N; '
+                 'Dundas et al. mapped exposed mid-latitude ice scarps; Stuurman et al. found SHARAD evidence for buried ice in Utopia Planitia.'),
+        sources=[dict(s) for s in ICE_SOURCES],
+        caveat=('The project ice layer is regional context only: latitude bands and a regional neutron proxy, not local ice. '
+                'Nothing here indicates extractable water at Jezero or Gale. This card is not part of the score.'),
+        in_score=False,
+    )
+    if preset_id in ('jezero', 'gale'):
+        card['site_note'] = {
+            'jezero': 'Jezero (~18 N) is about 17 degrees of latitude south of the ~35 N ice-bearing features reported by SWIM, far from these mid/high-latitude deposits.',
+            'gale': 'Gale (~5 S) is about 40 degrees of latitude south of the ~35 N ice-bearing features reported by SWIM, far from these mid/high-latitude deposits.',
+        }[preset_id]
+    return card
+
+
 def for_preset(preset_id):
-    return dict(radiation_context=radiation_context(preset_id), hazard_coverage=hazard_coverage(preset_id))
+    return dict(radiation_context=radiation_context(preset_id), hazard_coverage=hazard_coverage(preset_id),
+                dust_season_context=dust_season_context(), ice_isru_context=ice_isru_context(preset_id))
