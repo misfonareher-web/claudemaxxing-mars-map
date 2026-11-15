@@ -324,6 +324,31 @@
         "approximate scoring penalty"
       ],
       "access_date": "2026-11-14"
+    },
+    {
+      "dataset_id": "jpl_horizons_relay_passes",
+      "title": "Predicted orbiter visibility and Earth–Mars light time",
+      "mission": "MRO / ESA TGO / Mars Odyssey",
+      "instrument": "JPL Horizons orbit ephemerides",
+      "data_type": "communications_geometry",
+      "source_url": "https://ssd.jpl.nasa.gov/api/horizons.api",
+      "temporal_coverage": "Passes: 2026-11-15 to 2026-11-23 UTC; light time: 2026-11-14 to 2026-12-31 UTC",
+      "spatial_coverage": "Jezero and Gale preset base points; Earth geocenter to Mars center",
+      "resolution": "1 minute pass samples; daily light time",
+      "units": "UTC, minutes, degrees, km",
+      "format": "JSON",
+      "processing": "Topocentric elevation >=10 degrees; contiguous samples, no interpolation; distance = light time * c.",
+      "limitations": [
+        "Predicted line-of-sight windows from JPL Horizons orbit ephemerides (elevation >= 10 deg). Not the operational relay schedule: real sessions are planned by mission teams and depend on DSN and orbiter availability.",
+        "MAVEN excluded: prediction coverage ends March 2026.",
+        "Pass endpoints quantized to one minute; boundary passes may be clipped."
+      ],
+      "license": "JPL Horizons public ephemerides",
+      "synthetic": false,
+      "used_for": [
+        "communications context"
+      ],
+      "access_date": "2026-11-15"
     }
   ]
 }

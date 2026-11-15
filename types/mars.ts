@@ -325,3 +325,20 @@ export interface BackendRouteResponse {
   }[];
 }
 
+
+export interface RelayPass {
+  orbiter: string;
+  start: string;
+  end: string;
+  duration_min: number;
+  max_elevation_deg: number;
+  time_of_max: string;
+}
+
+export interface RelaySchedule {
+  generated_at_utc: string;
+  window: { start: string; end: string };
+  sites: Record<string, { name: string; passes: RelayPass[] }>;
+  daily_light_time: { date: string; one_way_min: number; distance_km: number }[];
+  caveat: string;
+}
