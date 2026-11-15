@@ -11,7 +11,9 @@ ROOT = Path(__file__).resolve().parents[2]
 def test_committed_missions_match_catalog(tmp_path):
     output = tmp_path / 'missions.json'
     write_json(output, dict(version=1, missions=catalog.MISSIONS))
-    assert output.read_bytes() == (ROOT / 'data/missions.json').read_bytes()
+    # Compare text with normalised newlines: write_text emits CRLF on Windows.
+    norm = lambda b: b.replace(b'\r\n', b'\n')
+    assert norm(output.read_bytes()) == norm((ROOT / 'data/missions.json').read_bytes())
     assert len(catalog.MISSIONS) == 13
     assert len({m['id'] for m in catalog.MISSIONS}) == 13
 
