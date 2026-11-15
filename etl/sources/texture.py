@@ -8,7 +8,7 @@ PROVENANCE = dict(dataset_id='trek_mola_globe', title='Mars Trek MOLA color shad
 BASEMAP_PROVENANCE = dict(PROVENANCE, dataset_id='trek_mola_clrshade',
     title='Mars Trek MOLA ClrShade WMTS basemap', data_type='basemap',
     resolution='463 m source product; WMTS zoom levels 0-7', format='WMTS JPEG tiles',
-    processing='Mars Trek color shaded relief tiles served directly to the map; no ARES stitching or resampling.',
+    processing='Mars Trek color shaded relief tiles served directly to the map; no AreoPath stitching or resampling.',
     used_for=['map basemap'])
 
 

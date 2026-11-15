@@ -189,7 +189,7 @@
       "resolution": "463 m source product; WMTS zoom levels 0-7",
       "units": "rendered RGB",
       "format": "WMTS JPEG tiles",
-      "processing": "Mars Trek color shaded relief tiles served directly to the map; no ARES stitching or resampling.",
+      "processing": "Mars Trek color shaded relief tiles served directly to the map; no AreoPath stitching or resampling.",
       "limitations": [
         "Color encodes elevation and shaded relief; not true-color surface imagery."
       ],
@@ -291,7 +291,7 @@
         "Includes internal bedrock gaps and adjoining dune tongues; not continuous sand or an exact named-region boundary.",
         "Not for navigation. Absence of a mapped hazard does not mean the terrain is safe."
       ],
-      "license": "Open access article CC BY 4.0; derived from its published GIS supplement with attribution to Stack et al. (2020).",
+      "license": "Open access article, CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/); geometry derived from its published GIS supplement (units selected, dissolved, simplified, reprojected by the team) with attribution to Stack et al. (2020).",
       "synthetic": false,
       "used_for": [
         "hazard overlay",

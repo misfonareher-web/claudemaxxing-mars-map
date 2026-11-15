@@ -121,4 +121,4 @@ The production input is `../../../etl/sources/hazard_outlines.geojson`; the ETL 
 
 ## Scoring use
 
-ARES uses this outline as an approximate scoring penalty, not a navigation boundary. Severity 2 receives the configured hazard penalty (currently a multiplier of 0.70). The uncertainty and included bedrock gaps described above still apply.
+AreoPath uses this outline as an approximate scoring penalty, not a navigation boundary. Severity 2 receives the configured hazard penalty (currently a multiplier of 0.70). The uncertainty and included bedrock gaps described above still apply.
