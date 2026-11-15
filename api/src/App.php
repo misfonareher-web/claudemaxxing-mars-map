@@ -67,7 +67,7 @@ function dispatch(string $method,string $path,array $q): array {
  }
  $cmd=match([$method,$path]) { ['GET','/api/score']=>'score',['GET','/api/score/point']=>'point',['POST','/api/route']=>'route',default=>throw new ApiError(404,'Unknown route') };
  $v=validate($q,$cmd); $c=$cmd==='score'?db():null;
- $files=array_merge(glob(root().'/config/*.json'),[root().'/data/grids/'.$v['preset'].'/manifest.json']);
+ $files=array_merge(glob(root().'/config/*.json'),glob(root().'/scoring/*.py'),[root().'/data/grids/'.$v['preset'].'/manifest.json']); // scoring code is part of the key so a deploy invalidates cached grids
  $key=hash('sha256',json_encode([$v,array_map(fn($f)=>is_file($f)?filemtime($f):null,$files)]));
  if($c) try { $s=$c->prepare('SELECT payload FROM score_cache WHERE cache_key=?'); $s->execute([$key]); if($hit=$s->fetchColumn()) return json_decode($hit,true); } catch(Throwable $e) { $c=null; }
  $result=scoring($cmd,$v);
