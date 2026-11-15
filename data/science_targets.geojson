@@ -76,7 +76,7 @@
           "gale"
         ],
         "confidence": "high",
-        "caveat": "Sol-753 rover end-of-drive position at Pahrump Hills arrival, rounded to four decimals from NASA MSL waypoints; a rover position, not the full outcrop extent. Not for navigation.",
+        "caveat": "Sol-753 rover end-of-drive position at Pahrump Hills arrival, rounded to four decimals from NASA MSL waypoints; a rover position, not the full outcrop extent. Not for navigation. The point lies about 0.19 km outside the generalized Bagnold Dunes envelope, but the centre of its ~460 m score cell lies just inside it, so the cell carries the dune penalty (score x0.70). This comes from grid resolution and the 200-500 m outline uncertainty; it does not mean the outcrop is dune-covered.",
         "source_ref": "https://mars.nasa.gov/mmgis-maps/MSL/Layers/json/MSL_waypoints.json",
         "synthetic": false,
         "priority": 1,

@@ -40,7 +40,9 @@ SCIENCE_TARGETS = {
                          'Approximate position from NASA context imagery (https://science.nasa.gov/photojournal/flight-12-view-of-south-seitah/); Liu et al. (2022) identify Seitah as an olivine-rich igneous cumulate crater-floor unit, separate from the delta/lake deposits. Verify position against the Perseverance traverse map.',
                          'Olivine-rich igneous cumulate rocks of the crater floor, distinct from delta/lake sediments'),
     'st-gale-pahrump-hills': ('Pahrump Hills (base of Mount Sharp)', 137.3775, -4.6627, 'high', 'https://mars.nasa.gov/mmgis-maps/MSL/Layers/json/MSL_waypoints.json',
-                              'Sol-753 rover end-of-drive position at Pahrump Hills arrival, rounded to four decimals from NASA MSL waypoints; a rover position, not the full outcrop extent. Not for navigation.',
+                              'Sol-753 rover end-of-drive position at Pahrump Hills arrival, rounded to four decimals from NASA MSL waypoints; a rover position, not the full outcrop extent. Not for navigation. '
+                              'The point lies about 0.19 km outside the generalized Bagnold Dunes envelope, but the centre of its ~460 m score cell lies just inside it, so the cell carries the dune penalty (score x0.70). '
+                              'This comes from grid resolution and the 200-500 m outline uncertainty; it does not mean the outcrop is dune-covered.',
                               'Murray formation mudstones at the base of Mount Sharp (ancient lake deposits)'),
 }
 

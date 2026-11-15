@@ -20,12 +20,13 @@ ARES uses NASA measurements and cartographic products plus cited literature and 
 | `config/mission_presets.json` | Presets (Jezero / Perseverance, Gale / Curiosity): bbox, center, zoom, base point, science targets | Region selector, initial view |
 | `data/grids/<preset>/manifest.json` + `*.npy` | float32 grids over the preset bbox (row 0 = north, col 0 = west): `elevation_m`, `slope_deg`, `roughness_m`, `thermal_index` (0–1), `ice_index` (0–1) | Pathfinding (A* on slope/elevation), heatmaps |
 | `data/landing_sites.geojson` | 10 landing sites (Viking 1/2, Pathfinder, Spirit, Opportunity, Phoenix, Curiosity, InSight, Perseverance, Zhurong), each with `source_ref` | Map markers |
-| `data/missions.json` | 12 missions: dates, instruments, key results with source links, `landing_site_id` | DB table "previous missions", info cards |
+| `data/missions.json` | 12 missions: dates, instruments, key results with source links, `landing_site_id` | Static file for mission info cards (no API endpoint or DB table yet; the frontend reads the file) |
 | `data/science_targets.geojson` | EVA science targets per preset | Route destinations |
 | `data/hazards.geojson` | MOLA steep-slope zones (severity 2/3; `hazard_kind: steep_slope`) plus two cited sand-dune outlines (severity 2; `hazard_kind: sand_dunes`) | Hazard overlay |
 | `data/ice.geojson` | Regional neutron-spectrometer ice proxy per preset + global ice context (Odyssey GRS, ice scarps, polar cap, Phoenix) | Ice overlay |
 | `data/environment/jezero.json` | Mars 2020 **MEDA**: 49 sampled sols (10–1846): air temp min/max + local time, pressure, humidity | Atmosphere charts |
 | `data/environment/gale.json` | MSL **REMS**: 49 sampled sols (10–4810): air temp, ground temp (max), pressure, humidity | Atmosphere charts |
+| `data/environment/*.json` → `radiation_context`, `hazard_coverage` | Historical MSL RAD dose in Gale (0.64 ± 0.12 mSv/day, Aug 2012–Jun 2013, Hassler et al. 2014; context only, not in the score) and the list of assessed vs. not-assessed hazards (`etl/sources/context.py`) | Radiation card, hazard coverage panel (`GET /api/environment?preset=`) |
 | `data/textures/mars_global_2k.jpg` | 2048×1024 equirectangular MOLA relief, lon -180..180 | Globe / sphere mode |
 | `data/provenance.json`, `docs/DATA_PROVENANCE.md` | Source, mission, instrument, date, coverage, resolution, units, format, processing, limitations for every dataset | Credits / submission |
 | `contracts/*.example.*` | Small example payloads of the formats above | Parser tests |
