@@ -25,7 +25,7 @@ import {
 } from "@/lib/mars-scoring";
 import { getSafePresetZoom } from "@/lib/mars-layers";
 import { formatCoord } from "@/lib/mars-time";
-import { NO_ROUTE, pointUnavailable } from "@/lib/terrain-availability";
+import { pointUnavailable } from "@/lib/terrain-availability";
 import Header from "@/components/Header";
 import LayersPanel from "@/components/LayersPanel";
 import LocationCard, { type RouteSlot } from "@/components/LocationCard";
@@ -197,9 +197,9 @@ export default function MarsExplorer({
   }, [selectedFeature, presets]);
 
   const currentScoreKey = useMemo(() => {
-    if (!selectedFeature) return null;
+    if (!selectedFeature || !selectedPointPreset) return null;
     const [lon, lat] = getCentroid(selectedFeature);
-    const presetPart = selectedPointPreset?.id ?? "global";
+    const presetPart = selectedPointPreset.id;
     return `${lon.toFixed(5)}:${lat.toFixed(5)}:${presetPart}:${scoringProfile}`;
   }, [selectedFeature, selectedPointPreset, scoringProfile]);
 
@@ -232,10 +232,10 @@ export default function MarsExplorer({
     routePresets.presetA.id === routePresets.presetB.id
       ? routePresets.presetA
       : null;
-  const activeRoutePresetId = activeRoutePreset?.id ?? "global";
+  const activeRoutePresetId = activeRoutePreset?.id;
 
   const currentRouteKey = useMemo(() => {
-    if (!routePointA || !routePointB) return null;
+    if (!routePointA || !routePointB || !activeRoutePresetId) return null;
     const [fromLon, fromLat] = getCentroid(routePointA);
     const [toLon, toLat] = getCentroid(routePointB);
     return `${fromLon.toFixed(5)},${fromLat.toFixed(5)}->${toLon.toFixed(5)},${toLat.toFixed(5)}:${activeRoutePresetId}:${scoringProfile}`;
@@ -278,10 +278,11 @@ export default function MarsExplorer({
       candidates.map(async (feature) => {
         const [lon, lat] = getCentroid(feature);
         const preset = findPresetForPoint(lon, lat, presets);
+        if (!preset) return null;
         const params = new URLSearchParams({
           lon: String(lon),
           lat: String(lat),
-          preset: preset?.id ?? "global",
+          preset: preset.id,
           profile: scoringProfile,
         });
         const res = await fetch(
@@ -314,7 +315,7 @@ export default function MarsExplorer({
 
   // Fetch backend point score whenever selectedFeature or scoringProfile changes
   useEffect(() => {
-    if (!selectedFeature || !currentScoreKey) return;
+    if (!selectedFeature || !selectedPointPreset || !currentScoreKey) return;
 
     const featureId = selectedFeature.properties.id;
     const [lon, lat] = getCentroid(selectedFeature);
@@ -322,7 +323,7 @@ export default function MarsExplorer({
     const params = new URLSearchParams({
       lon: String(lon),
       lat: String(lat),
-      preset: selectedPointPreset?.id ?? "global",
+      preset: selectedPointPreset.id,
       profile: scoringProfile,
     });
 
@@ -368,7 +369,7 @@ export default function MarsExplorer({
 
   // Fetch backend route whenever both Point A and Point B are set
   useEffect(() => {
-    if (!routePointA || !routePointB || !currentRouteKey) {
+    if (!routePointA || !routePointB || !activeRoutePresetId || !currentRouteKey) {
       return;
     }
 
@@ -410,14 +411,6 @@ export default function MarsExplorer({
             message: "Empty route response",
           });
           return;
-        }
-        if (activeRoutePresetId === "global") {
-          firstFeature.geometry = null;
-          firstFeature.properties = {
-            distance_km: null, elevation_gain_m: null, elevation_loss_m: null,
-            max_slope_deg: null, mean_score: null, steps: 0, reachable: false,
-            unreachable_reason: "terrain_unavailable", message: NO_ROUTE,
-          };
         }
         setRouteErrorState(null);
         setRouteCache({

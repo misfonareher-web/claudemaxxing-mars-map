@@ -95,3 +95,18 @@ body {
     animation: none;
   }
 }
+
+/* Label on the dashed terrain-grid box (MarsMap) */
+.leaflet-tooltip.terrain-grid-label {
+  background: rgba(20, 14, 11, 0.85);
+  border: 1px solid rgba(255, 140, 74, 0.55);
+  border-radius: 2px;
+  box-shadow: none;
+  color: #ff8c4a;
+  font-size: 10px;
+  letter-spacing: 0.04em;
+  padding: 1px 6px;
+}
+.leaflet-tooltip.terrain-grid-label::before {
+  display: none;
+}

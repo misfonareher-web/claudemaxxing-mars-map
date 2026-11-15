@@ -2,7 +2,6 @@
 
 import {
   CaretDoubleRightIcon,
-  ClockIcon,
   PaperPlaneTiltIcon,
   StopIcon,
 } from "@phosphor-icons/react/ssr";
@@ -11,7 +10,6 @@ import type { BackendRouteProperties, MarsGeoJSONFeature } from "@/types/mars";
 import {
   type DistanceUnit,
   formatDistance,
-  formatDuration,
 } from "@/lib/geo";
 
 interface BottomNavBarProps {
@@ -43,8 +41,6 @@ export default function BottomNavBar({
   const isUnreachable = hasTwoPoints && routeProperties?.reachable === false;
 
   const effectiveDistanceKm = isReachable ? routeProperties!.distance_km! : null;
-  const effectiveHours =
-    effectiveDistanceKm !== null ? effectiveDistanceKm / 10 : null;
 
   const destinationTitle = hasTwoPoints
     ? isUnreachable
@@ -83,7 +79,7 @@ export default function BottomNavBar({
               />
             </div>
 
-            {/* Destination & Distance/Time */}
+            {/* Destination & Distance */}
             <div className="min-w-0 flex-1 sm:min-w-[184px] sm:max-w-[290px]">
               <div
                 className={`truncate text-[11px] font-medium tracking-wide sm:text-xs ${
@@ -101,19 +97,6 @@ export default function BottomNavBar({
                       ? "Computing…"
                       : "—"}
                 </span>
-
-                {effectiveHours !== null && effectiveHours > 0 && (
-                  <>
-                    <span className="h-3.5 w-px shrink-0 bg-ares-line/70" />
-                    <span className="flex items-center gap-1 whitespace-nowrap text-[11px] font-medium text-[#d5b59c] tabular-nums sm:gap-1.5 sm:text-xs">
-                      <ClockIcon
-                        weight="duotone"
-                        className="h-3.5 w-3.5 shrink-0 text-ares-accent"
-                      />
-                      <span>~ {formatDuration(effectiveHours)}</span>
-                    </span>
-                  </>
-                )}
               </div>
             </div>
           </div>

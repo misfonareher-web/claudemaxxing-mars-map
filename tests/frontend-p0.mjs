@@ -30,6 +30,7 @@ const { scoreArbitraryPoint, computeMarsRoute } = require("../lib/backend-engine
 const { pointUnavailable, NO_TERRAIN, NO_ROUTE } = require("../lib/terrain-availability.ts");
 const LocationCard = require("../components/LocationCard.tsx").default;
 const Header = require("../components/Header.tsx").default;
+const BottomNavBar = require("../components/BottomNavBar.tsx").default;
 const presets = require("../config/mission_presets.json").presets;
 const feature = (lon, lat) => ({ type: "Feature", geometry: { type: "Point", coordinates: [lon, lat] },
   properties: { id: "test", name: "Test point", kind: "science_target", dataset_id: "test" } });
@@ -88,6 +89,16 @@ for (const preset of presets) {
   assert(card({ feature: feature(lon, lat), backendScore: flagged }).includes("Outside demo EVA radius (12.3 km from base; limit 10 km)"));
   const regularHtml = card({ feature: feature(lon, lat), backendScore: score });
   assert(regularHtml.includes('role="meter"'));
+  const steep = { ...score, properties: { ...score.properties, excluded: true,
+    exclusion_reasons: ["slope_above_hard_max"] } };
+  assert(card({ feature: feature(lon, lat), backendScore: steep }).includes("Slope above 25° demo exclusion threshold"));
+  const routeProps = { pointA: feature(lon, lat), pointB: feature(lon, lat),
+    routeProperties: { reachable: true, distance_km: 6, max_slope_deg: 4, elevation_gain_m: 20 } };
+  const routeText = card(routeProps).replace(/<[^>]*>/g, " ");
+  assert(routeText.includes("Max slope 4.0") && routeText.includes("6.0 km"));
+  assert(!/sols|m\/sol|km\/h|crewed rover/.test(routeText));
+  const navText = renderToStaticMarkup(React.createElement(BottomNavBar, routeProps)).replace(/<[^>]*>/g, " ");
+  assert(navText.includes("6.0 km") && !/min|\bh\b/.test(navText));
   for (const text of ["Favorable solar & thermal stability", "Smooth regolith", "Basaltic regolith", "Solar energy"]) assert(!regularHtml.includes(text));
   const environment = { preset_id: preset.id, summary: { air_temp_c: { min: -80, max: -10, mean: null } }, sol_range: [1, 2] };
   const headerHtml = renderToStaticMarkup(React.createElement(Header, { activeTab: "map", environment }));
@@ -100,3 +111,77 @@ assert(!emptySections.includes("Advantages") && !emptySections.includes("Resourc
 const noWeather = renderToStaticMarkup(React.createElement(Header, { activeTab: "map" }));
 assert(!noWeather.includes("historical") && !noWeather.includes("Min ") && !noWeather.includes("Mars Sol"));
 console.log("PASS: global engine/card/route guards, both preset radius paths, supported labels, historical min/max weather.");
+
+// Exercise Explorer's request effects without a browser or additional test dependency.
+let stateIndex = 0;
+let stateOverrides = {};
+let effects = [];
+const hookReact = { ...React,
+  useState: (initial) => [stateOverrides[stateIndex++] ?? initial, () => {}],
+  useMemo: (fn) => fn(), useCallback: (fn) => fn,
+  useEffect: (fn) => effects.push(fn),
+};
+const previousLoad = Module._load;
+Module._load = function (request, ...args) {
+  if (request === "react") return hookReact;
+  if (request === "next/dynamic") return () => () => null;
+  return previousLoad.call(this, request, ...args);
+};
+const Explorer = require("../components/MarsExplorer.tsx").default;
+Module._load = previousLoad;
+const originalFetch = globalThis.fetch;
+const requests = [];
+const findComponent = (node, type) => {
+  if (!React.isValidElement(node)) return null;
+  if (node.type === type) return node;
+  return React.Children.toArray(node.props.children).map(child => findComponent(child, type)).find(Boolean);
+};
+globalThis.fetch = async (url, options) => {
+  requests.push([String(url), options]);
+  return { ok: true, json: async () => ({ ...globalPoint, features: [{ geometry: null,
+    properties: { reachable: false } }] }) };
+};
+try {
+  for (const [a, b, expected] of [
+    [[0, 0], [1, 1], null],
+    [presets[0].center, presets[1].center, null],
+    ...presets.map(p => [p.center, p.center, p.id]),
+  ]) {
+    stateIndex = 0;
+    // Selected feature, route A, route B: useState slots in Explorer.
+    stateOverrides = { 4: feature(...a), 5: feature(...a), 6: feature(...b) };
+    effects = [];
+    requests.length = 0;
+    const tree = Explorer({ features: [], presets, environments: {}, commsStatus: {} });
+    const nav = findComponent(tree, BottomNavBar);
+    const location = findComponent(tree, LocationCard);
+    if (!expected) assert.equal(nav.props.isRouteLoading, false);
+    if (a[0] === 0) assert.equal(location.props.isScoringLoading, false);
+    const cleanups = effects.map(fn => fn());
+    await new Promise(resolve => setImmediate(resolve));
+    const routeRequests = requests.filter(([url]) => url.endsWith("/api/route"));
+    assert.equal(routeRequests.length, expected ? 1 : 0);
+    if (expected) assert.equal(JSON.parse(routeRequests[0][1].body).preset, expected);
+    const pointRequests = requests.filter(([url]) => url.includes("/api/score/point?"));
+    assert.equal(pointRequests.length, a[0] === 0 ? 0 : 1);
+    assert(requests.every(([url, options]) => !url.includes("global") && !options?.body?.includes("global")));
+    cleanups.forEach(fn => fn?.());
+  }
+  stateIndex = 0;
+  stateOverrides = {};
+  effects = [];
+  requests.length = 0;
+  const sites = [[0, 0], ...presets.map(p => p.center)].map(coords => {
+    const site = feature(...coords);
+    site.properties.kind = "landing_site";
+    return site;
+  });
+  Explorer({ features: sites, presets, environments: {}, commsStatus: {} });
+  const cleanups = effects.map(fn => fn());
+  await new Promise(resolve => setImmediate(resolve));
+  assert.deepEqual(requests.map(([url]) => new URL(url, "http://localhost").searchParams.get("preset")).sort(), ["gale", "jezero"]);
+  cleanups.forEach(fn => fn?.());
+} finally {
+  globalThis.fetch = originalFetch;
+}
+console.log("PASS: Explorer skips unsupported point, route and marker requests; Jezero/Gale requests preserved; route time estimates removed; demo slope wording.");
