@@ -466,7 +466,9 @@ export default function MarsMap({
             opacity: 0.55,
             interactive: false,
           }
-        ).addTo(group);
+        )
+          .bindTooltip("Terrain grid (demo area)", { permanent: true, direction: "center" })
+          .addTo(group);
 
         const pts: [number, number][] = [];
         for (let i = 0; i <= 64; i++) {

@@ -27,7 +27,6 @@ import {
 import {
   type DistanceUnit,
   formatDistance,
-  formatDuration,
   greatCircleKm,
   pointInGeometry,
 } from "@/lib/geo";
@@ -102,7 +101,7 @@ function formatExclusionReason(reason: string): string {
     return "Outside 10 km base EVA radius (demo cutoff)";
   }
   if (reason === "slope_above_hard_max") {
-    return "Slope exceeds 25° EVA safety limit";
+    return "Slope above 25° demo exclusion threshold";
   }
   if (reason.startsWith("hazard:")) {
     return `Severe exclusion hazard (${reason.slice(7).replace(/^hz-/, "")})`;
@@ -447,17 +446,6 @@ export default function LocationCard({
       ? activeDisclaimers.slice(1)
       : activeDisclaimers;
 
-    const roverSols =
-      effectiveDistanceKm !== null
-        ? effectiveDistanceKm === 0
-          ? 0
-          : Math.max(1, Math.round((effectiveDistanceKm * 1000) / 200))
-        : null;
-    const crewedHours =
-      effectiveDistanceKm !== null ? effectiveDistanceKm / 10 : null;
-    const crewedDays =
-      crewedHours !== null ? (crewedHours / 24).toFixed(1) : null;
-
     const presetButtons: Array<{
       id: "jezero" | "gale";
       mode: "demo" | "from_base";
@@ -570,25 +558,6 @@ export default function LocationCard({
                           : "Terrain-aware least-cost path over MOLA grid"}
                     </span>
                   </li>
-                  {roverSols !== null && (
-                    <li className="flex items-start gap-2">
-                      <HudBullet />
-                      <span>
-                        About {roverSols.toLocaleString("en-US")} sols at rover
-                        pace (~200 m/sol)
-                      </span>
-                    </li>
-                  )}
-                  {crewedHours !== null && crewedDays !== null && (
-                    <li className="flex items-start gap-2">
-                      <HudBullet />
-                      <span>
-                        {crewedHours >= 24
-                          ? `About ${crewedDays} days for a crewed rover at 10 km/h`
-                          : `About ${formatDuration(crewedHours)} (${crewedDays} days) for a crewed rover at 10 km/h`}
-                      </span>
-                    </li>
-                  )}
                   {isFiniteNumber(routeProperties?.max_slope_deg) && (
                     <li className="flex items-start gap-2">
                       <HudBullet />

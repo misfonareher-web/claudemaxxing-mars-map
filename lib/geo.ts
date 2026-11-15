@@ -93,13 +93,3 @@ export function formatDistance(km: number, unit: DistanceUnit = "km"): string {
     maximumFractionDigits: decimals,
   })} ${unit}`;
 }
-
-export function formatDuration(hours: number): string {
-  if (hours <= 0) return "0 min";
-  const totalMin = Math.max(1, Math.round(hours * 60));
-  const h = Math.floor(totalMin / 60);
-  const m = totalMin % 60;
-  if (h === 0) return `${m} min`;
-  return `${h} h ${m.toString().padStart(2, "0")} min`;
-}
-
