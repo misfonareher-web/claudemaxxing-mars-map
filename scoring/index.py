@@ -59,14 +59,18 @@ def compute(root, preset, config, weights):
     beyond = values['base_distance'] > preset['eva_max_radius_km']
     excluded |= beyond
     hazards = []
+    exempt = set(config['hazard_rules'].get('score_exempt_kinds', []))
     for feature in vectors['hazards']:
         mask = geo.contains(x, y, feature['geometry'])
         p = feature['properties']
         hard = p['severity'] >= config['hazard_rules']['exclude_severity_at_least']
         if hard:
             excluded |= mask
-        else:
-            score *= np.where(mask, max(0, 1-config['hazard_rules']['penalty_per_severity']*p['severity']), 1)
+        elif p.get('hazard_kind') not in exempt:
+            # Display-only kinds (e.g. steep_slope, already in the slope subscore) are not penalised again.
+            multiplier = np.where(mask, max(0, 1-config['hazard_rules']['penalty_per_severity']*p['severity']), 1)
+            score = score*multiplier
+            contributions = {f: c*multiplier for f, c in contributions.items()}
         hazards.append((p['id'], mask, hard))
     # Required terrain nodata cannot establish traversability.
     nodata = ~np.isfinite(arrays['slope_deg']) | ~np.isfinite(arrays['elevation_m'])
