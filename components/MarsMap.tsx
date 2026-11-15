@@ -7,11 +7,6 @@ import { renderToStaticMarkup } from "react-dom/server";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import {
-  ArrowsOutSimpleIcon,
-  MinusIcon,
-  PlusIcon,
-} from "@phosphor-icons/react/ssr";
-import {
   AresFlagIcon,
   AresFlaskIcon,
   AresWaterIcon,
@@ -107,22 +102,22 @@ function computeCoverMinZoom(el: HTMLElement): number {
 function getMarkerPalette(kind: MarsFeatureKind, isSelected: boolean) {
   if (kind === "landing_site") {
     return {
-      ring: isSelected ? "#ffffff" : "#ff6b2b",
-      bg: isSelected ? "rgba(255, 107, 43, 0.35)" : "rgba(18, 10, 7, 0.92)",
-      labelColor: "#ffd8c4",
+      ring: isSelected ? "#fff9eb" : "#fe7f2d",
+      bg: isSelected ? "rgba(254, 127, 45, 0.38)" : "rgba(36, 23, 20, 0.94)",
+      labelColor: "#fff9eb",
     };
   }
   if (kind === "science_target") {
     return {
-      ring: isSelected ? "#ffffff" : "#fbbf24",
-      bg: isSelected ? "rgba(251, 191, 36, 0.28)" : "rgba(20, 14, 9, 0.92)",
-      labelColor: "#fef3c7",
+      ring: isSelected ? "#fff9eb" : "#fbbf24",
+      bg: isSelected ? "rgba(251, 191, 36, 0.28)" : "rgba(36, 23, 20, 0.94)",
+      labelColor: "#fff9eb",
     };
   }
   return {
-    ring: isSelected ? "#ffffff" : "#38bdf8",
-    bg: isSelected ? "rgba(56, 189, 248, 0.28)" : "rgba(10, 18, 28, 0.92)",
-    labelColor: "#e0f2fe",
+    ring: isSelected ? "#fff9eb" : "#38bdf8",
+    bg: isSelected ? "rgba(56, 189, 248, 0.28)" : "rgba(22, 26, 32, 0.94)",
+    labelColor: "#fff9eb",
   };
 }
 
@@ -152,7 +147,7 @@ function createPointDivIcon(
       ? `<span class="ml-1.5 font-mono text-[10px] font-semibold" style="color:${getScoreAccent(
           resolvedScore
         )}">${resolvedScore}</span>`
-      : `<span class="ml-1.5 font-mono text-[10px] font-medium" style="color:#b59b8e">score unavailable</span>`
+      : `<span class="ml-1.5 font-mono text-[10px] font-medium" style="color:#bbb0a5">score unavailable</span>`
     : "";
 
   return L.divIcon({
@@ -167,14 +162,14 @@ function createPointDivIcon(
             : ""
         }
         <span class="absolute inset-0 rounded-none transition-transform duration-150 group-hover:scale-110"
-              style="background:${palette.bg}; border: 1.5px solid ${palette.ring}; box-shadow: 0 4px 14px rgba(0,0,0,0.65);"></span>
+              style="background:${palette.bg}; border: 1.5px solid ${palette.ring}; box-shadow: 0 4px 14px rgba(0,0,0,0.55);"></span>
         <span class="relative z-10 flex items-center justify-center">${iconSvg}</span>
         <div class="mars-marker-label ${isSelected ? "is-selected" : ""} pointer-events-none ${
           kind === "landing_site" || isSelected
             ? "opacity-100"
             : "opacity-0 group-hover:opacity-100"
         } absolute left-1/2 top-full mt-1.5 -translate-x-1/2 max-w-[132px] truncate rounded-none px-1.5 py-0.5 text-[10px] font-medium transition-opacity duration-150 sm:left-full sm:top-1/2 sm:mt-0 sm:ml-2 sm:max-w-none sm:-translate-x-0 sm:-translate-y-1/2 sm:whitespace-nowrap sm:px-2 sm:text-[11px]"
-             style="background: rgba(16, 10, 7, 0.94); color:${palette.labelColor}; border: 1px solid ${palette.ring}55; box-shadow: 0 4px 12px rgba(0,0,0,0.5);">
+             style="background: rgba(36, 23, 20, 0.95); color:${palette.labelColor}; border: 1px solid rgba(255, 249, 235, 0.16); box-shadow: 0 4px 12px rgba(0,0,0,0.5);">
           <span>${shortName}</span>${scoreBadge ? ` ${scoreBadge}` : ""}
         </div>
       </div>
@@ -187,9 +182,9 @@ function createRouteEndpointDivIcon(
   label: string,
   mobilePlacement: "above" | "below" = "below"
 ): L.DivIcon {
-  const accent = badge === "A" ? "#34d399" : "#ff6b2b";
+  const accent = badge === "A" ? "#34d399" : "#fe7f2d";
   const bg =
-    badge === "A" ? "rgba(12, 42, 32, 0.94)" : "rgba(48, 18, 9, 0.94)";
+    badge === "A" ? "rgba(18, 42, 33, 0.95)" : "rgba(36, 23, 20, 0.95)";
   const safeLabel = escapeHtml(label.replace(/ \(.*\)$/, ""));
   const mobilePosClass =
     mobilePlacement === "above" ? "bottom-full mb-1.5" : "top-full mt-1.5";
@@ -201,10 +196,10 @@ function createRouteEndpointDivIcon(
     html: `
       <div class="relative flex items-center justify-center cursor-pointer" style="width:34px;height:34px;">
         <span class="ares-pulse absolute inset-0 rounded-none" style="border: 1.5px solid ${accent};"></span>
-        <span class="absolute inset-0 rounded-none" style="background:${bg}; border: 2px solid ${accent}; box-shadow: 0 0 16px ${accent}80;"></span>
-        <span class="relative z-10 font-mono text-[13px] font-bold text-white">${badge}</span>
-        <div class="mars-marker-label is-selected pointer-events-none absolute left-1/2 ${mobilePosClass} -translate-x-1/2 max-w-[144px] truncate rounded-none px-1.5 py-0.5 text-[10px] font-semibold text-white sm:bottom-auto sm:left-full sm:top-1/2 sm:mt-0 sm:mb-0 sm:ml-2 sm:max-w-none sm:-translate-x-0 sm:-translate-y-1/2 sm:whitespace-nowrap sm:px-2 sm:text-[11px]"
-             style="background: rgba(14, 8, 6, 0.95); border: 1px solid ${accent}88; box-shadow: 0 4px 12px rgba(0,0,0,0.6);">
+        <span class="absolute inset-0 rounded-none" style="background:${bg}; border: 2px solid ${accent}; box-shadow: 0 0 16px ${accent}70;"></span>
+        <span class="relative z-10 font-mono text-[13px] font-bold" style="color:#fff9eb">${badge}</span>
+        <div class="mars-marker-label is-selected pointer-events-none absolute left-1/2 ${mobilePosClass} -translate-x-1/2 max-w-[144px] truncate rounded-none px-1.5 py-0.5 text-[10px] font-semibold sm:bottom-auto sm:left-full sm:top-1/2 sm:mt-0 sm:mb-0 sm:ml-2 sm:max-w-none sm:-translate-x-0 sm:-translate-y-1/2 sm:whitespace-nowrap sm:px-2 sm:text-[11px]"
+             style="background: rgba(36, 23, 20, 0.96); color:#fff9eb; border: 1px solid ${accent}88; box-shadow: 0 4px 12px rgba(0,0,0,0.6);">
           <span style="color:${accent}">Point ${badge}:</span> <span>${safeLabel}</span>
         </div>
       </div>
@@ -489,10 +484,10 @@ export default function MarsMap({
             [n, e + offsetLng],
           ],
           {
-            color: "#ff8c4a",
+            color: "#ff9f5a",
             weight: 1.2,
             dashArray: "2 4",
-            fillColor: "#ff8c4a",
+            fillColor: "#ff9f5a",
             fillOpacity: 0.03,
             opacity: 0.55,
             interactive: false,
@@ -514,10 +509,10 @@ export default function MarsMap({
         }
 
         L.polyline(pts, {
-          color: "#f06423",
+          color: "#fe7f2d",
           weight: 1.5,
           dashArray: "5 6",
-          opacity: 0.7,
+          opacity: 0.75,
           interactive: false,
         }).addTo(group);
       });
@@ -542,9 +537,9 @@ export default function MarsMap({
                 fillOpacity: isSelected ? 0.36 : 0.2,
               }
             : {
-                color: severity && severity >= 3 ? "#ef4444" : "#f97316",
+                color: severity && severity >= 3 ? "#ef4444" : "#fe7f2d",
                 weight: isSelected ? 2.5 : 1.5,
-                fillColor: severity && severity >= 3 ? "#ef4444" : "#f97316",
+                fillColor: severity && severity >= 3 ? "#ef4444" : "#fe7f2d",
                 fillOpacity: isSelected ? 0.4 : 0.22,
               }
           : {
@@ -592,15 +587,15 @@ export default function MarsMap({
 
         // Soft outer glow
         L.polyline(latLngs, {
-          color: "#ff5a1f",
+          color: "#fe7f2d",
           weight: 7,
-          opacity: 0.28,
+          opacity: 0.3,
           interactive: false,
         }).addTo(group);
 
         // Crisp inner dashed path
         L.polyline(latLngs, {
-          color: "#ff9b52",
+          color: "#ffaf70",
           weight: 3,
           dashArray: "8 7",
           opacity: 0.96,
@@ -725,7 +720,7 @@ export default function MarsMap({
       <div
         ref={zoomControlRef}
         aria-label="Map zoom controls"
-        className="fixed top-[128px] right-2.5 z-[940] flex w-[44px] flex-col items-center rounded-none border border-[#f06423]/45 bg-[#100806]/92 text-ares-text shadow-[0_12px_32px_rgba(0,0,0,0.6)] backdrop-blur-md select-none sm:right-3 sm:w-[46px] md:top-[132px] md:right-auto md:bottom-auto md:left-3 md:w-[52px] lg:top-[88px] lg:left-[284px] lg:w-[56px]"
+        className="fixed top-[128px] right-2.5 z-[940] flex w-[42px] flex-col items-center divide-y divide-[rgba(255,249,235,0.16)] rounded-none border border-[rgba(255,249,235,0.16)] bg-ares-panel/95 text-ares-text shadow-[0_8px_24px_rgba(0,0,0,0.35)] backdrop-blur-md select-none sm:right-3 sm:w-[46px] md:top-[132px] md:right-auto md:bottom-auto md:left-3 lg:top-[88px] lg:left-[284px]"
       >
         <button
           type="button"
@@ -733,17 +728,28 @@ export default function MarsMap({
           disabled={!canZoomIn}
           aria-label="Zoom in"
           title="Zoom in (+)"
-          className="flex h-10 w-full items-center justify-center rounded-none border-b border-ares-line/70 text-ares-text transition hover:bg-ares-raised hover:text-ares-accent-soft active:bg-ares-raised disabled:cursor-not-allowed disabled:opacity-35 md:h-9"
+          className="flex h-[40px] w-full cursor-pointer items-center justify-center rounded-none text-[22px] leading-none font-normal text-ares-mute transition hover:bg-ares-raised hover:text-ares-text active:bg-ares-raised disabled:cursor-not-allowed disabled:opacity-35 sm:h-[44px] sm:text-[24px]"
         >
-          <PlusIcon size={15} weight="bold" />
+          +
         </button>
 
-        <div
-          className="hidden h-6 w-full items-center justify-center border-b border-ares-line/70 font-mono text-[10px] font-medium tabular-nums text-ares-mute [@media(min-height:520px)]:flex md:flex md:h-8"
-          title={`Zoom z${zoomMetrics.zoom.toFixed(2)} (${scalePercent}%)`}
+        <button
+          type="button"
+          onClick={handleResetZoom}
+          aria-label={isAtOverview ? "Zoom at 100% overview" : "Reset zoom to 100% overview"}
+          title={
+            isAtOverview
+              ? `Zoom z${zoomMetrics.zoom.toFixed(2)} (100%)`
+              : `Zoom z${zoomMetrics.zoom.toFixed(2)} — click to reset to 100%`
+          }
+          className={`flex h-[40px] w-full cursor-pointer items-center justify-center rounded-none font-sans text-[12px] font-medium tabular-nums transition sm:h-[44px] ${
+            isAtOverview
+              ? "text-ares-mute hover:bg-ares-raised hover:text-ares-text"
+              : "bg-[rgba(254,127,45,0.13)] text-ares-accent hover:bg-[rgba(254,127,45,0.22)]"
+          }`}
         >
           {scalePercent}%
-        </div>
+        </button>
 
         <button
           type="button"
@@ -751,24 +757,9 @@ export default function MarsMap({
           disabled={!canZoomOut}
           aria-label="Zoom out"
           title="Zoom out (-)"
-          className="flex h-10 w-full items-center justify-center rounded-none border-b border-ares-line/70 text-ares-text transition hover:bg-ares-raised hover:text-ares-accent-soft active:bg-ares-raised disabled:cursor-not-allowed disabled:opacity-35 md:h-9"
+          className="flex h-[40px] w-full cursor-pointer items-center justify-center rounded-none text-[22px] leading-none font-normal text-ares-mute transition hover:bg-ares-raised hover:text-ares-text active:bg-ares-raised disabled:cursor-not-allowed disabled:opacity-35 sm:h-[44px] sm:text-[24px]"
         >
-          <MinusIcon size={15} weight="bold" />
-        </button>
-
-        <button
-          type="button"
-          onClick={handleResetZoom}
-          aria-label="Reset zoom to 100%"
-          title="Reset to 100% overview"
-          className={`flex h-9 w-full items-center justify-center gap-0.5 rounded-none font-mono text-[10px] font-semibold tracking-tight transition md:h-8 ${
-            isAtOverview
-              ? "bg-transparent text-ares-mute"
-              : "bg-ares-accent/15 text-ares-accent-soft hover:bg-ares-accent/25"
-          }`}
-        >
-          <ArrowsOutSimpleIcon size={10} weight="bold" />
-          <span>100%</span>
+          −
         </button>
       </div>
     </>

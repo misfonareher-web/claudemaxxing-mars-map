@@ -230,10 +230,10 @@ export function getCentroid(feature: MarsGeoJSONFeature): [number, number] {
 }
 
 export function getScoreAccent(score: number | null | undefined): string {
-  if (score === null || score === undefined) return "#7c685e";
+  if (score === null || score === undefined) return "#bbb0a5";
   if (score >= 70) return "#34d399";
-  if (score >= 50) return "#f06423";
-  return "#ef4444";
+  if (score >= 50) return "#fe7f2d";
+  return "#fb7185";
 }
 
 export function getVerdictLabel(

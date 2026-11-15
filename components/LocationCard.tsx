@@ -219,7 +219,7 @@ function HudSidePanel({
   return (
     <aside
       aria-label={ariaLabel}
-      className={`pointer-events-auto fixed inset-x-2.5 bottom-[calc(74px+env(safe-area-inset-bottom))] z-[1000] flex flex-col bg-[#f06423]/60 p-[1px] shadow-[0_22px_60px_rgba(0,0,0,0.85),0_0_28px_rgba(240,100,35,0.22)] backdrop-blur-xl transition-[max-height] duration-200 md:inset-x-auto md:top-[132px] md:right-4 md:bottom-auto md:w-[344px] md:max-h-[calc(100dvh-222px)] lg:top-[88px] lg:right-5 lg:w-[372px] lg:max-h-[calc(100vh-172px)] ${
+      className={`pointer-events-auto fixed inset-x-2.5 bottom-[calc(74px+env(safe-area-inset-bottom))] z-[1000] flex flex-col bg-[rgba(255,249,235,0.2)] p-[1px] shadow-[0_22px_60px_rgba(0,0,0,0.62)] backdrop-blur-xl transition-[max-height] duration-200 md:inset-x-auto md:top-[132px] md:right-4 md:bottom-auto md:w-[344px] md:max-h-[calc(100dvh-222px)] lg:top-[88px] lg:right-5 lg:w-[372px] lg:max-h-[calc(100vh-172px)] ${
         hideOnMobile ? "hidden md:flex" : "flex"
       } ${
         mobileExpanded
@@ -232,7 +232,7 @@ function HudSidePanel({
       }}
     >
       <div
-        className="flex min-h-0 flex-1 flex-col overflow-hidden bg-[#100806]/94"
+        className="flex min-h-0 flex-1 flex-col overflow-hidden bg-ares-panel/96"
         style={{
           clipPath:
             "polygon(13.5px 0, 100% 0, 100% calc(100% - 13.5px), calc(100% - 13.5px) 100%, 0 100%, 0 13.5px)",
@@ -240,7 +240,7 @@ function HudSidePanel({
       >
         <div
           aria-hidden="true"
-          className="mx-auto mt-1.5 h-1 w-9 shrink-0 bg-ares-accent/45 md:hidden"
+          className="mx-auto mt-1.5 h-1 w-9 shrink-0 bg-[rgba(255,249,235,0.28)] md:hidden"
         />
         {children}
       </div>
@@ -330,12 +330,12 @@ function RouteEndpointSlot({
       aria-label={`Pick Point ${slot} on map`}
       className={`group flex w-full cursor-pointer items-center justify-between gap-3 rounded-none border px-3 py-2.5 text-left transition-colors ${
         isPicking
-          ? "border-ares-accent bg-[#1c0d07]/85"
-          : "border-ares-line/90 bg-[#170b07]/85 hover:border-ares-accent/55"
+          ? "border-ares-accent bg-[rgba(254,127,45,0.08)]"
+          : "border-[rgba(255,249,235,0.16)] bg-ares-bg/50 hover:border-ares-accent/60"
       }`}
     >
       <div className="flex min-w-0 items-center gap-3">
-        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-none border border-ares-text/55 bg-black/25 text-xs font-bold text-ares-text">
+        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-none border border-[rgba(255,249,235,0.35)] bg-ares-bg/70 text-xs font-bold text-ares-text">
           {slot}
         </span>
         <div className="min-w-0">
@@ -533,16 +533,7 @@ export default function LocationCard({
         {/* Header */}
         <div className="flex items-start justify-between gap-2 px-4 pt-2.5 pb-2 md:pt-3.5 md:pb-2.5">
           <div className="min-w-0">
-            <div className="flex items-center gap-1.5 text-[10px] font-semibold tracking-wider text-ares-accent uppercase">
-              <AresRouteIcon
-                className={`h-3.5 w-3.5 shrink-0 ${
-                  isRouteLoading ? "animate-pulse" : ""
-                }`}
-              />
-              <span>Route A → B</span>
-            </div>
-
-            <h2 className="mt-1 text-[24px] leading-none font-bold tracking-tight text-white tabular-nums sm:text-[28px]">
+            <h2 className="text-[24px] leading-none font-bold tracking-tight text-ares-text tabular-nums sm:text-[28px]">
               {routeUnavailable ? "Route unavailable" : effectiveDistanceKm !== null
                 ? formatDistance(effectiveDistanceKm, distanceUnit)
                 : isUnreachable
@@ -609,8 +600,8 @@ export default function LocationCard({
           ) : hasComputedRoute ? (
             <>
               {isConditionalRoute && (
-                <div className="flex items-start gap-2.5 rounded-none border border-ares-accent/85 bg-[#1c0c06]/65 px-3.5 py-2.5 text-[12px] leading-snug text-ares-text">
-                  <AresWarningIcon className="mt-0.5 h-4 w-4 shrink-0 text-ares-text/90" />
+                <div className="flex items-start gap-2.5 rounded-none border border-ares-accent/85 bg-ares-bg/45 px-3.5 py-2.5 text-[12px] leading-snug text-ares-text">
+                  <AresWarningIcon className="mt-0.5 h-4 w-4 shrink-0 text-ares-accent" />
                   <span>
                     {isExtendedEvaRoute
                       ? "Conditional planetary estimate (beyond 10 km MOLA A* EVA circle). Great-circle path without local terrain A* pathfinding."
@@ -619,7 +610,7 @@ export default function LocationCard({
                 </div>
               )}
 
-              <div className="border-t border-ares-line/70 pt-3">
+              <div className="border-t border-[rgba(255,249,235,0.16)] pt-3">
                 <h3 className="mb-2 text-[10px] font-semibold tracking-wider text-ares-mute uppercase">
                   Trip
                 </h3>
@@ -691,12 +682,12 @@ export default function LocationCard({
               )}
             </>
           ) : pointA && pointB && isRouteLoading ? (
-            <div className="flex items-start gap-2.5 rounded-none border border-ares-accent/85 bg-[#1c0c06]/65 px-3.5 py-2.5 text-[12px] leading-snug text-ares-text">
+            <div className="flex items-start gap-2.5 rounded-none border border-ares-accent/85 bg-ares-bg/45 px-3.5 py-2.5 text-[12px] leading-snug text-ares-text">
               <AresRouteIcon className="mt-0.5 h-4 w-4 shrink-0 animate-pulse text-ares-accent" />
               <span>Calculating terrain-aware route…</span>
             </div>
           ) : (
-            <div className="flex items-start gap-2.5 rounded-none border border-ares-accent/85 bg-[#1c0c06]/65 px-3.5 py-2.5 text-[12px] leading-snug text-ares-text">
+            <div className="flex items-start gap-2.5 rounded-none border border-ares-accent/85 bg-ares-bg/45 px-3.5 py-2.5 text-[12px] leading-snug text-ares-text">
               <AresPinIcon className="mt-0.5 h-4 w-4 shrink-0 text-ares-text/85" />
               <span>
                 Click any marker or arbitrary point on the map to set Point{" "}
@@ -708,7 +699,7 @@ export default function LocationCard({
           {/* Quick Preset Routes inside MOLA Grids (Jezero & Gale) */}
           {onSelectPresetRoute &&
             (routeError || isUnreachable || pickingSlot || !pointA || !pointB) && (
-              <div className="border-t border-ares-line/70 pt-3">
+              <div className="border-t border-[rgba(255,249,235,0.16)] pt-3">
                 <h3 className="mb-2 text-[10px] font-semibold tracking-wider text-ares-mute uppercase">
                   Preset Routes (MOLA Grid)
                 </h3>
@@ -718,7 +709,7 @@ export default function LocationCard({
                       key={`${preset.id}-${preset.mode}`}
                       type="button"
                       onClick={() => onSelectPresetRoute(preset.id, preset.mode)}
-                      className="cursor-pointer rounded-none border border-ares-line/90 bg-[#170b07]/85 px-2.5 py-2 text-[11.5px] font-semibold text-ares-text transition-colors hover:border-ares-accent/70 hover:text-white"
+                      className="cursor-pointer rounded-none border border-[rgba(255,249,235,0.16)] bg-ares-bg/45 px-2.5 py-2 text-[11.5px] font-semibold text-ares-text transition-colors hover:border-ares-accent"
                     >
                       {preset.label}
                     </button>
@@ -729,7 +720,7 @@ export default function LocationCard({
 
           {/* Disclaimers */}
           {trailingDisclaimers.length > 0 && (
-            <ul className="space-y-1.5 border-t border-ares-line/70 pt-3 pb-1 text-[11px] leading-snug text-ares-mute">
+            <ul className="space-y-1.5 border-t border-[rgba(255,249,235,0.16)] pt-3 pb-1 text-[11px] leading-snug text-ares-mute">
               {trailingDisclaimers.map((disclaimer, idx) => (
                 <li key={idx} className="flex items-start gap-2">
                   <HudBullet />
@@ -741,11 +732,11 @@ export default function LocationCard({
         </div>
 
         {/* Sticky Actions Footer: New route + Clear */}
-        <div className="grid shrink-0 grid-cols-2 gap-2 border-t border-ares-line/70 bg-[#100806]/96 px-4 pt-2.5 pb-4">
+        <div className="grid shrink-0 grid-cols-2 gap-2 border-t border-[rgba(255,249,235,0.16)] bg-ares-panel/98 px-4 pt-2.5 pb-4">
           <button
             type="button"
             onClick={onStartNewRoute}
-            className="flex min-h-[42px] cursor-pointer items-center justify-center gap-1.5 rounded-none border border-ares-accent/75 bg-ares-accent/15 py-2 text-xs font-semibold text-white transition-colors hover:bg-ares-accent/25 sm:min-h-0"
+            className="flex min-h-[42px] cursor-pointer items-center justify-center gap-1.5 rounded-none border border-ares-accent/80 bg-[rgba(254,127,45,0.13)] py-2 text-xs font-semibold text-ares-text transition-colors hover:bg-[rgba(254,127,45,0.22)] sm:min-h-0"
           >
             <NavigationArrowIcon weight="duotone" className="h-3.5 w-3.5" />
             <span>New route</span>
@@ -754,7 +745,7 @@ export default function LocationCard({
           <button
             type="button"
             onClick={onClearRoute}
-            className="flex min-h-[42px] cursor-pointer items-center justify-center gap-1.5 rounded-none border border-ares-line/90 bg-[#170b07]/85 py-2 text-xs font-semibold text-ares-text transition-colors hover:border-rose-400/60 hover:text-rose-300 sm:min-h-0"
+            className="flex min-h-[42px] cursor-pointer items-center justify-center gap-1.5 rounded-none border border-[rgba(255,249,235,0.16)] bg-ares-bg/50 py-2 text-xs font-semibold text-ares-text transition-colors hover:border-rose-400/60 hover:text-rose-300 sm:min-h-0"
           >
             <ArrowCounterClockwiseIcon
               weight="bold"
@@ -802,7 +793,7 @@ export default function LocationCard({
       : getVerdictLabel(activeScore);
 
   const verdictColor = isPendingScore
-    ? "#b5a394"
+    ? "#bbb0a5"
     : getScoreAccent(activeScore);
   const exclusionSummary =
     backendScore?.properties?.excluded &&
@@ -836,6 +827,20 @@ export default function LocationCard({
       }`
     : null;
 
+  const showKindEyebrow =
+    !isSurfaceProbe &&
+    feature.properties.kind !== "science_target" &&
+    !(
+      feature.properties.kind === "landing_site" &&
+      (/landing|lander/i.test(headingTitle) || Boolean(missionSubtitle))
+    ) &&
+    !(
+      feature.properties.kind === "ice" &&
+      /\b(ice|frost|water)\b/i.test(headingTitle)
+    );
+  const hasStatusBadge =
+    (isScoringLoading && !scoreError) || Boolean(scoreError);
+
   return (
     <HudSidePanel
       ariaLabel="Selected Location Details"
@@ -844,24 +849,34 @@ export default function LocationCard({
       {/* Card Header */}
       <div className="flex items-start justify-between gap-2 px-4 pt-2.5 pb-2 md:pt-3.5 md:pb-2.5">
         <div className="min-w-0">
-          <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[10px] font-semibold tracking-wider text-ares-accent-soft uppercase">
-            <AresPinIcon className="h-3.5 w-3.5 shrink-0" />
-            <span>{kindLabel}</span>
-            {isScoringLoading && !scoreError && (
-              <span className="text-[10px] font-semibold text-ares-mute">
-                · SCORING…
-              </span>
-            )}
-            {scoreError && (
-              <span
-                title={scoreError}
-                className="text-[10px] font-semibold text-amber-400"
-              >
-                · SCORE UNAVAILABLE
-              </span>
-            )}
-          </div>
-          <h2 className="mt-0.5 line-clamp-2 break-words text-[18px] leading-snug font-bold text-ares-text sm:text-[20px] sm:leading-tight">
+          {showKindEyebrow || hasStatusBadge ? (
+            <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[10px] font-semibold tracking-wider text-ares-accent uppercase">
+              {showKindEyebrow && (
+                <>
+                  <AresPinIcon className="h-3.5 w-3.5 shrink-0" />
+                  <span>{kindLabel}</span>
+                </>
+              )}
+              {isScoringLoading && !scoreError && (
+                <span className="text-[10px] font-semibold text-ares-mute">
+                  {showKindEyebrow ? "· SCORING…" : "SCORING…"}
+                </span>
+              )}
+              {scoreError && (
+                <span
+                  title={scoreError}
+                  className="text-[10px] font-semibold text-amber-400"
+                >
+                  {showKindEyebrow ? "· SCORE UNAVAILABLE" : "SCORE UNAVAILABLE"}
+                </span>
+              )}
+            </div>
+          ) : null}
+          <h2
+            className={`${
+              showKindEyebrow || hasStatusBadge ? "mt-0.5 " : ""
+            }line-clamp-2 break-words text-[18px] leading-snug font-bold text-ares-text sm:text-[20px] sm:leading-tight`}
+          >
             {headingTitle}
           </h2>
           {missionSubtitle && (
@@ -993,7 +1008,7 @@ export default function LocationCard({
         </div>}
 
         {/* Resources */}
-        {!noTerrain && insights.resources.length > 0 && <div className="border-b border-ares-line/70 pb-3">
+        {!noTerrain && insights.resources.length > 0 && <div className="border-b border-[rgba(255,249,235,0.16)] pb-3">
           <h4 className="mb-2 text-[10px] font-semibold tracking-wider text-ares-mute uppercase">
             Resources
           </h4>
@@ -1001,7 +1016,7 @@ export default function LocationCard({
             {insights.resources.map((res, idx) => (
               <span
                 key={idx}
-                className="inline-flex items-center gap-1.5 rounded-none border border-ares-line bg-ares-raised/65 px-2.5 py-1 text-[11px] text-ares-text"
+                className="inline-flex items-center gap-1.5 rounded-none border border-[rgba(255,249,235,0.16)] bg-ares-bg/55 px-2.5 py-1 text-[11px] text-ares-text"
               >
                 <ResourceIcon label={res} />
                 {res}
@@ -1076,11 +1091,11 @@ export default function LocationCard({
       </div>
 
       {/* Sticky Primary Action Buttons Footer */}
-      <div className="grid shrink-0 grid-cols-2 gap-2 border-t border-ares-line/70 bg-[#100806]/96 px-4 pt-2.5 pb-4">
+      <div className="grid shrink-0 grid-cols-2 gap-2 border-t border-[rgba(255,249,235,0.16)] bg-ares-panel/98 px-4 pt-2.5 pb-4">
         <button
           type="button"
           onClick={() => onStartRouteFromHere(feature)}
-          className="flex min-h-[42px] cursor-pointer items-center justify-center gap-2 rounded-none bg-ares-accent py-2 text-xs font-bold text-[#140c07] shadow-[0_0_20px_rgba(240,100,35,0.3)] transition-all hover:brightness-110 sm:min-h-0"
+          className="flex min-h-[42px] cursor-pointer items-center justify-center gap-2 rounded-none bg-ares-accent py-2 text-xs font-bold text-ares-bg shadow-[0_6px_20px_rgba(0,0,0,0.3)] transition-all hover:brightness-110 sm:min-h-0"
           style={{
             clipPath:
               "polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px)",
@@ -1095,8 +1110,8 @@ export default function LocationCard({
           onClick={() => onToggleSave(feature.properties.id)}
           className={`flex min-h-[42px] cursor-pointer items-center justify-center gap-2 rounded-none border py-1.5 text-xs font-semibold transition-all duration-150 sm:min-h-0 ${
             isSaved
-              ? "border-ares-accent/80 bg-ares-accent/20 text-white"
-              : "border-ares-line bg-ares-raised/65 text-ares-text hover:border-ares-accent/60"
+              ? "border-ares-accent bg-[rgba(254,127,45,0.16)] text-ares-text"
+              : "border-[rgba(255,249,235,0.2)] bg-ares-bg/45 text-ares-text hover:border-ares-accent/70"
           }`}
         >
           <BookmarkSimpleIcon

@@ -39,7 +39,7 @@ export function RadiationContextCard({
   return (
     <section
       aria-label={radiation.title}
-      className="border border-ares-line/85 bg-[#160b07]/85 p-3"
+      className="border border-[rgba(255,249,235,0.16)] bg-ares-bg/55 p-3"
     >
       <div className="mb-1.5 flex items-center justify-between gap-2">
         <div className="flex items-center gap-1.5">
@@ -47,25 +47,25 @@ export function RadiationContextCard({
             weight="duotone"
             className="h-3.5 w-3.5 shrink-0 text-ares-mute"
           />
-          <h4 className="text-[10px] font-semibold tracking-wider text-ares-mute uppercase">
+          <h4 className="text-[10px] font-semibold tracking-wider text-ares-accent uppercase">
             {radiation.title}
           </h4>
         </div>
-        <span className="border border-ares-line/80 bg-ares-raised/60 px-1.5 py-0.5 font-mono text-[9px] text-ares-mute uppercase">
+        <span className="border border-[rgba(255,249,235,0.16)] bg-ares-panel/80 px-1.5 py-0.5 font-mono text-[9px] text-ares-mute uppercase">
           Not in score
         </span>
       </div>
 
       {!radiation.measured_here && radiation.site_note && (
-        <p className="mb-2 border-l-2 border-ares-line pl-2 text-[11px] leading-snug text-ares-text/90">
+        <p className="mb-2 border-l-2 border-ares-line pl-2 text-[11px] leading-snug text-ares-soft">
           {radiation.site_note}
         </p>
       )}
 
       <div className="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
-        <span className="font-mono text-[20px] leading-tight font-bold text-white tabular-nums">
+        <span className="font-mono text-[20px] leading-tight font-bold text-ares-text tabular-nums">
           {radiation.value.toFixed(2)} ± {radiation.uncertainty.toFixed(2)}{" "}
-          <span className="text-[12px] font-semibold text-ares-text">
+          <span className="text-[12px] font-semibold text-ares-soft">
             {radiation.unit}
           </span>
         </span>
@@ -81,7 +81,7 @@ export function RadiationContextCard({
       </div>
 
       {radiation.comparison && (
-        <div className="mt-2 border-t border-ares-line/60 pt-1.5 text-[10.5px] leading-snug text-ares-mute">
+        <div className="mt-2 border-t border-[rgba(255,249,235,0.16)] pt-1.5 text-[10.5px] leading-snug text-ares-mute">
           Cruise flight:{" "}
           <span className="font-mono font-semibold text-ares-text tabular-nums">
             {radiation.comparison.value} {radiation.comparison.unit}
@@ -122,13 +122,13 @@ export function HazardCoverageCard({ coverage }: { coverage: HazardCoverage }) {
   return (
     <section
       aria-label={coverage.title}
-      className="border border-ares-line/85 bg-[#160b07]/85 p-3"
+      className="border border-[rgba(255,249,235,0.16)] bg-ares-bg/55 p-3"
     >
       <div className="mb-2 flex items-center justify-between gap-2">
         <div className="flex items-center gap-1.5">
           <ShieldWarningIcon
             weight="duotone"
-            className="h-3.5 w-3.5 shrink-0 text-ares-accent-soft"
+            className="h-3.5 w-3.5 shrink-0 text-ares-accent"
           />
           <h4 className="text-[10px] font-semibold tracking-wider text-ares-mute uppercase">
             {coverage.title}
@@ -150,7 +150,7 @@ export function HazardCoverageCard({ coverage }: { coverage: HazardCoverage }) {
           return (
             <li
               key={row.hazard}
-              className="border border-ares-line/45 bg-ares-raised/35"
+              className="border border-[rgba(255,249,235,0.12)] bg-ares-panel/65"
             >
               <button
                 type="button"
@@ -174,8 +174,8 @@ export function HazardCoverageCard({ coverage }: { coverage: HazardCoverage }) {
                   title={tooltipText}
                   className={`shrink-0 border px-1.5 py-0.5 text-[9.5px] font-semibold tracking-wide uppercase ${
                     isAssessed
-                      ? "border-ares-accent/55 bg-ares-accent/15 text-[#ffbfa1]"
-                      : "border-ares-line/80 bg-[#120805]/80 text-ares-mute"
+                      ? "border-ares-accent/60 bg-[rgba(254,127,45,0.13)] text-ares-accent-soft"
+                      : "border-[rgba(255,249,235,0.16)] bg-ares-bg/75 text-ares-mute"
                   }`}
                 >
                   {isAssessed ? "Assessed" : "Not assessed"}
@@ -183,16 +183,16 @@ export function HazardCoverageCard({ coverage }: { coverage: HazardCoverage }) {
               </button>
 
               {isExpanded && (
-                <div className="border-t border-ares-line/45 bg-[#110704]/75 px-2 py-1.5 text-[10.5px] leading-snug text-ares-mute">
-                  {row.how && <p className="text-ares-text/95">{row.how}</p>}
+                <div className="border-t border-[rgba(255,249,235,0.12)] bg-ares-bg/75 px-2 py-1.5 text-[10.5px] leading-snug text-ares-mute">
+                  {row.how && <p className="text-ares-soft">{row.how}</p>}
                   <p className={row.how ? "mt-1" : ""}>
-                    <span className="font-semibold text-ares-text/80">
+                    <span className="font-semibold text-ares-text/85">
                       Limits:{" "}
                     </span>
                     {row.limits}
                   </p>
                   {row.source && (
-                    <p className="mt-1 text-[10px] text-ares-mute/90">
+                    <p className="mt-1 text-[10px] text-ares-mute">
                       Source: {row.source}
                     </p>
                   )}

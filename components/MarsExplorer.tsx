@@ -36,7 +36,7 @@ import SettingsView from "@/components/SettingsView";
 const MarsMap = dynamic(() => import("@/components/MarsMap"), {
   ssr: false,
   loading: () => (
-    <div className="flex h-full w-full items-center justify-center bg-[#0d0704]">
+    <div className="flex h-full w-full items-center justify-center bg-ares-bg">
       <div className="flex flex-col items-center gap-3">
         <div className="h-9 w-9 animate-spin rounded-full border-2 border-ares-accent border-t-transparent" />
         <span className="font-mono text-xs tracking-widest text-ares-mute uppercase">
@@ -869,7 +869,7 @@ export default function MarsExplorer({
           className="pointer-events-none absolute inset-0 z-10"
           style={{
             background:
-              "radial-gradient(circle at center, transparent 58%, rgba(12, 5, 2, 0.65) 100%)",
+              "radial-gradient(circle at center, transparent 58%, rgba(36, 23, 20, 0.55) 100%)",
           }}
         />
       </div>
@@ -898,20 +898,20 @@ export default function MarsExplorer({
             <>
               <div className="pointer-events-none fixed top-[88px] right-5 z-[900] hidden lg:block xl:right-auto xl:left-1/2 xl:-translate-x-1/2">
                 <div
-                  className="bg-[#f06423]/40 p-[1px] shadow-[0_14px_36px_rgba(0,0,0,0.75)] backdrop-blur-md"
+                  className="bg-[rgba(255,249,235,0.2)] p-[1px] shadow-[0_14px_36px_rgba(0,0,0,0.55)] backdrop-blur-md"
                   style={{
                     clipPath:
                       "polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px)",
                   }}
                 >
                   <div
-                    className="flex items-center gap-2.5 bg-[#120906]/92 px-5 py-2.5 text-[13px] font-medium tracking-[0.01em] whitespace-nowrap text-[#f5ece4]"
+                    className="flex items-center gap-2.5 bg-ares-panel/95 px-5 py-2.5 text-[13px] font-medium tracking-[0.01em] whitespace-nowrap text-ares-text"
                     style={{
                       clipPath:
                         "polygon(11.5px 0, 100% 0, 100% calc(100% - 11.5px), calc(100% - 11.5px) 100%, 0 100%, 0 11.5px)",
                     }}
                   >
-                    <AresPinIcon className="h-4 w-4 shrink-0 text-[#f5ece4]" />
+                    <AresPinIcon className="h-4 w-4 shrink-0 text-ares-text" />
                     <span>
                       Click any location or point on the map to inspect it.
                     </span>
@@ -921,8 +921,8 @@ export default function MarsExplorer({
 
               {!mobileLayersOpen && !commsExpanded && (
                 <div className="pointer-events-none fixed inset-x-3 bottom-[calc(76px+env(safe-area-inset-bottom))] z-20 flex justify-center lg:hidden">
-                  <div className="flex items-center gap-2 border border-ares-accent/35 bg-[#120906]/88 px-3.5 py-1.5 text-[11.5px] font-medium text-[#f5ece4] shadow-[0_10px_28px_rgba(0,0,0,0.75)] backdrop-blur-md">
-                    <AresPinIcon className="h-3.5 w-3.5 shrink-0 text-ares-accent-soft" />
+                  <div className="flex items-center gap-2 border border-[rgba(255,249,235,0.2)] bg-ares-panel/92 px-3.5 py-1.5 text-[11.5px] font-medium text-ares-text shadow-[0_10px_28px_rgba(0,0,0,0.55)] backdrop-blur-md">
+                    <AresPinIcon className="h-3.5 w-3.5 shrink-0 text-ares-accent" />
                     <span>Tap any marker or map point to inspect</span>
                   </div>
                 </div>
@@ -934,14 +934,14 @@ export default function MarsExplorer({
           {pickingRouteSlot && (
             <div className="pointer-events-none fixed inset-x-3 top-[78px] z-[1020] flex justify-center md:inset-x-auto md:top-[88px] md:left-1/2 md:-translate-x-1/2">
               <div
-                className="pointer-events-auto w-full bg-ares-accent/80 p-[1px] shadow-[0_0_25px_rgba(255,107,43,0.4)] backdrop-blur-md md:w-auto"
+                className="pointer-events-auto w-full bg-ares-accent/85 p-[1px] shadow-[0_14px_36px_rgba(0,0,0,0.55)] backdrop-blur-md md:w-auto"
                 style={{
                   clipPath:
                     "polygon(12px 0, 100% 0, 100% calc(100% - 12px), calc(100% - 12px) 100%, 0 100%, 0 12px)",
                 }}
               >
                 <div
-                  className="flex flex-wrap items-center justify-between gap-2 bg-[#1a0c06]/95 px-3.5 py-2 text-xs font-semibold text-white md:flex-nowrap md:gap-3 md:px-5"
+                  className="flex flex-wrap items-center justify-between gap-2 bg-ares-panel/96 px-3.5 py-2 text-xs font-semibold text-ares-text md:flex-nowrap md:gap-3 md:px-5"
                   style={{
                     clipPath:
                       "polygon(11.5px 0, 100% 0, 100% calc(100% - 11.5px), calc(100% - 11.5px) 100%, 0 100%, 0 11.5px)",
@@ -951,8 +951,8 @@ export default function MarsExplorer({
                     <span
                       className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-none text-[11px] font-bold ${
                         pickingRouteSlot === "A"
-                          ? "bg-emerald-500 text-black"
-                          : "bg-ares-accent text-black"
+                          ? "bg-emerald-500 text-ares-bg"
+                          : "bg-ares-accent text-ares-bg"
                       }`}
                     >
                       {pickingRouteSlot}
@@ -974,8 +974,8 @@ export default function MarsExplorer({
                       onClick={() => setPickingPresetsOpen((prev) => !prev)}
                       className={`min-h-[36px] cursor-pointer rounded-none border px-2.5 py-1 text-[11px] font-semibold transition-colors md:hidden ${
                         pickingPresetsOpen
-                          ? "border-ares-accent bg-ares-accent/20 text-white"
-                          : "border-ares-line bg-black/30 text-ares-text hover:border-ares-accent/60"
+                          ? "border-ares-accent bg-[rgba(254,127,45,0.16)] text-ares-text"
+                          : "border-[rgba(255,249,235,0.2)] bg-ares-bg/50 text-ares-text hover:border-ares-accent/70"
                       }`}
                     >
                       {pickingPresetsOpen ? "Hide list" : "Presets"}
@@ -986,7 +986,7 @@ export default function MarsExplorer({
                         setPickingRouteSlot(null);
                         setPickingPresetsOpen(false);
                       }}
-                      className="min-h-[36px] cursor-pointer rounded-none border border-white/25 px-3 py-1 text-[11px] text-ares-mute hover:border-white/50 hover:text-white md:min-h-0 md:px-2 md:py-0.5 md:text-[10px]"
+                      className="min-h-[36px] cursor-pointer rounded-none border border-[rgba(255,249,235,0.2)] bg-ares-bg/45 px-3 py-1 text-[11px] font-medium text-ares-text hover:border-ares-accent md:min-h-0 md:px-2.5 md:py-1 md:text-[11px]"
                     >
                       Cancel
                     </button>
