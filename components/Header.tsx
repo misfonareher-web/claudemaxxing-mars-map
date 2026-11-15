@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
-import Image from "next/image";
 import { ClockIcon } from "@phosphor-icons/react/ssr";
 import {
   AresGearIcon,
+  AresLogoIcon,
   AresPinIcon,
   AresSunIcon,
   AresUserIcon,
@@ -278,14 +278,7 @@ export default function Header({
         className="pointer-events-auto absolute left-0 top-0 flex h-[68px] items-center gap-2 pl-3 pr-2 sm:gap-3 sm:pl-6 sm:pr-4"
         style={{ width: leftBevelX }}
       >
-        <Image
-          src="/ares-logo.webp"
-          alt="AreoPath Logo"
-          width={44}
-          height={32}
-          priority
-          className="h-6 w-auto shrink-0 object-contain sm:h-8 drop-shadow-[0_0_12px_rgba(255,82,24,0.75)]"
-        />
+        <AresLogoIcon className="h-6 w-auto shrink-0 sm:h-8 drop-shadow-[0_0_12px_rgba(255,82,24,0.6)]" />
         <div className="h-6 w-px shrink-0 bg-[#6e2f16]/65 sm:h-8" />
         <div className="flex min-w-0 flex-col justify-center">
           <span className="whitespace-nowrap text-[15px] font-bold leading-none tracking-[0.04em] text-[#ff561a] drop-shadow-[0_0_10px_rgba(255,86,26,0.4)] sm:text-[20px]">
