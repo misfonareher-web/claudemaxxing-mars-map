@@ -66,9 +66,9 @@ export default function SettingsView({
   onResetView,
 }: SettingsViewProps) {
   return (
-    <div className="fixed inset-0 z-35 overflow-y-auto bg-ares-bg/95 px-6 pt-[96px] pb-28 backdrop-blur-md">
-      <div className="mx-auto max-w-3xl space-y-6">
-        <div className="flex items-center justify-between">
+    <div className="fixed inset-0 z-35 overflow-y-auto bg-ares-bg/95 px-4 pt-[88px] pb-[max(7rem,env(safe-area-inset-bottom))] backdrop-blur-md sm:px-6 sm:pt-[96px]">
+      <div className="mx-auto max-w-3xl space-y-5 sm:space-y-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-xl font-bold text-ares-text">Settings</h1>
             <p className="mt-1 text-xs text-ares-mute">
@@ -78,11 +78,11 @@ export default function SettingsView({
           <button
             type="button"
             onClick={onResetView}
-            className="inline-flex cursor-pointer items-center gap-2 rounded-none border border-ares-accent/45 bg-ares-panel px-3.5 py-2 text-xs font-medium text-ares-text transition-colors hover:border-ares-accent"
+            className="inline-flex min-h-[44px] w-full shrink-0 cursor-pointer items-center justify-center gap-2 rounded-none border border-ares-accent/45 bg-ares-panel px-4 py-2 text-xs font-medium whitespace-nowrap text-ares-text transition-colors hover:border-ares-accent sm:min-h-0 sm:w-auto sm:px-3.5"
           >
             <ArrowCounterClockwiseIcon
               weight="bold"
-              className="h-3.5 w-3.5 text-ares-accent-soft"
+              className="h-3.5 w-3.5 shrink-0 text-ares-accent-soft"
             />
             <span>Reset Global View</span>
           </button>
@@ -148,12 +148,12 @@ export default function SettingsView({
                 return (
                   <div
                     key={feat.properties.id}
-                    className="flex items-center justify-between gap-4 py-3.5"
+                    className="flex flex-col gap-2.5 py-3.5 sm:flex-row sm:items-center sm:justify-between sm:gap-4"
                   >
                     <div className="min-w-0 flex-1">
                       <p
                         title={feat.properties.name}
-                        className="truncate text-sm font-semibold text-white"
+                        className="text-sm leading-snug font-semibold text-white sm:truncate"
                       >
                         {displayName}
                       </p>
@@ -164,7 +164,7 @@ export default function SettingsView({
                       )}
                     </div>
 
-                    <div className="flex shrink-0 items-center gap-4">
+                    <div className="flex shrink-0 items-center justify-between gap-3 sm:justify-end sm:gap-4">
                       <span
                         className={`font-mono text-sm font-bold tabular-nums ${
                           typeof score === "number"
@@ -177,23 +177,25 @@ export default function SettingsView({
                           : "—/100"}
                       </span>
 
-                      <button
-                        type="button"
-                        onClick={() => onJumpToFeature(feat)}
-                        className="cursor-pointer rounded-none border border-ares-line/90 bg-[#170b07]/85 px-4 py-1.5 text-xs font-semibold text-white transition-colors hover:border-ares-accent hover:text-ares-accent"
-                      >
-                        Open
-                      </button>
+                      <div className="flex items-center gap-2 sm:gap-4">
+                        <button
+                          type="button"
+                          onClick={() => onJumpToFeature(feat)}
+                          className="min-h-[40px] cursor-pointer rounded-none border border-ares-line/90 bg-[#170b07]/85 px-4 py-1.5 text-xs font-semibold text-white transition-colors hover:border-ares-accent hover:text-ares-accent sm:min-h-0"
+                        >
+                          Open
+                        </button>
 
-                      <button
-                        type="button"
-                        onClick={() => onRemoveSaved(feat.properties.id)}
-                        aria-label={`Remove ${displayName}`}
-                        title={`Remove ${displayName}`}
-                        className="cursor-pointer p-1 text-ares-text/80 transition-colors hover:text-rose-400"
-                      >
-                        <XIcon weight="bold" className="h-3.5 w-3.5" />
-                      </button>
+                        <button
+                          type="button"
+                          onClick={() => onRemoveSaved(feat.properties.id)}
+                          aria-label={`Remove ${displayName}`}
+                          title={`Remove ${displayName}`}
+                          className="flex h-10 w-10 cursor-pointer items-center justify-center rounded-none border border-ares-line/60 text-ares-text/80 transition-colors hover:border-rose-400/50 hover:text-rose-400 sm:h-auto sm:w-auto sm:border-0 sm:p-1"
+                        >
+                          <XIcon weight="bold" className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 );

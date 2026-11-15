@@ -161,7 +161,7 @@ export function HazardCoverageCard({ coverage }: { coverage: HazardCoverage }) {
                     prev === row.hazard ? null : row.hazard
                   )
                 }
-                className="flex w-full cursor-pointer items-center justify-between gap-2 px-2 py-1 text-left transition-colors hover:bg-ares-raised/65 focus:outline-none"
+                className="flex min-h-[42px] w-full cursor-pointer items-center justify-between gap-2 px-2.5 py-2 text-left transition-colors hover:bg-ares-raised/65 focus:outline-none sm:min-h-0 sm:px-2 sm:py-1"
               >
                 <span className="flex min-w-0 items-center gap-1.5 text-[11px] font-medium text-ares-text">
                   <span className="truncate">{formatHazardName(row.hazard)}</span>

@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 
@@ -16,6 +16,14 @@ export const metadata: Metadata = {
   title: "AreoPath — Martian Survival Guide",
   description:
     "Interactive 2D Mars exploration and survival guide powered by NASA Mars Trek, PDS, MEDA, and REMS datasets.",
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+  themeColor: "#090605",
+  colorScheme: "dark",
 };
 
 export default function RootLayout({

@@ -46,6 +46,8 @@ export interface MarsMapProps {
   } | null;
   onSelectFeature: (feature: MarsGeoJSONFeature) => void;
   onSelectPoint?: (coords: { lon: number; lat: number }) => void;
+  mobileSheetOpen?: boolean;
+  tabletRightOpen?: boolean;
 }
 
 const VERTICAL_BOUNDS = L.latLngBounds(
@@ -167,13 +169,13 @@ function createPointDivIcon(
         <span class="absolute inset-0 rounded-none transition-transform duration-150 group-hover:scale-110"
               style="background:${palette.bg}; border: 1.5px solid ${palette.ring}; box-shadow: 0 4px 14px rgba(0,0,0,0.65);"></span>
         <span class="relative z-10 flex items-center justify-center">${iconSvg}</span>
-        <div class="pointer-events-none ${
+        <div class="mars-marker-label ${isSelected ? "is-selected" : ""} pointer-events-none ${
           kind === "landing_site" || isSelected
             ? "opacity-100"
             : "opacity-0 group-hover:opacity-100"
-        } absolute left-full top-1/2 ml-2 -translate-y-1/2 whitespace-nowrap rounded-none px-2 py-0.5 text-[11px] font-medium transition-opacity duration-150"
+        } absolute left-1/2 top-full mt-1.5 -translate-x-1/2 max-w-[132px] truncate rounded-none px-1.5 py-0.5 text-[10px] font-medium transition-opacity duration-150 sm:left-full sm:top-1/2 sm:mt-0 sm:ml-2 sm:max-w-none sm:-translate-x-0 sm:-translate-y-1/2 sm:whitespace-nowrap sm:px-2 sm:text-[11px]"
              style="background: rgba(16, 10, 7, 0.94); color:${palette.labelColor}; border: 1px solid ${palette.ring}55; box-shadow: 0 4px 12px rgba(0,0,0,0.5);">
-          <span>${shortName}</span>${scoreBadge}
+          <span>${shortName}</span>${scoreBadge ? ` ${scoreBadge}` : ""}
         </div>
       </div>
     `,
@@ -182,12 +184,15 @@ function createPointDivIcon(
 
 function createRouteEndpointDivIcon(
   badge: "A" | "B",
-  label: string
+  label: string,
+  mobilePlacement: "above" | "below" = "below"
 ): L.DivIcon {
   const accent = badge === "A" ? "#34d399" : "#ff6b2b";
   const bg =
     badge === "A" ? "rgba(12, 42, 32, 0.94)" : "rgba(48, 18, 9, 0.94)";
   const safeLabel = escapeHtml(label.replace(/ \(.*\)$/, ""));
+  const mobilePosClass =
+    mobilePlacement === "above" ? "bottom-full mb-1.5" : "top-full mt-1.5";
 
   return L.divIcon({
     className: "mars-custom-marker",
@@ -198,7 +203,7 @@ function createRouteEndpointDivIcon(
         <span class="ares-pulse absolute inset-0 rounded-none" style="border: 1.5px solid ${accent};"></span>
         <span class="absolute inset-0 rounded-none" style="background:${bg}; border: 2px solid ${accent}; box-shadow: 0 0 16px ${accent}80;"></span>
         <span class="relative z-10 font-mono text-[13px] font-bold text-white">${badge}</span>
-        <div class="pointer-events-none absolute left-full top-1/2 ml-2 -translate-y-1/2 whitespace-nowrap rounded-none px-2 py-0.5 text-[11px] font-semibold text-white"
+        <div class="mars-marker-label is-selected pointer-events-none absolute left-1/2 ${mobilePosClass} -translate-x-1/2 max-w-[144px] truncate rounded-none px-1.5 py-0.5 text-[10px] font-semibold text-white sm:bottom-auto sm:left-full sm:top-1/2 sm:mt-0 sm:mb-0 sm:ml-2 sm:max-w-none sm:-translate-x-0 sm:-translate-y-1/2 sm:whitespace-nowrap sm:px-2 sm:text-[11px]"
              style="background: rgba(14, 8, 6, 0.95); border: 1px solid ${accent}88; box-shadow: 0 4px 12px rgba(0,0,0,0.6);">
           <span style="color:${accent}">Point ${badge}:</span> <span>${safeLabel}</span>
         </div>
@@ -220,6 +225,8 @@ export default function MarsMap({
   flyToTarget,
   onSelectFeature,
   onSelectPoint,
+  mobileSheetOpen = false,
+  tabletRightOpen = false,
 }: MarsMapProps) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const zoomControlRef = useRef<HTMLDivElement | null>(null);
@@ -227,6 +234,8 @@ export default function MarsMap({
   const tileLayerRef = useRef<L.TileLayer | null>(null);
   const overlayGroupRef = useRef<L.LayerGroup | null>(null);
   const pendingZoomRef = useRef<number | null>(null);
+  const mobileSheetOpenRef = useRef(mobileSheetOpen);
+  const tabletRightOpenRef = useRef(tabletRightOpen);
   const [zoomMetrics, setZoomMetrics] = useState({
     zoom: 2.25,
     minZoom: 1.5,
@@ -243,6 +252,8 @@ export default function MarsMap({
       onSelectFeature,
       onSelectPoint,
     };
+    mobileSheetOpenRef.current = mobileSheetOpen;
+    tabletRightOpenRef.current = tabletRightOpen;
   });
 
   // Initialize Leaflet map in EPSG:4326 with vertical bounds clamp & infinite horizontal wrap
@@ -385,9 +396,10 @@ export default function MarsMap({
     L.DomEvent.disableScrollPropagation(panel);
   }, []);
 
-  // Camera flyTo (always fly to nearest horizontal world copy)
+  // Camera flyTo (always fly to nearest horizontal world copy; shift upward on mobile above sheet)
   useEffect(() => {
     const map = mapRef.current;
+    const el = containerRef.current;
     if (!map || !flyToTarget) return;
     const [lon, lat] = flyToTarget.center;
     const currentLng = map.getCenter().lng;
@@ -396,9 +408,28 @@ export default function MarsMap({
       map.getMaxZoom(),
       Math.max(map.getMinZoom(), flyToTarget.zoom)
     );
+    let targetLat = lat;
+    let targetLon = nearestLon;
+    if (el && typeof window !== "undefined" && clampedZoom >= 3.5) {
+      const vw = window.innerWidth;
+      if (vw < 768 && mobileSheetOpenRef.current) {
+        const projected = map.project([lat, nearestLon], clampedZoom);
+        const offsetPt = L.point(
+          projected.x,
+          projected.y + Math.round(el.clientHeight * 0.19)
+        );
+        const shifted = map.unproject(offsetPt, clampedZoom);
+        targetLat = Math.max(-85, Math.min(85, shifted.lat));
+      } else if (vw >= 768 && vw < 1024 && tabletRightOpenRef.current) {
+        const projected = map.project([lat, nearestLon], clampedZoom);
+        const offsetPt = L.point(projected.x + 174, projected.y);
+        const shifted = map.unproject(offsetPt, clampedZoom);
+        targetLon = shifted.lng;
+      }
+    }
     pendingZoomRef.current = null;
     map.stop();
-    map.flyTo([lat, nearestLon], clampedZoom, {
+    map.flyTo([targetLat, targetLon], clampedZoom, {
       duration: 0.75,
       easeLinearity: 0.25,
     });
@@ -622,14 +653,30 @@ export default function MarsMap({
       });
     });
 
-    // Dedicated Point A and Point B route markers
-    const endpoints: { badge: "A" | "B"; feat: MarsGeoJSONFeature }[] = [];
-    if (routePointA) endpoints.push({ badge: "A", feat: routePointA });
-    if (routePointB) endpoints.push({ badge: "B", feat: routePointB });
+    // Dedicated Point A and Point B route markers (separate northern/southern labels on mobile)
+    const endpoints: { badge: "A" | "B"; feat: MarsGeoJSONFeature; lat: number; lon: number }[] = [];
+    if (routePointA) {
+      const [lon, lat] = getCentroid(routePointA);
+      endpoints.push({ badge: "A", feat: routePointA, lat, lon });
+    }
+    if (routePointB) {
+      const [lon, lat] = getCentroid(routePointB);
+      endpoints.push({ badge: "B", feat: routePointB, lat, lon });
+    }
 
-    endpoints.forEach(({ badge, feat }) => {
-      const [lon, lat] = getCentroid(feat);
-      const icon = createRouteEndpointDivIcon(badge, feat.properties.name);
+    endpoints.forEach(({ badge, feat, lat, lon }) => {
+      let mobilePlacement: "above" | "below" = "below";
+      if (endpoints.length === 2) {
+        const other = endpoints.find((ep) => ep.badge !== badge);
+        if (other && (lat > other.lat || (lat === other.lat && badge === "B"))) {
+          mobilePlacement = "above";
+        }
+      }
+      const icon = createRouteEndpointDivIcon(
+        badge,
+        feat.properties.name,
+        mobilePlacement
+      );
       WORLD_LNG_OFFSETS.forEach((offsetLng) => {
         L.marker([lat, lon + offsetLng], {
           icon,
@@ -664,11 +711,16 @@ export default function MarsMap({
 
   return (
     <>
-      <div ref={containerRef} className="absolute inset-0 z-0" />
+      <div
+        className={`absolute inset-0 z-0 ${mobileSheetOpen ? "mars-sheet-open" : ""}`}
+      >
+        {/* Keep static className on Leaflet mount node so React never strips runtime .leaflet-container classes */}
+        <div ref={containerRef} className="h-full w-full" />
+      </div>
       <div
         ref={zoomControlRef}
         aria-label="Map zoom controls"
-        className="fixed right-3 bottom-[92px] z-[950] flex w-[56px] flex-col items-center rounded-none border border-[#f06423]/45 bg-[#100806]/92 text-ares-text shadow-[0_12px_32px_rgba(0,0,0,0.6)] backdrop-blur-md select-none md:top-[88px] md:right-auto md:bottom-auto md:left-[284px]"
+        className="fixed top-[128px] right-2.5 z-[940] flex w-[44px] flex-col items-center rounded-none border border-[#f06423]/45 bg-[#100806]/92 text-ares-text shadow-[0_12px_32px_rgba(0,0,0,0.6)] backdrop-blur-md select-none sm:right-3 sm:w-[46px] md:top-[132px] md:right-auto md:bottom-auto md:left-3 md:w-[52px] lg:top-[88px] lg:left-[284px] lg:w-[56px]"
       >
         <button
           type="button"
@@ -676,13 +728,13 @@ export default function MarsMap({
           disabled={!canZoomIn}
           aria-label="Zoom in"
           title="Zoom in (+)"
-          className="flex h-9 w-full items-center justify-center rounded-none border-b border-ares-line/70 text-ares-text transition hover:bg-ares-raised hover:text-ares-accent-soft active:bg-ares-raised disabled:cursor-not-allowed disabled:opacity-35"
+          className="flex h-10 w-full items-center justify-center rounded-none border-b border-ares-line/70 text-ares-text transition hover:bg-ares-raised hover:text-ares-accent-soft active:bg-ares-raised disabled:cursor-not-allowed disabled:opacity-35 md:h-9"
         >
           <PlusIcon size={15} weight="bold" />
         </button>
 
         <div
-          className="flex h-8 w-full items-center justify-center border-b border-ares-line/70 font-mono text-[10px] font-medium tabular-nums text-ares-mute"
+          className="hidden h-6 w-full items-center justify-center border-b border-ares-line/70 font-mono text-[10px] font-medium tabular-nums text-ares-mute [@media(min-height:520px)]:flex md:flex md:h-8"
           title={`Zoom z${zoomMetrics.zoom.toFixed(2)} (${scalePercent}%)`}
         >
           {scalePercent}%
@@ -694,7 +746,7 @@ export default function MarsMap({
           disabled={!canZoomOut}
           aria-label="Zoom out"
           title="Zoom out (-)"
-          className="flex h-9 w-full items-center justify-center rounded-none border-b border-ares-line/70 text-ares-text transition hover:bg-ares-raised hover:text-ares-accent-soft active:bg-ares-raised disabled:cursor-not-allowed disabled:opacity-35"
+          className="flex h-10 w-full items-center justify-center rounded-none border-b border-ares-line/70 text-ares-text transition hover:bg-ares-raised hover:text-ares-accent-soft active:bg-ares-raised disabled:cursor-not-allowed disabled:opacity-35 md:h-9"
         >
           <MinusIcon size={15} weight="bold" />
         </button>
@@ -704,7 +756,7 @@ export default function MarsMap({
           onClick={handleResetZoom}
           aria-label="Reset zoom to 100%"
           title="Reset to 100% overview"
-          className={`flex h-8 w-full items-center justify-center gap-0.5 rounded-none font-mono text-[10px] font-semibold tracking-tight transition ${
+          className={`flex h-9 w-full items-center justify-center gap-0.5 rounded-none font-mono text-[10px] font-semibold tracking-tight transition md:h-8 ${
             isAtOverview
               ? "bg-transparent text-ares-mute"
               : "bg-ares-accent/15 text-ares-accent-soft hover:bg-ares-accent/25"

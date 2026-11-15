@@ -5,6 +5,8 @@ import {
   ArrowCounterClockwiseIcon,
   ArrowSquareOutIcon,
   BookmarkSimpleIcon,
+  CaretDownIcon,
+  CaretUpIcon,
   CrosshairIcon,
   NavigationArrowIcon,
   XIcon,
@@ -76,6 +78,9 @@ interface LocationCardProps {
   onClearRoute: () => void;
   onToggleSave: (id: string) => void;
   onClose: () => void;
+  mobileSheetExpanded?: boolean;
+  onToggleMobileSheetExpanded?: () => void;
+  hideOnMobilePicking?: boolean;
 }
 
 const KIND_LABELS: Record<MarsFeatureKind, string> = {
@@ -202,30 +207,84 @@ function ResourceIcon({ label }: { label: string }) {
 
 function HudSidePanel({
   ariaLabel,
+  mobileExpanded = false,
+  hideOnMobile = false,
   children,
 }: {
   ariaLabel: string;
+  mobileExpanded?: boolean;
+  hideOnMobile?: boolean;
   children: React.ReactNode;
 }) {
   return (
     <aside
       aria-label={ariaLabel}
-      className="pointer-events-auto fixed top-[88px] right-3 z-[1000] flex max-h-[calc(100vh-172px)] w-[372px] max-w-[calc(100vw-24px)] flex-col bg-[#f06423]/60 p-[1px] shadow-[0_22px_60px_rgba(0,0,0,0.85),0_0_28px_rgba(240,100,35,0.22)] backdrop-blur-xl sm:right-5"
+      className={`pointer-events-auto fixed inset-x-2.5 bottom-[calc(74px+env(safe-area-inset-bottom))] z-[1000] flex flex-col bg-[#f06423]/60 p-[1px] shadow-[0_22px_60px_rgba(0,0,0,0.85),0_0_28px_rgba(240,100,35,0.22)] backdrop-blur-xl transition-[max-height] duration-200 md:inset-x-auto md:top-[132px] md:right-4 md:bottom-auto md:w-[344px] md:max-h-[calc(100dvh-222px)] lg:top-[88px] lg:right-5 lg:w-[372px] lg:max-h-[calc(100vh-172px)] ${
+        hideOnMobile ? "hidden md:flex" : "flex"
+      } ${
+        mobileExpanded
+          ? "max-h-[calc(100dvh-158px)]"
+          : "max-h-[min(46dvh,calc(100dvh-160px))]"
+      }`}
       style={{
         clipPath:
           "polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px)",
       }}
     >
       <div
-        className="flex min-h-0 max-h-[calc(100vh-174px)] flex-1 flex-col overflow-hidden bg-[#100806]/94"
+        className="flex min-h-0 flex-1 flex-col overflow-hidden bg-[#100806]/94"
         style={{
           clipPath:
             "polygon(13.5px 0, 100% 0, 100% calc(100% - 13.5px), calc(100% - 13.5px) 100%, 0 100%, 0 13.5px)",
         }}
       >
+        <div
+          aria-hidden="true"
+          className="mx-auto mt-1.5 h-1 w-9 shrink-0 bg-ares-accent/45 md:hidden"
+        />
         {children}
       </div>
     </aside>
+  );
+}
+
+/** Expand/collapse (mobile sheet) + close icon buttons with generous touch targets. */
+function SheetWindowControls({
+  expanded,
+  onToggleExpand,
+  onClose,
+  closeLabel,
+}: {
+  expanded: boolean;
+  onToggleExpand?: () => void;
+  onClose: () => void;
+  closeLabel: string;
+}) {
+  return (
+    <div className="-mr-1.5 flex shrink-0 items-center gap-0.5 sm:-mr-1">
+      {onToggleExpand && (
+        <button
+          type="button"
+          onClick={onToggleExpand}
+          aria-label={expanded ? "Collapse detail sheet" : "Expand detail sheet"}
+          className="flex h-10 w-10 cursor-pointer items-center justify-center text-ares-mute transition-colors hover:text-ares-text md:hidden"
+        >
+          {expanded ? (
+            <CaretDownIcon weight="bold" className="h-4 w-4" />
+          ) : (
+            <CaretUpIcon weight="bold" className="h-4 w-4" />
+          )}
+        </button>
+      )}
+      <button
+        type="button"
+        onClick={onClose}
+        aria-label={closeLabel}
+        className="flex h-10 w-10 cursor-pointer items-center justify-center text-ares-mute transition-colors hover:text-ares-text sm:h-7 sm:w-7"
+      >
+        <XIcon weight="bold" className="h-4 w-4" />
+      </button>
+    </div>
   );
 }
 
@@ -326,8 +385,15 @@ export default function LocationCard({
   onClearRoute,
   onToggleSave,
   onClose,
+  mobileSheetExpanded,
+  onToggleMobileSheetExpanded,
+  hideOnMobilePicking = false,
 }: LocationCardProps) {
   const [failedTileUrl, setFailedTileUrl] = useState<string | null>(null);
+  const [localExpanded, setLocalExpanded] = useState(false);
+  const isSheetExpanded = mobileSheetExpanded ?? localExpanded;
+  const toggleSheetExpanded =
+    onToggleMobileSheetExpanded ?? (() => setLocalExpanded((prev) => !prev));
 
   const isRouteMode = Boolean(pointA || pointB || pickingSlot);
   const routePresetA = pointA ? terrainPreset(...getCentroid(pointA)) : null;
@@ -470,9 +536,13 @@ export default function LocationCard({
     ];
 
     return (
-      <HudSidePanel ariaLabel="Route A to B Details">
+      <HudSidePanel
+        ariaLabel="Route A to B Details"
+        mobileExpanded={isSheetExpanded}
+        hideOnMobile={hideOnMobilePicking}
+      >
         {/* Header */}
-        <div className="flex items-start justify-between gap-3 px-4 pt-3.5 pb-2.5">
+        <div className="flex items-start justify-between gap-2 px-4 pt-2.5 pb-2 md:pt-3.5 md:pb-2.5">
           <div className="min-w-0">
             <div className="flex items-center gap-1.5 text-[10px] font-semibold tracking-wider text-ares-accent uppercase">
               <AresRouteIcon
@@ -483,7 +553,7 @@ export default function LocationCard({
               <span>Route A → B</span>
             </div>
 
-            <h2 className="mt-1 text-[28px] leading-none font-bold tracking-tight text-white tabular-nums">
+            <h2 className="mt-1 text-[24px] leading-none font-bold tracking-tight text-white tabular-nums sm:text-[28px]">
               {routeUnavailable ? "Route unavailable" : effectiveDistanceKm !== null
                 ? formatDistance(effectiveDistanceKm, distanceUnit)
                 : isUnreachable
@@ -496,18 +566,23 @@ export default function LocationCard({
             </h2>
           </div>
 
-          <button
-            type="button"
-            onClick={onClearRoute}
-            aria-label="Close route panel"
-            className="-mr-1 shrink-0 cursor-pointer p-1 text-ares-mute transition-colors hover:text-ares-text"
-          >
-            <XIcon weight="bold" className="h-4 w-4" />
-          </button>
+          <SheetWindowControls
+            expanded={isSheetExpanded}
+            onToggleExpand={toggleSheetExpanded}
+            onClose={onClearRoute}
+            closeLabel="Close route panel"
+          />
         </div>
 
-        {/* Body */}
-        <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-4 pb-4">
+        {/* Scrollable Body */}
+        <div
+          key={
+            pickingSlot
+              ? `pick-${pickingSlot}`
+              : `${pointA?.properties.id ?? "none"}-${pointB?.properties.id ?? "none"}`
+          }
+          className="min-h-0 flex-1 space-y-3 overflow-y-auto px-4 pb-3"
+        >
           {/* Stacked Point A & Point B boxes */}
           <div className="space-y-2">
             <RouteEndpointSlot
@@ -684,7 +759,7 @@ export default function LocationCard({
 
           {/* Disclaimers */}
           {trailingDisclaimers.length > 0 && (
-            <ul className="space-y-1.5 border-t border-ares-line/70 pt-3 text-[11px] leading-snug text-ares-mute">
+            <ul className="space-y-1.5 border-t border-ares-line/70 pt-3 pb-1 text-[11px] leading-snug text-ares-mute">
               {trailingDisclaimers.map((disclaimer, idx) => (
                 <li key={idx} className="flex items-start gap-2">
                   <HudBullet />
@@ -693,30 +768,30 @@ export default function LocationCard({
               ))}
             </ul>
           )}
+        </div>
 
-          {/* Actions: New route + Clear */}
-          <div className="grid grid-cols-2 gap-2 pt-1">
-            <button
-              type="button"
-              onClick={onStartNewRoute}
-              className="flex cursor-pointer items-center justify-center gap-1.5 rounded-none border border-ares-accent/75 bg-ares-accent/15 py-2 text-xs font-semibold text-white transition-colors hover:bg-ares-accent/25"
-            >
-              <NavigationArrowIcon weight="duotone" className="h-3.5 w-3.5" />
-              <span>New route</span>
-            </button>
+        {/* Sticky Actions Footer: New route + Clear */}
+        <div className="grid shrink-0 grid-cols-2 gap-2 border-t border-ares-line/70 bg-[#100806]/96 px-4 pt-2.5 pb-4">
+          <button
+            type="button"
+            onClick={onStartNewRoute}
+            className="flex min-h-[42px] cursor-pointer items-center justify-center gap-1.5 rounded-none border border-ares-accent/75 bg-ares-accent/15 py-2 text-xs font-semibold text-white transition-colors hover:bg-ares-accent/25 sm:min-h-0"
+          >
+            <NavigationArrowIcon weight="duotone" className="h-3.5 w-3.5" />
+            <span>New route</span>
+          </button>
 
-            <button
-              type="button"
-              onClick={onClearRoute}
-              className="flex cursor-pointer items-center justify-center gap-1.5 rounded-none border border-ares-line/90 bg-[#170b07]/85 py-2 text-xs font-semibold text-ares-text transition-colors hover:border-rose-400/60 hover:text-rose-300"
-            >
-              <ArrowCounterClockwiseIcon
-                weight="bold"
-                className="h-3.5 w-3.5"
-              />
-              <span>Clear</span>
-            </button>
-          </div>
+          <button
+            type="button"
+            onClick={onClearRoute}
+            className="flex min-h-[42px] cursor-pointer items-center justify-center gap-1.5 rounded-none border border-ares-line/90 bg-[#170b07]/85 py-2 text-xs font-semibold text-ares-text transition-colors hover:border-rose-400/60 hover:text-rose-300 sm:min-h-0"
+          >
+            <ArrowCounterClockwiseIcon
+              weight="bold"
+              className="h-3.5 w-3.5"
+            />
+            <span>Clear</span>
+          </button>
         </div>
       </HudSidePanel>
     );
@@ -787,9 +862,12 @@ export default function LocationCard({
     : null;
 
   return (
-    <HudSidePanel ariaLabel="Selected Location Details">
+    <HudSidePanel
+      ariaLabel="Selected Location Details"
+      mobileExpanded={isSheetExpanded}
+    >
       {/* Card Header */}
-      <div className="flex items-start justify-between gap-3 px-4 pt-3.5 pb-2.5">
+      <div className="flex items-start justify-between gap-2 px-4 pt-2.5 pb-2 md:pt-3.5 md:pb-2.5">
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[10px] font-semibold tracking-wider text-ares-accent-soft uppercase">
             <AresPinIcon className="h-3.5 w-3.5 shrink-0" />
@@ -808,7 +886,7 @@ export default function LocationCard({
               </span>
             )}
           </div>
-          <h2 className="mt-0.5 truncate text-[20px] leading-tight font-bold text-ares-text">
+          <h2 className="mt-0.5 line-clamp-2 break-words text-[18px] leading-snug font-bold text-ares-text sm:text-[20px] sm:leading-tight">
             {headingTitle}
           </h2>
           {missionSubtitle && (
@@ -819,23 +897,21 @@ export default function LocationCard({
           </p>
         </div>
 
-        <button
-          type="button"
-          onClick={onClose}
-          aria-label="Close location panel"
-          className="-mr-1 shrink-0 cursor-pointer p-1 text-ares-mute transition-colors hover:text-ares-text"
-        >
-          <XIcon weight="bold" className="h-4 w-4" />
-        </button>
+        <SheetWindowControls
+          expanded={isSheetExpanded}
+          onToggleExpand={toggleSheetExpanded}
+          onClose={onClose}
+          closeLabel="Close location panel"
+        />
       </div>
 
       {/* Scrollable Card Body */}
       <div
         key={feature.properties.id}
-        className="min-h-0 flex-1 space-y-3 overflow-y-auto px-4 pb-4"
+        className="min-h-0 flex-1 space-y-3 overflow-y-auto px-4 pb-3"
       >
         {/* NASA Viking Mosaic Banner */}
-        <div className="relative h-[84px] w-full overflow-hidden rounded-none border border-ares-line bg-ares-raised">
+        <div className="relative h-[56px] w-full overflow-hidden rounded-none border border-ares-line bg-ares-raised sm:h-[84px]">
           {showPreview ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -853,7 +929,7 @@ export default function LocationCard({
             </div>
           )}
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ares-panel/85 via-transparent to-transparent" />
-          <span className="pointer-events-none absolute right-2.5 bottom-1.5 text-[10px] text-ares-mute">
+          <span className="pointer-events-none absolute right-2 bottom-1 text-[9.5px] text-ares-mute sm:right-2.5 sm:bottom-1.5 sm:text-[10px]">
             Terrain image · NASA Viking MDIM 2.1
           </span>
         </div>
@@ -902,8 +978,8 @@ export default function LocationCard({
           />
         )}
 
-        {/* Advantages & Risks (2 clean columns) */}
-        {!noTerrain && <div className="grid grid-cols-2 gap-3.5 border-b border-ares-line/70 pb-3">
+        {/* Advantages & Risks (1 column on phones, 2 columns >= sm) */}
+        {!noTerrain && <div className="grid grid-cols-1 gap-3 border-b border-ares-line/70 pb-3 sm:grid-cols-2 sm:gap-3.5">
           {insights.pros.length > 0 && <div>
             <h4 className="mb-1.5 text-[10px] font-semibold tracking-wider text-ares-mute uppercase">
               Advantages
@@ -951,44 +1027,12 @@ export default function LocationCard({
           </div>
         </div>}
 
-        {/* Primary Action Buttons */}
-        <div className="space-y-1.5 pt-0.5">
-          <button
-            type="button"
-            onClick={() => onStartRouteFromHere(feature)}
-            className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-none bg-ares-accent py-2 text-xs font-bold text-[#140c07] shadow-[0_0_20px_rgba(240,100,35,0.3)] transition-all hover:brightness-110"
-            style={{
-              clipPath:
-                "polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px)",
-            }}
-          >
-            <NavigationArrowIcon weight="fill" className="h-3.5 w-3.5" />
-            <span>Route from here</span>
-          </button>
-
-          <button
-            type="button"
-            onClick={() => onToggleSave(feature.properties.id)}
-            className={`flex w-full cursor-pointer items-center justify-center gap-2 rounded-none border py-1.5 text-xs font-semibold transition-all duration-150 ${
-              isSaved
-                ? "border-ares-accent/80 bg-ares-accent/20 text-white"
-                : "border-ares-line bg-ares-raised/65 text-ares-text hover:border-ares-accent/60"
-            }`}
-          >
-            <BookmarkSimpleIcon
-              weight={isSaved ? "fill" : "duotone"}
-              className="h-3.5 w-3.5"
-            />
-            <span>{isSaved ? "Location saved" : "Save location"}</span>
-          </button>
-        </div>
-
         {environment?.radiation_context && !unavailable && (
           <RadiationContextCard radiation={environment.radiation_context} />
         )}
 
-        {/* Location Features & Disclaimers (below primary actions for clean fold fit) */}
-        <div className="space-y-3 border-t border-ares-line/60 pt-3">
+        {/* Location Features & Disclaimers */}
+        <div className="space-y-3 border-t border-ares-line/60 pt-3 pb-1">
           <div>
             <h4 className="mb-1.5 text-[10.5px] font-semibold tracking-wider text-ares-mute uppercase">
               Location Features
@@ -1046,6 +1090,40 @@ export default function LocationCard({
               </div>
             )}
         </div>
+      </div>
+
+      {/* Sticky Primary Action Buttons Footer */}
+      <div className="grid shrink-0 grid-cols-2 gap-2 border-t border-ares-line/70 bg-[#100806]/96 px-4 pt-2.5 pb-4">
+        <button
+          type="button"
+          onClick={() => onStartRouteFromHere(feature)}
+          className="flex min-h-[42px] cursor-pointer items-center justify-center gap-2 rounded-none bg-ares-accent py-2 text-xs font-bold text-[#140c07] shadow-[0_0_20px_rgba(240,100,35,0.3)] transition-all hover:brightness-110 sm:min-h-0"
+          style={{
+            clipPath:
+              "polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px)",
+          }}
+        >
+          <NavigationArrowIcon weight="fill" className="h-3.5 w-3.5 shrink-0" />
+          <span className="truncate">Route from here</span>
+        </button>
+
+        <button
+          type="button"
+          onClick={() => onToggleSave(feature.properties.id)}
+          className={`flex min-h-[42px] cursor-pointer items-center justify-center gap-2 rounded-none border py-1.5 text-xs font-semibold transition-all duration-150 sm:min-h-0 ${
+            isSaved
+              ? "border-ares-accent/80 bg-ares-accent/20 text-white"
+              : "border-ares-line bg-ares-raised/65 text-ares-text hover:border-ares-accent/60"
+          }`}
+        >
+          <BookmarkSimpleIcon
+            weight={isSaved ? "fill" : "duotone"}
+            className="h-3.5 w-3.5 shrink-0"
+          />
+          <span className="truncate">
+            {isSaved ? "Location saved" : "Save location"}
+          </span>
+        </button>
       </div>
     </HudSidePanel>
   );

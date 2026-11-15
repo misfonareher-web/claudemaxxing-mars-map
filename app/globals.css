@@ -20,6 +20,8 @@ body {
   background: #090605;
   color: #f7efe8;
   font-family: var(--font-geist-sans), system-ui, -apple-system, sans-serif;
+  overscroll-behavior: none;
+  -webkit-tap-highlight-color: transparent;
 }
 
 ::selection {
@@ -64,6 +66,13 @@ body {
 .mars-custom-marker {
   background: transparent !important;
   border: none !important;
+}
+
+@media (max-width: 767px) {
+  .mars-sheet-open .mars-marker-label:not(.is-selected) {
+    opacity: 0 !important;
+    pointer-events: none;
+  }
 }
 
 @keyframes ares-pulse {

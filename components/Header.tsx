@@ -210,16 +210,18 @@ export default function Header({
         {/* Active tab warm interior glow */}
         <path d={activeTabBgPath} fill="url(#aresTabGlow)" />
 
-        {/* Subtle dim upper hairline across left & right bridges */}
-        <line
-          x1={leftEnd + 6}
-          y1={14}
-          x2={tabsLeft - 24}
-          y2={14}
-          stroke="#6b2b12"
-          strokeOpacity="0.38"
-          strokeWidth="1"
-        />
+        {/* Subtle dim upper hairline across left & right bridges (only when bridge gap exists) */}
+        {tabsLeft - leftEnd >= 36 && (
+          <line
+            x1={leftEnd + 6}
+            y1={14}
+            x2={tabsLeft - 24}
+            y2={14}
+            stroke="#6b2b12"
+            strokeOpacity="0.38"
+            strokeWidth="1"
+          />
+        )}
         {showTelemetry && (
           <line
             x1={tabsRight + 24}
