@@ -39,6 +39,7 @@ import {
   getVerdictLabel,
 } from "@/lib/mars-scoring";
 import { formatCoord, getVikingTilePreview } from "@/lib/mars-time";
+import { NO_TERRAIN, NO_ROUTE, terrainPreset, pointUnavailable } from "@/lib/terrain-availability";
 import ScoreRing from "@/components/ScoreRing";
 
 export type RouteSlot = "A" | "B";
@@ -142,9 +143,7 @@ function buildBackendInsights(
   }
 
   const roughVal = f.roughness?.value;
-  if (!isExcluded && isFiniteNumber(roughVal) && roughVal <= 15) {
-    pros.push(`Smooth regolith (${roughVal.toFixed(1)} m roughness)`);
-  } else if (isFiniteNumber(roughVal) && roughVal > 25) {
+  if (isFiniteNumber(roughVal) && roughVal > 25) {
     risks.push(`Rough surface terrain (${roughVal.toFixed(1)} m)`);
   }
 
@@ -152,16 +151,6 @@ function buildBackendInsights(
   if (isFiniteNumber(iceVal) && iceVal >= 0.25) {
     pros.push("Orbital water-ice proxy (context only)");
     resources.push("Orbital ice proxy (unverified)");
-  } else {
-    resources.push("Basaltic regolith");
-  }
-
-  const thermalVal = f.thermal?.value;
-  if (isFiniteNumber(thermalVal) && thermalVal >= 0.5) {
-    pros.push("Favorable solar & thermal stability");
-  }
-  if (!resources.includes("Solar energy")) {
-    resources.push("Solar energy");
   }
 
   for (const hzId of backendScore.properties.hazard_ids ?? []) {
@@ -334,11 +323,17 @@ export default function LocationCard({
   const [failedTileUrl, setFailedTileUrl] = useState<string | null>(null);
 
   const isRouteMode = Boolean(pointA || pointB || pickingSlot);
+  const routePresetA = pointA ? terrainPreset(...getCentroid(pointA)) : null;
+  const routePresetB = pointB ? terrainPreset(...getCentroid(pointB)) : null;
+  const routeUnavailable = Boolean(pointA && pointB &&
+    (!routePresetA || !routePresetB || routePresetA.id !== routePresetB.id ||
+      pointUnavailable(...getCentroid(pointA)) || pointUnavailable(...getCentroid(pointB)) ||
+      routeProperties?.unreachable_reason === "terrain_unavailable"));
   const isUnreachable = Boolean(
     pointA && pointB && routeProperties && routeProperties.reachable === false
   );
   const effectiveDistanceKm =
-    routeProperties?.reachable === true &&
+    !routeUnavailable && routeProperties?.reachable === true &&
     typeof routeProperties.distance_km === "number"
       ? routeProperties.distance_km
       : null;
@@ -482,7 +477,7 @@ export default function LocationCard({
             </div>
 
             <h2 className="mt-1 text-[28px] leading-none font-bold tracking-tight text-white tabular-nums">
-              {effectiveDistanceKm !== null
+              {routeUnavailable ? "Route unavailable" : effectiveDistanceKm !== null
                 ? formatDistance(effectiveDistanceKm, distanceUnit)
                 : isUnreachable
                   ? "Route unreachable"
@@ -525,7 +520,9 @@ export default function LocationCard({
           </div>
 
           {/* Warning / Trip / Hazards / Picking Callout */}
-          {isUnreachable ? (
+          {routeUnavailable ? (
+            <p className="text-xs text-amber-200">{NO_ROUTE}</p>
+          ) : isUnreachable ? (
             <div className="flex items-start gap-2.5 rounded-none border border-rose-500/60 bg-rose-500/10 px-3.5 py-2.5 text-[12px] leading-snug text-rose-200">
               <AresWarningIcon className="mt-0.5 h-4 w-4 shrink-0 text-rose-300" />
               <span>
@@ -724,12 +721,14 @@ export default function LocationCard({
   const preview = getVikingTilePreview(lon, lat, 6);
   const showPreview = failedTileUrl !== preview.url;
 
-  const activeScore =
+  const unavailable = pointUnavailable(lon, lat, backendScore);
+  const noTerrain = unavailable === NO_TERRAIN;
+  const activeScore = !unavailable &&
     typeof backendScore?.properties.score === "number"
       ? backendScore.properties.score
       : null;
 
-  const activeElevation = isFiniteNumber(backendScore?.properties?.elevation_m)
+  const activeElevation = noTerrain ? null : isFiniteNumber(backendScore?.properties?.elevation_m)
     ? backendScore.properties.elevation_m
     : fallbackMetrics.elevation_m;
 
@@ -744,13 +743,6 @@ export default function LocationCard({
   const verdictColor = isPendingScore
     ? "#b5a394"
     : getScoreAccent(activeScore);
-  const isExtendedEvaEstimate = Boolean(
-    backendScore?.meta?.data_flags?.includes("extended_eva_conditional_estimate")
-  );
-  const isGlobalConditional = Boolean(
-    backendScore?.meta?.preset_id === "global" ||
-      backendScore?.meta?.data_flags?.includes("global_conditional_estimate")
-  );
   const exclusionSummary =
     backendScore?.properties?.excluded &&
     (backendScore.properties.exclusion_reasons?.length ?? 0) > 0
@@ -772,10 +764,8 @@ export default function LocationCard({
     : verdict;
   const verdictSub = hasComparisonSuffix ? "(comparison only)" : null;
 
-  const scoreNoteText = isGlobalConditional
-    ? "Conditional planetary estimate, outside the Jezero and Gale MOLA grids."
-    : backendScore?.meta.label ??
-      "Conditional heuristic EVA suitability index (0–100)";
+  const scoreNoteText = backendScore?.meta.label ??
+    "Conditional heuristic EVA suitability index (0–100)";
 
   const missionSubtitle = feature.properties.mission
     ? `${feature.properties.mission}${
@@ -798,22 +788,6 @@ export default function LocationCard({
                 · SCORING…
               </span>
             )}
-            {!isScoringLoading &&
-              !scoreError &&
-              (isGlobalConditional || isExtendedEvaEstimate) && (
-                <span
-                  title={
-                    isExtendedEvaEstimate
-                      ? "Beyond seeded 10 km demo EVA circle — evaluated from real MOLA grid terrain"
-                      : "Outside Jezero and Gale MOLA grids — evaluated from planetary datasets"
-                  }
-                  className="text-[10px] font-semibold tracking-wider text-amber-300/95 uppercase"
-                >
-                  {isExtendedEvaEstimate
-                    ? "· >10 KM EVA ESTIMATE"
-                    : "· CONDITIONAL ESTIMATE"}
-                </span>
-              )}
             {scoreError && (
               <span
                 title={scoreError}
@@ -871,6 +845,7 @@ export default function LocationCard({
         </div>
 
         {/* Score Ring (0-100) + Verdict */}
+        {unavailable ? <p className="text-sm text-amber-200">{unavailable}</p> : (
         <div className="flex items-center gap-3.5 border-b border-ares-line/80 pb-3">
           <ScoreRing key={feature.properties.id} score={activeScore} />
           <div className="min-w-0">
@@ -904,9 +879,11 @@ export default function LocationCard({
           </div>
         </div>
 
+        )}
+
         {/* Advantages & Risks (2 clean columns) */}
-        <div className="grid grid-cols-2 gap-3.5 border-b border-ares-line/70 pb-3">
-          <div>
+        {!noTerrain && <div className="grid grid-cols-2 gap-3.5 border-b border-ares-line/70 pb-3">
+          {insights.pros.length > 0 && <div>
             <h4 className="mb-1.5 text-[10px] font-semibold tracking-wider text-ares-mute uppercase">
               Advantages
             </h4>
@@ -918,7 +895,7 @@ export default function LocationCard({
                 </li>
               ))}
             </ul>
-          </div>
+          </div>}
 
           <div>
             <h4 className="mb-1.5 text-[10px] font-semibold tracking-wider text-ares-accent uppercase">
@@ -933,10 +910,10 @@ export default function LocationCard({
               ))}
             </ul>
           </div>
-        </div>
+        </div>}
 
         {/* Resources */}
-        <div className="border-b border-ares-line/70 pb-3">
+        {!noTerrain && insights.resources.length > 0 && <div className="border-b border-ares-line/70 pb-3">
           <h4 className="mb-2 text-[10px] font-semibold tracking-wider text-ares-mute uppercase">
             Resources
           </h4>
@@ -951,7 +928,7 @@ export default function LocationCard({
               </span>
             ))}
           </div>
-        </div>
+        </div>}
 
         {/* Primary Action Buttons */}
         <div className="space-y-1.5 pt-0.5">

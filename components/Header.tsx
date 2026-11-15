@@ -9,14 +9,13 @@ import {
   AresSunIcon,
   AresUserIcon,
 } from "@/components/AresIcons";
-import { AppTab } from "@/types/mars";
+import { AppTab, EnvironmentSummary } from "@/types/mars";
 import { getMarsClock } from "@/lib/mars-time";
 
 export interface HeaderProps {
   activeTab: AppTab;
   onTabChange: (tab: AppTab) => void;
-  avgTempC?: number | null;
-  solNumber?: number | null;
+  environment?: EnvironmentSummary | null;
 }
 
 const HEADER_H = 74;
@@ -25,8 +24,7 @@ const BRIDGE_Y = 38;
 export default function Header({
   activeTab,
   onTabChange,
-  avgTempC = -63,
-  solNumber = 112,
+  environment,
 }: HeaderProps) {
   const hostRef = useRef<HTMLElement | null>(null);
   const [width, setWidth] = useState<number>(1440);
@@ -53,35 +51,22 @@ export default function Header({
     return () => ro.disconnect();
   }, []);
 
-  const displayTemp =
-    typeof avgTempC === "number" && Number.isFinite(avgTempC)
-      ? `${Math.round(avgTempC)} °C`
-      : "-63 °C";
-
-  const displaySol =
-    typeof solNumber === "number" && Number.isFinite(solNumber)
-      ? Math.round(solNumber)
-      : 112;
-
+  const temps = environment?.summary.air_temp_c;
+  const displayTemp = [
+    Number.isFinite(temps?.min) ? `Min ${Math.round(temps!.min)} °C` : null,
+    Number.isFinite(temps?.max) ? `Max ${Math.round(temps!.max)} °C` : null,
+  ].filter(Boolean).join(" / ");
+  const weatherLabel = environment?.preset_id === "gale"
+    ? "Gale · Curiosity REMS · historical"
+    : "Jezero · Perseverance MEDA · historical";
   const telemetryItems = [
-    { label: "MARS SOL", value: String(displaySol), icon: null },
-    {
-      label: "AVG. TEMP",
-      value: displayTemp,
-      icon: (
-        <AresSunIcon className="h-[19px] w-[19px] shrink-0 text-[#ff5514]" />
-      ),
-    },
-    {
-      label: "MARTIAN TIME",
-      value: mtcTime,
-      icon: (
-        <ClockIcon
-          weight="duotone"
-          className="h-[19px] w-[19px] shrink-0 text-[#ff5514]"
-        />
-      ),
-    },
+    ...(environment ? [
+      { label: "MARS SOL", value: String(environment.sol_range[1]), icon: null },
+      { label: weatherLabel, value: displayTemp,
+        icon: <AresSunIcon className="h-[19px] w-[19px] shrink-0 text-[#ff5514]" /> },
+    ] : []),
+    { label: "MARTIAN TIME", value: mtcTime,
+      icon: <ClockIcon weight="duotone" className="h-[19px] w-[19px] shrink-0 text-[#ff5514]" /> },
   ];
 
   // Responsive layout coordinates for the unified seamless HUD chassis
@@ -346,13 +331,15 @@ export default function Header({
           style={{ width: rightW - 8 }}
         >
           {telemetryItems.map((item) => (
-            <div key={item.label} className="flex shrink-0 items-center gap-2">
+            <div key={item.label} className="flex min-w-0 items-center gap-2">
               {item.icon}
               <div className="flex flex-col leading-none">
-                <span className="whitespace-nowrap text-[10px] font-semibold uppercase tracking-[0.07em] text-[#a38b7f]">
+                <span className={item.label === weatherLabel
+                    ? "text-[9px] font-semibold tracking-[0.03em] text-[#a38b7f]"
+                    : "whitespace-nowrap text-[10px] font-semibold uppercase tracking-[0.07em] text-[#a38b7f]"}>
                   {item.label}
                 </span>
-                <span className="mt-1 whitespace-nowrap font-mono text-[15px] font-bold tabular-nums text-[#f7efe8]">
+                <span className={`mt-1 whitespace-nowrap font-mono font-bold tabular-nums text-[#f7efe8] ${item.label === weatherLabel ? "text-[11px]" : "text-[15px]"}`}>
                   {item.value}
                 </span>
               </div>

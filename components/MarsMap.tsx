@@ -1,5 +1,7 @@
 "use client";
 
+import { pointUnavailable } from "@/lib/terrain-availability";
+
 import React, { useCallback, useEffect, useRef, useState } from "react";
 import { renderToStaticMarkup } from "react-dom/server";
 import L from "leaflet";
@@ -596,7 +598,8 @@ export default function MarsMap({
       const [lon, lat] = getCentroid(feature);
       const isSelected = selectedFeature?.properties.id === id;
       const resolvedScore =
-        markerScores?.[id] ?? feature.properties.score ?? null;
+        pointUnavailable(lon, lat) ? null :
+        id in (markerScores ?? {}) ? markerScores![id] : feature.properties.score ?? null;
       const markerIcon = createPointDivIcon(feature, isSelected, resolvedScore);
       const zIndexOffset =
         (isSelected ? 400 : 0) +

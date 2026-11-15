@@ -25,6 +25,7 @@ import {
 } from "@/lib/mars-scoring";
 import { getSafePresetZoom } from "@/lib/mars-layers";
 import { formatCoord } from "@/lib/mars-time";
+import { NO_ROUTE, pointUnavailable } from "@/lib/terrain-availability";
 import Header from "@/components/Header";
 import LayersPanel from "@/components/LayersPanel";
 import LocationCard, { type RouteSlot } from "@/components/LocationCard";
@@ -257,7 +258,7 @@ export default function MarsExplorer({
     currentRouteKey && !backendRouteProperties && !routeError
   );
 
-  // Pre-fetch landing-site scores (preset MOLA grid for Jezero/Gale, conditional global estimate elsewhere)
+  // Pre-fetch landing-site scores (preset MOLA grid for Jezero/Gale, unavailable elsewhere)
   useEffect(() => {
     const controller = new AbortController();
     const candidates = features.filter(
@@ -287,7 +288,7 @@ export default function MarsExplorer({
           | BackendPointScoreResponse
           | null;
         if (!data || typeof data !== "object" || !data.properties) return null;
-        return [feature.properties.id, data.properties.score ?? null] as const;
+        return [feature.properties.id, pointUnavailable(lon, lat, data) ? null : data.properties.score ?? null] as const;
       })
     ).then((results) => {
       if (controller.signal.aborted) return;
@@ -345,7 +346,7 @@ export default function MarsExplorer({
         setScoreCache({ key: currentScoreKey, data });
         setMarkerScores((prev) => ({
           ...prev,
-          [featureId]: data.properties.score ?? null,
+          [featureId]: pointUnavailable(lon, lat, data) ? null : data.properties.score ?? null,
         }));
       })
       .catch((err) => {
@@ -405,6 +406,14 @@ export default function MarsExplorer({
           });
           return;
         }
+        if (activeRoutePresetId === "global") {
+          firstFeature.geometry = null;
+          firstFeature.properties = {
+            distance_km: null, elevation_gain_m: null, elevation_loss_m: null,
+            max_slope_deg: null, mean_score: null, steps: 0, reachable: false,
+            unreachable_reason: "terrain_unavailable", message: NO_ROUTE,
+          };
+        }
         setRouteErrorState(null);
         setRouteCache({
           key: currentRouteKey,
@@ -449,6 +458,8 @@ export default function MarsExplorer({
               ? backendScore?.properties.score
               : undefined;
           const resolvedScore =
+            matchedFeature && pointUnavailable(...getCentroid(matchedFeature),
+              selectedFeature?.properties.id === id ? backendScore : null) ? null :
             typeof activeScore === "number"
               ? activeScore
               : typeof markerScores[id] === "number"
@@ -521,6 +532,8 @@ export default function MarsExplorer({
           : undefined;
       const markerScore = markerScores[entry.id];
       const score =
+        pointUnavailable(...getCentroid(feature),
+          selectedFeature?.properties.id === entry.id ? backendScore : null) ? null :
         typeof activeScore === "number"
           ? activeScore
           : typeof markerScore === "number"
@@ -779,17 +792,9 @@ export default function MarsExplorer({
     setActiveTab("map");
   }, [handleClearRoute]);
 
-  const hasBothRouteEndpoints = Boolean(routePointA && routePointB);
-  const activePresetId = hasBothRouteEndpoints
+  const activePresetId = routePointA || routePointB || pickingRouteSlot
     ? (activeRoutePreset?.id ?? null)
-    : (selectedPointPreset?.id ?? manualPresetId);
-  const activePreset = useMemo(
-    () =>
-      activePresetId
-        ? (presets.find((p) => p.id === activePresetId) ?? null)
-        : null,
-    [activePresetId, presets]
-  );
+    : selectedFeature ? (selectedPointPreset?.id ?? null) : manualPresetId;
   const activeEnvironment =
     activePresetId === "jezero"
       ? environments.jezero
@@ -806,7 +811,6 @@ export default function MarsExplorer({
       <Header
         activeTab={activeTab}
         onTabChange={setActiveTab}
-        activePresetId={activePresetId}
         environment={activeEnvironment}
       />
 
@@ -924,8 +928,6 @@ export default function MarsExplorer({
             <LocationCard
               feature={selectedFeature}
               allFeatures={features}
-              activePreset={activePreset}
-              environment={activeEnvironment}
               backendScore={backendScore}
               isScoringLoading={isScoringLoading}
               scoreError={scoreError}

@@ -5,10 +5,8 @@ import missionPresetsStatic from "@/config/mission_presets.json";
 import jezeroManifestStatic from "@/data/grids/jezero/manifest.json";
 import galeManifestStatic from "@/data/grids/gale/manifest.json";
 import {
-  greatCircleKm,
   MARS_RADIUS_KM,
   pointInGeometry,
-  sampleRouteCoordinates,
 } from "@/lib/geo";
 import {
   BackendPointScoreResponse,
@@ -983,214 +981,27 @@ function scoreGlobalConditionalPoint(
   cfg: ScoringWeightsConfig,
   weights: Record<ScoringFactorKey, number>
 ): BackendPointScoreResponse {
-  const fp = cfg.factor_params;
-  const landingDoc = getGeoJsonFeatures("landing_sites");
-  const scienceDoc = getGeoJsonFeatures("science_targets");
-  const iceDoc = getGeoJsonFeatures("ice");
-  const hazardsDoc = getGeoJsonFeatures("hazards");
-
-  const pt = { lon, lat };
-
-  const baseDistances = landingDoc.features
-    .filter((f) => f.geometry.type === "Point")
-    .map((f) => {
-      const [fLon, fLat] = f.geometry.coordinates as [number, number];
-      return greatCircleKm(pt, { lon: fLon, lat: fLat });
-    });
-  const nearestBaseKm =
-    baseDistances.length > 0 ? Math.min(...baseDistances) : 2500;
-
-  const scienceDistances = [...scienceDoc.features, ...landingDoc.features]
-    .filter((f) => f.geometry.type === "Point")
-    .map((f) => {
-      const [fLon, fLat] = f.geometry.coordinates as [number, number];
-      return greatCircleKm(pt, { lon: fLon, lat: fLat });
-    });
-  const nearestScienceKm =
-    scienceDistances.length > 0 ? Math.min(...scienceDistances) : 1500;
-
-  let iceValue = 0.08;
-  for (const iceFeat of iceDoc.features) {
-    if (pointInGeometry(lon, lat, iceFeat.geometry)) {
-      const rawIce = iceFeat.properties.ice_value ?? 0.55;
-      iceValue = Math.max(
-        iceValue,
-        rawIce > 1 ? clip01(rawIce / 100) : clip01(rawIce)
-      );
-    }
-  }
-  if (Math.abs(lat) >= 50) {
-    iceValue = Math.max(
-      iceValue,
-      clip01(0.35 + ((Math.abs(lat) - 50) / 40) * 0.55)
-    );
-  }
-
-  const latRad = (lat * Math.PI) / 180;
-  const lonRad = (lon * Math.PI) / 180;
-  const dichotomicElevM = Math.round(
-    -1600 -
-      2100 * Math.sin(latRad) +
-      950 * Math.cos(lonRad - 1.2) +
-      420 * Math.sin(2 * lonRad + latRad)
-  );
-
-  const regionalSlopeDeg =
-    round3(
-      Math.max(
-        1.1,
-        Math.min(
-          24.0,
-          3.2 +
-            4.8 * Math.abs(Math.sin(lonRad * 2.3 + latRad * 1.7)) +
-            3.4 * Math.abs(Math.cos(lonRad * 3.7 - latRad * 2.1))
-        )
-      )
-    ) ?? 4.0;
-
-  const regionalRoughnessM =
-    round3(
-      Math.max(
-        4.5,
-        Math.min(
-          52.0,
-          11.0 +
-            16.5 * Math.abs(Math.sin(lonRad * 1.9 - latRad * 2.5)) +
-            8.0 * Math.abs(Math.cos(latRad * 3.1))
-        )
-      )
-    ) ?? 15.0;
-
-  const thermalIndex =
-    round3(clip01(0.74 * Math.cos(latRad * 0.9) + 0.14 * Math.cos(lonRad))) ??
-    0.5;
-
-  const hazardIds: string[] = [];
-  const exclusionReasons: string[] = [];
-  let hazardMultiplier = 1.0;
-
-  for (const hz of hazardsDoc.features) {
-    if (pointInGeometry(lon, lat, hz.geometry)) {
-      hazardIds.push(hz.properties.id);
-      const sev = hz.properties.severity ?? 2;
-      if (sev >= cfg.hazard_rules.exclude_severity_at_least) {
-        exclusionReasons.push(`hazard:${hz.properties.id}`);
-      } else {
-        hazardMultiplier *= Math.max(
-          0,
-          1 - cfg.hazard_rules.penalty_per_severity * sev
-        );
-      }
-    }
-  }
-
-  if (regionalSlopeDeg > fp.slope.hard_max_deg) {
-    exclusionReasons.push("slope_above_hard_max");
-  }
-
-  const slopeSub = clip01(
-    (fp.slope.hard_max_deg - regionalSlopeDeg) /
-      (fp.slope.hard_max_deg - fp.slope.ideal_max_deg)
-  );
-  const roughSub = clip01(
-    (fp.roughness.poor_m - regionalRoughnessM) /
-      (fp.roughness.poor_m - fp.roughness.ideal_max_m)
-  );
-  const rawThermalSub = clip01(
-    (thermalIndex - fp.thermal.low) / (fp.thermal.high - fp.thermal.low)
-  );
-  const thermalSub =
-    fp.thermal.mode === "prefer_low" ? 1 - rawThermalSub : rawThermalSub;
-  const iceSub = clip01((iceValue - fp.ice.low) / (fp.ice.high - fp.ice.low));
-  const scienceSub = Math.exp(-nearestScienceKm / 1200);
-  const baseSub = clip01(1 - nearestBaseKm / 4500);
-
-  const rawValues: Record<ScoringFactorKey, number> = {
-    slope: regionalSlopeDeg,
-    roughness: regionalRoughnessM,
-    thermal: thermalIndex,
-    ice: round3(iceValue) ?? 0.08,
-    science: round3(nearestScienceKm) ?? 1500,
-    base_distance: round3(nearestBaseKm) ?? 2500,
-  };
-
-  const subs: Record<ScoringFactorKey, number> = {
-    slope: round3(slopeSub) ?? 0,
-    roughness: round3(roughSub) ?? 0,
-    thermal: round3(thermalSub) ?? 0,
-    ice: round3(iceSub) ?? 0,
-    science: round3(scienceSub) ?? 0,
-    base_distance: round3(baseSub) ?? 0,
-  };
-
-  const wSum =
-    FACTORS.reduce((acc, k) => acc + (weights[k] ?? 0), 0) || 1;
-  const factorsOut = {} as Record<ScoringFactorKey, ScoringFactorBreakdown>;
-  const effectiveWeights = {} as Record<ScoringFactorKey, number>;
-  let rawScore = 0;
-
-  for (const k of FACTORS) {
-    const isContext = k === "ice" || k === "thermal";
-    const effW = isContext ? 0 : round3((weights[k] ?? 0) / wSum) ?? 0;
-    effectiveWeights[k] = effW;
-    const contrib = isContext ? 0 : round3(100 * effW * subs[k]) ?? 0;
-    rawScore += isContext ? 0 : 100 * effW * subs[k];
-    factorsOut[k] = {
-      value: rawValues[k],
-      units: FACTOR_UNITS[k],
-      subscore: subs[k],
-      weight: effW,
-      contribution: contrib,
-      available: true,
-      ...(isContext ? { context_only: true, note: CONTEXT_NOTES[k] } : {}),
+  const factors = {} as Record<ScoringFactorKey, ScoringFactorBreakdown>;
+  for (const key of FACTORS) {
+    factors[key] = {
+      value: null, units: FACTOR_UNITS[key], subscore: null,
+      weight: 0, contribution: 0, available: false,
     };
   }
-
-  const excluded = exclusionReasons.length > 0;
-  const finalScore = excluded
-    ? 0
-    : Math.max(0, Math.min(100, Math.round(rawScore * hazardMultiplier)));
-
-  const d = 0.02;
   return {
     type: "Feature",
-    id: `global_${lat.toFixed(2)}_${lon.toFixed(2)}`,
-    geometry: {
-      type: "Polygon",
-      coordinates: [
-        [
-          [lon - d, lat - d],
-          [lon + d, lat - d],
-          [lon + d, lat + d],
-          [lon - d, lat + d],
-          [lon - d, lat - d],
-        ],
-      ],
-    },
+    id: `global_${lat}_${lon}`,
+    geometry: { type: "Point", coordinates: [lon, lat] },
     properties: {
-      cell_id: `global_${lat.toFixed(2)}_${lon.toFixed(2)}`,
-      center: [round3(lon) ?? lon, round3(lat) ?? lat],
-      elevation_m: dichotomicElevM,
-      score: finalScore,
-      excluded,
-      exclusion_reasons: exclusionReasons,
-      factors: factorsOut,
-      hazard_ids: hazardIds,
-      data_flags: ["global_conditional_estimate"],
+      cell_id: `global_${lat}_${lon}`, center: [lon, lat],
+      elevation_m: null, score: null, excluded: false, exclusion_reasons: [],
+      factors, hazard_ids: [], data_flags: ["terrain_unavailable"],
     },
     meta: {
-      preset_id: "global",
-      profile,
-      weights,
-      effective_weights: effectiveWeights,
+      preset_id: "global", profile, weights, effective_weights: Object.fromEntries(FACTORS.map((key) => [key, 0])) as Record<ScoringFactorKey, number>,
       methodology_version: cfg.methodology_version,
-      label: "Conditional planetary estimate (outside MOLA grid)",
-      disclaimers: [
-        "No local MOLA grid at this location: conditional planetary estimate, not a grid-validated score.",
-        ...DISCLAIMERS,
-      ],
-      datasets: ["mola_megdr", "trek_themis_ir_day", "ody_grs_weh"],
-      data_flags: ["global_conditional_estimate"],
+      label: "No terrain grid here; EVA score unavailable",
+      disclaimers: DISCLAIMERS, datasets: [], data_flags: ["terrain_unavailable"],
     },
   };
 }
@@ -1206,7 +1017,7 @@ export async function scoreArbitraryPoint(params: {
   const profile = resolveProfile(params.profile, cfg);
   const weights = normalizeWeights(cfg.profiles[profile].weights);
 
-  if (params.preset === "global") {
+  if (params.preset === "global" || !findPresetContainingPoint(params.lon, params.lat, presets)) {
     return scoreGlobalConditionalPoint(
       params.lon,
       params.lat,
@@ -1441,85 +1252,28 @@ async function computeGlobalConditionalRoute(
   to: [number, number],
   profile: ScoringProfileId
 ): Promise<BackendRouteResponse> {
-  const [lon1, lat1] = from;
-  const [lon2, lat2] = to;
-  const steps = 24;
-  const coords = sampleRouteCoordinates(from, to, steps);
-  const distKm =
-    round3(greatCircleKm({ lon: lon1, lat: lat1 }, { lon: lon2, lat: lat2 })) ??
-    0;
-
-  const [startScore, endScore] = await Promise.all([
-    scoreArbitraryPoint({ lon: lon1, lat: lat1, profile }),
-    scoreArbitraryPoint({ lon: lon2, lat: lat2, profile }),
-  ]);
-
-  const elevA = startScore.properties.elevation_m ?? -2000;
-  const elevB = endScore.properties.elevation_m ?? -2000;
-  const elevDelta = elevB - elevA;
-  const gainM = Math.round(
-    Math.max(0, elevDelta) + Math.min(900, distKm * 0.18)
-  );
-  const lossM = Math.round(
-    Math.max(0, -elevDelta) + Math.min(900, distKm * 0.18)
-  );
-  const maxSlope =
-    round3(
-      Math.max(
-        startScore.properties.factors.slope.value ?? 4.2,
-        endScore.properties.factors.slope.value ?? 5.6
-      )
-    ) ?? 4.5;
-  const meanScore = Math.round(
-    ((startScore.properties.score ?? 58) + (endScore.properties.score ?? 58)) /
-      2
-  );
-  const reachable =
-    !startScore.properties.excluded && !endScore.properties.excluded;
-
   return {
-    type: "FeatureCollection",
-    crs_note: CRS_NOTE,
+    type: "FeatureCollection", crs_note: CRS_NOTE,
     meta: {
-      preset_id: "global",
-      profile,
-      label: "Conditional planetary great-circle estimate (no MOLA grid)",
-      disclaimers: [
-        "No local MOLA grid along this corridor: great-circle estimate without terrain A* pathfinding.",
-        ...DISCLAIMERS,
-      ],
-      data_flags: ["global_conditional_estimate"],
+      preset_id: "global", profile,
+      label: "Routes are planned only within 10 km of a base in Jezero or Gale",
+      disclaimers: DISCLAIMERS, data_flags: ["terrain_unavailable"],
     },
-    features: [
-      {
-        type: "Feature",
-        geometry: reachable
-          ? {
-              type: "LineString",
-              coordinates: coords,
-            }
-          : null,
-        properties: {
-          distance_km: reachable ? distKm : null,
-          elevation_gain_m: reachable ? gainM : null,
-          elevation_loss_m: reachable ? lossM : null,
-          max_slope_deg: reachable ? maxSlope : null,
-          mean_score: reachable ? meanScore : null,
-          steps: reachable ? steps : 0,
-          reachable,
-          requested: { start: from, end: to },
-          message: reachable
-            ? null
-            : "Start or destination lies inside a mapped exclusion hazard or steep slope zone.",
-        },
+    features: [{
+      type: "Feature", geometry: null,
+      properties: {
+        distance_km: null, elevation_gain_m: null, elevation_loss_m: null,
+        max_slope_deg: null, mean_score: null, steps: 0, reachable: false,
+        requested: { start: from, end: to }, unreachable_reason: "terrain_unavailable",
+        message: "Routes are planned only within 10 km of a base in Jezero or Gale",
       },
-    ],
+    }],
   };
 }
 
 /**
  * Compute least-cost 8-connected A* route matching `origin/backend` (`scoring/route.py`)
- * inside `jezero`/`gale`, or a conditional planetary great-circle estimate when `preset === "global"`
+ * inside `jezero`/`gale`, or an unavailable result when `preset === "global"`
  * or endpoints lie outside / across presets.
  */
 export async function computeMarsRoute(params: {
@@ -1554,7 +1308,7 @@ export async function computeMarsRoute(params: {
       ? fromPreset
       : null;
 
-  if (!preset) {
+  if (!preset || !fromPreset || !toPreset || fromPreset.id !== toPreset.id) {
     return computeGlobalConditionalRoute(params.from, params.to, profile);
   }
   assertInBbox(params.from[0], params.from[1], preset.bbox);
