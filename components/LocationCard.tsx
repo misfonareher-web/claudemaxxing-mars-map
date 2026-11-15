@@ -5,19 +5,18 @@ import {
   ArrowCounterClockwiseIcon,
   ArrowSquareOutIcon,
   BookmarkSimpleIcon,
-  CheckCircleIcon,
-  CheckIcon,
   CrosshairIcon,
-  DropIcon,
-  MapPinIcon,
   NavigationArrowIcon,
-  PathIcon,
-  SparkleIcon,
-  StackIcon,
-  SunIcon,
-  WarningIcon,
   XIcon,
 } from "@phosphor-icons/react/ssr";
+import {
+  AresLayersIcon,
+  AresPinIcon,
+  AresRouteIcon,
+  AresSunIcon,
+  AresWarningIcon,
+  AresWaterIcon,
+} from "@/components/AresIcons";
 import {
   BackendPointScoreResponse,
   BackendRouteProperties,
@@ -87,11 +86,28 @@ function getLatitudeZoneLabel(lat: number): string {
   return "Polar region";
 }
 
+function isFiniteNumber(v: unknown): v is number {
+  return typeof v === "number" && Number.isFinite(v);
+}
+
+function formatExclusionReason(reason: string): string {
+  if (reason === "beyond_eva_radius") {
+    return "Outside 10 km base EVA radius (demo cutoff)";
+  }
+  if (reason === "slope_above_hard_max") {
+    return "Slope exceeds 25° EVA safety limit";
+  }
+  if (reason.startsWith("hazard:")) {
+    return `Severe exclusion hazard (${reason.slice(7).replace(/^hz-/, "")})`;
+  }
+  return reason;
+}
+
 function buildBackendInsights(
   backendScore: BackendPointScoreResponse | null | undefined,
   fallback: ReturnType<typeof getSurvivalMetrics>
 ) {
-  if (!backendScore) {
+  if (!backendScore?.properties?.factors) {
     return {
       pros: fallback.pros.slice(0, 3),
       risks: fallback.risks.slice(0, 3),
@@ -100,30 +116,48 @@ function buildBackendInsights(
   }
 
   const f = backendScore.properties.factors;
+  const isExcluded = Boolean(backendScore.properties.excluded);
+  const exclusionReasons = backendScore.properties.exclusion_reasons ?? [];
+  const dataFlags = backendScore.properties.data_flags ?? [];
   const pros: string[] = [];
   const risks: string[] = [];
   const resources: string[] = [];
 
-  if (f.slope?.value !== null && f.slope.value <= 5) {
-    pros.push(`Low, flat plain (${f.slope.value.toFixed(1)}° slope)`);
-  } else if (f.slope?.value !== null && f.slope.value > 12) {
-    risks.push(`Steep local slope (${f.slope.value.toFixed(1)}°)`);
+  for (const reason of exclusionReasons) {
+    const label = formatExclusionReason(reason);
+    if (!risks.includes(label)) risks.push(label);
+  }
+  if (
+    !exclusionReasons.includes("beyond_eva_radius") &&
+    dataFlags.includes("beyond_eva_radius")
+  ) {
+    risks.push(formatExclusionReason("beyond_eva_radius"));
   }
 
-  if (f.roughness?.value !== null && f.roughness.value <= 15) {
-    pros.push(`Smooth regolith (${f.roughness.value.toFixed(1)} m roughness)`);
-  } else if (f.roughness?.value !== null && f.roughness.value > 25) {
-    risks.push(`Rough surface terrain (${f.roughness.value.toFixed(1)} m)`);
+  const slopeVal = f.slope?.value;
+  if (!isExcluded && isFiniteNumber(slopeVal) && slopeVal <= 5) {
+    pros.push(`Low, flat plain (${slopeVal.toFixed(1)}° slope)`);
+  } else if (isFiniteNumber(slopeVal) && slopeVal > 12) {
+    risks.push(`Steep local slope (${slopeVal.toFixed(1)}°)`);
   }
 
-  if (f.ice?.value !== null && f.ice.value >= 0.25) {
+  const roughVal = f.roughness?.value;
+  if (!isExcluded && isFiniteNumber(roughVal) && roughVal <= 15) {
+    pros.push(`Smooth regolith (${roughVal.toFixed(1)} m roughness)`);
+  } else if (isFiniteNumber(roughVal) && roughVal > 25) {
+    risks.push(`Rough surface terrain (${roughVal.toFixed(1)} m)`);
+  }
+
+  const iceVal = f.ice?.value;
+  if (isFiniteNumber(iceVal) && iceVal >= 0.25) {
     pros.push("Orbital water-ice proxy (context only)");
     resources.push("Orbital ice proxy (unverified)");
   } else {
     resources.push("Basaltic regolith");
   }
 
-  if (f.thermal?.value !== null && f.thermal.value >= 0.5) {
+  const thermalVal = f.thermal?.value;
+  if (isFiniteNumber(thermalVal) && thermalVal >= 0.5) {
     pros.push("Favorable solar & thermal stability");
   }
   if (!resources.includes("Solar energy")) {
@@ -131,15 +165,16 @@ function buildBackendInsights(
   }
 
   for (const hzId of backendScore.properties.hazard_ids ?? []) {
-    risks.push(`Inside hazard zone (${hzId.replace(/^hz-/, "")})`);
+    const hzRisk = `Inside hazard zone (${hzId.replace(/^hz-/, "")})`;
+    if (!risks.includes(hzRisk)) risks.push(hzRisk);
   }
 
-  if (backendScore.properties.data_flags?.includes("beyond_eva_radius")) {
-    risks.push("Outside 10 km base EVA radius");
-  }
-
-  for (const p of fallback.pros) {
-    if (pros.length < 2 && !pros.includes(p)) pros.push(p);
+  if (isExcluded && pros.length === 0) {
+    pros.push("Telemetry sampled (constraint-excluded cell)");
+  } else {
+    for (const p of fallback.pros) {
+      if (pros.length < 2 && !pros.includes(p)) pros.push(p);
+    }
   }
   for (const r of fallback.risks) {
     if (risks.length < 2 && !risks.includes(r)) risks.push(r);
@@ -162,13 +197,113 @@ function ResourceIcon({ label }: { label: string }) {
     lower.includes("frost") ||
     lower.includes("water")
   ) {
-    return <DropIcon weight="duotone" className="h-3 w-3 text-sky-400" />;
+    return <AresWaterIcon className="h-3 w-3 text-sky-400" />;
   }
   if (lower.includes("solar")) {
-    return <SunIcon weight="duotone" className="h-3 w-3 text-amber-400" />;
+    return <AresSunIcon className="h-3 w-3 text-amber-400" />;
   }
+  return <AresLayersIcon className="h-3 w-3 text-ares-accent-soft" />;
+}
+
+function HudSidePanel({
+  ariaLabel,
+  children,
+}: {
+  ariaLabel: string;
+  children: React.ReactNode;
+}) {
   return (
-    <StackIcon weight="duotone" className="h-3 w-3 text-ares-accent-soft" />
+    <aside
+      aria-label={ariaLabel}
+      className="pointer-events-auto fixed top-[88px] right-5 z-[1000] flex max-h-[calc(100vh-172px)] w-[372px] max-w-[calc(100vw-24px)] flex-col bg-[#f06423]/60 p-[1px] shadow-[0_22px_60px_rgba(0,0,0,0.85),0_0_28px_rgba(240,100,35,0.22)] backdrop-blur-xl"
+      style={{
+        clipPath:
+          "polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px)",
+      }}
+    >
+      <div
+        className="flex min-h-0 max-h-[calc(100vh-174px)] flex-1 flex-col overflow-hidden bg-[#100806]/94"
+        style={{
+          clipPath:
+            "polygon(13.5px 0, 100% 0, 100% calc(100% - 13.5px), calc(100% - 13.5px) 100%, 0 100%, 0 13.5px)",
+        }}
+      >
+        {children}
+      </div>
+    </aside>
+  );
+}
+
+/** Square HUD bullet used across advantages, risks, trip metrics, hazards, and notes. */
+function HudBullet({ variant = "hollow" }: { variant?: "hollow" | "accent" }) {
+  return (
+    <span
+      aria-hidden="true"
+      className={`mt-[4px] h-2 w-2 shrink-0 ${
+        variant === "accent"
+          ? "bg-ares-accent"
+          : "border border-ares-text/75 bg-transparent"
+      }`}
+    />
+  );
+}
+
+/** Stacked route endpoint selector card for Point A or Point B. */
+function RouteEndpointSlot({
+  slot,
+  point,
+  coords,
+  isPicking,
+  onPick,
+}: {
+  slot: RouteSlot;
+  point: MarsGeoJSONFeature | null;
+  coords: [number, number] | null;
+  isPicking: boolean;
+  onPick: () => void;
+}) {
+  const title = point
+    ? point.properties.dataset_id === "ares_surface_probe"
+      ? "Surface Point"
+      : point.properties.name
+    : `Click map to choose Point ${slot}`;
+
+  return (
+    <button
+      type="button"
+      onClick={onPick}
+      title={`Pick Point ${slot} on map`}
+      aria-label={`Pick Point ${slot} on map`}
+      className={`group flex w-full cursor-pointer items-center justify-between gap-3 rounded-none border px-3 py-2.5 text-left transition-colors ${
+        isPicking
+          ? "border-ares-accent bg-[#1c0d07]/85"
+          : "border-ares-line/90 bg-[#170b07]/85 hover:border-ares-accent/55"
+      }`}
+    >
+      <div className="flex min-w-0 items-center gap-3">
+        <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-none border border-ares-text/55 bg-black/25 text-xs font-bold text-ares-text">
+          {slot}
+        </span>
+        <div className="min-w-0">
+          <p className="truncate text-[13px] leading-tight font-semibold text-ares-text">
+            {title}
+          </p>
+          {coords && (
+            <p className="mt-0.5 font-mono text-[11px] leading-tight text-ares-mute tabular-nums">
+              {formatCoord(coords[1], coords[0])}
+            </p>
+          )}
+        </div>
+      </div>
+      <CrosshairIcon
+        weight="regular"
+        className={`h-4 w-4 shrink-0 transition-colors ${
+          isPicking
+            ? "text-ares-text"
+            : "text-ares-text/80 group-hover:text-ares-accent"
+        }`}
+      />
+    </button>
   );
 }
 
@@ -287,11 +422,28 @@ export default function LocationCard({
   }, [feature, allFeatures]);
 
   // ============================================================================
-  // MODE 2: ROUTE A -> B VIEW (Clean, intuitive route summary as in Photo 2)
+  // MODE 2: ROUTE A -> B VIEW (Select Point B / Route Summary HUD)
   // ============================================================================
   if (isRouteMode) {
     const coordsA = pointA ? getCentroid(pointA) : null;
     const coordsB = pointB ? getCentroid(pointB) : null;
+    const activeSlot: RouteSlot = pickingSlot ?? (!pointA ? "A" : "B");
+    const hasComputedRoute = Boolean(
+      pointA && pointB && effectiveDistanceKm !== null && !isUnreachable && !routeError
+    );
+    const isExtendedEvaRoute = Boolean(
+      routeDisclaimers?.some((d) => d.includes("No local MOLA A* coverage"))
+    );
+    const isConditionalRoute = Boolean(
+      isExtendedEvaRoute ||
+        routeDisclaimers?.some((d) => d.includes("No local MOLA grid"))
+    );
+    const activeDisclaimers = routeDisclaimers?.length
+      ? routeDisclaimers
+      : DEFAULT_ROUTE_DISCLAIMERS;
+    const trailingDisclaimers = hasComputedRoute
+      ? activeDisclaimers.slice(1)
+      : activeDisclaimers;
 
     const roverSols =
       effectiveDistanceKm !== null
@@ -304,17 +456,24 @@ export default function LocationCard({
     const crewedDays =
       crewedHours !== null ? (crewedHours / 24).toFixed(1) : null;
 
+    const presetButtons: Array<{
+      id: "jezero" | "gale";
+      mode: "demo" | "from_base";
+      label: string;
+    }> = [
+      { id: "jezero", mode: "demo", label: "Jezero Demo" },
+      { id: "gale", mode: "demo", label: "Gale Demo" },
+      { id: "jezero", mode: "from_base", label: "Pick in Jezero" },
+      { id: "gale", mode: "from_base", label: "Pick in Gale" },
+    ];
+
     return (
-      <aside
-        aria-label="Route A to B Details"
-        className="pointer-events-auto fixed top-[88px] right-5 z-[1000] flex max-h-[calc(100vh-186px)] w-[372px] max-w-[calc(100vw-24px)] flex-col overflow-hidden rounded-2xl border border-[#f06423]/60 bg-[#100806]/94 shadow-[0_22px_60px_rgba(0,0,0,0.85),0_0_28px_rgba(240,100,35,0.22)] backdrop-blur-xl"
-      >
+      <HudSidePanel ariaLabel="Route A to B Details">
         {/* Header */}
-        <div className="flex items-start justify-between gap-3 px-5 pt-4 pb-3">
+        <div className="flex items-start justify-between gap-3 px-4 pt-3.5 pb-2.5">
           <div className="min-w-0">
-            <div className="flex items-center gap-1.5 text-xs font-semibold tracking-wider text-ares-accent uppercase">
-              <PathIcon
-                weight="duotone"
+            <div className="flex items-center gap-1.5 text-[10px] font-semibold tracking-wider text-ares-accent uppercase">
+              <AresRouteIcon
                 className={`h-3.5 w-3.5 shrink-0 ${
                   isRouteLoading ? "animate-pulse" : ""
                 }`}
@@ -322,7 +481,7 @@ export default function LocationCard({
               <span>Route A → B</span>
             </div>
 
-            <h2 className="mt-1.5 text-3xl leading-none font-bold tracking-tight text-white">
+            <h2 className="mt-1 text-[28px] leading-none font-bold tracking-tight text-white tabular-nums">
               {effectiveDistanceKm !== null
                 ? formatDistance(effectiveDistanceKm, distanceUnit)
                 : isUnreachable
@@ -331,9 +490,7 @@ export default function LocationCard({
                     ? "Route unavailable"
                     : pointA && pointB && isRouteLoading
                       ? "Computing…"
-                      : pickingSlot === "A"
-                        ? "Select Point A"
-                        : "Select Point B"}
+                      : `Select Point ${activeSlot}`}
             </h2>
           </div>
 
@@ -341,247 +498,200 @@ export default function LocationCard({
             type="button"
             onClick={onClearRoute}
             aria-label="Close route panel"
-            className="flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-ares-line bg-ares-raised/80 text-ares-mute transition-colors hover:border-ares-accent/50 hover:text-ares-text"
+            className="-mr-1 shrink-0 cursor-pointer p-1 text-ares-mute transition-colors hover:text-ares-text"
           >
             <XIcon weight="bold" className="h-4 w-4" />
           </button>
         </div>
 
         {/* Body */}
-        <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-5 pb-5">
-          {/* Coordinates A & B */}
-          <div className="space-y-2 rounded-xl border border-ares-line/80 bg-ares-raised/45 p-3">
-            <div className="flex items-center justify-between gap-2">
-              <div className="min-w-0">
-                <span className="font-mono text-xs font-semibold text-emerald-400">
-                  A:{" "}
-                </span>
-                <span className="font-mono text-xs text-ares-text">
-                  {coordsA
-                    ? formatCoord(coordsA[1], coordsA[0])
-                    : "Click map to choose Point A…"}
-                </span>
-                {pointA && (
-                  <p className="truncate text-[11px] text-ares-mute">
-                    {pointA.properties.name}
-                  </p>
-                )}
-              </div>
-              <button
-                type="button"
-                onClick={() => onStartPickSlot("A")}
-                title="Pick Point A on map"
-                className={`flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-lg border transition-colors ${
-                  pickingSlot === "A"
-                    ? "border-emerald-400 bg-emerald-500/25 text-emerald-200"
-                    : "border-ares-line bg-black/30 text-ares-mute hover:border-emerald-400/60 hover:text-emerald-300"
-                }`}
-              >
-                <CrosshairIcon weight="duotone" className="h-3.5 w-3.5" />
-              </button>
-            </div>
-
-            <div className="h-px w-full bg-ares-line/60" />
-
-            <div className="flex items-center justify-between gap-2">
-              <div className="min-w-0">
-                <span className="font-mono text-xs font-semibold text-ares-accent">
-                  B:{" "}
-                </span>
-                <span className="font-mono text-xs text-ares-text">
-                  {coordsB
-                    ? formatCoord(coordsB[1], coordsB[0])
-                    : "Click map to choose Point B…"}
-                </span>
-                {pointB && (
-                  <p className="truncate text-[11px] text-ares-mute">
-                    {pointB.properties.name}
-                  </p>
-                )}
-              </div>
-              <button
-                type="button"
-                onClick={() => onStartPickSlot("B")}
-                title="Pick Point B on map"
-                className={`flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-lg border transition-colors ${
-                  pickingSlot === "B"
-                    ? "border-ares-accent bg-ares-accent/25 text-white"
-                    : "border-ares-line bg-black/30 text-ares-mute hover:border-ares-accent hover:text-ares-accent"
-                }`}
-              >
-                <CrosshairIcon weight="duotone" className="h-3.5 w-3.5" />
-              </button>
-            </div>
+        <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-4 pb-4">
+          {/* Stacked Point A & Point B boxes */}
+          <div className="space-y-2">
+            <RouteEndpointSlot
+              slot="A"
+              point={pointA}
+              coords={coordsA}
+              isPicking={pickingSlot === "A"}
+              onPick={() => onStartPickSlot("A")}
+            />
+            <RouteEndpointSlot
+              slot="B"
+              point={pointB}
+              coords={coordsB}
+              isPicking={pickingSlot === "B"}
+              onPick={() => onStartPickSlot("B")}
+            />
           </div>
 
-          {/* TRIP / UNREACHABLE / PICKING Section */}
+          {/* Warning / Trip / Hazards / Picking Callout */}
           {isUnreachable ? (
-            <div className="rounded-xl border border-rose-500/40 bg-rose-500/10 px-3.5 py-3 text-xs leading-relaxed text-rose-200">
-              {routeProperties?.message ||
-                "No passable route found between the selected endpoints."}
+            <div className="flex items-start gap-2.5 rounded-none border border-rose-500/60 bg-rose-500/10 px-3.5 py-2.5 text-[12px] leading-snug text-rose-200">
+              <AresWarningIcon className="mt-0.5 h-4 w-4 shrink-0 text-rose-300" />
+              <span>
+                {routeProperties?.message ||
+                  "No passable route found between the selected endpoints."}
+              </span>
             </div>
           ) : routeError ? (
-            <div className="rounded-xl border border-rose-500/40 bg-rose-500/10 px-3.5 py-3 text-xs leading-relaxed text-rose-300">
-              {routeError}
+            <div className="flex items-start gap-2.5 rounded-none border border-rose-500/60 bg-rose-500/10 px-3.5 py-2.5 text-[12px] leading-snug text-rose-300">
+              <AresWarningIcon className="mt-0.5 h-4 w-4 shrink-0 text-rose-300" />
+              <span>{routeError}</span>
             </div>
-          ) : pointA && pointB && effectiveDistanceKm !== null ? (
+          ) : hasComputedRoute ? (
             <>
-              {routeDisclaimers?.some((d) =>
-                d.includes("No local MOLA grid")
-              ) && (
-                <div className="rounded-xl border border-amber-500/40 bg-amber-500/10 px-3 py-2 text-[11px] leading-relaxed text-amber-200">
-                  Conditional planetary estimate (outside Jezero/Gale MOLA
-                  grids) — great-circle path without local terrain A*.
+              {isConditionalRoute && (
+                <div className="flex items-start gap-2.5 rounded-none border border-ares-accent/85 bg-[#1c0c06]/65 px-3.5 py-2.5 text-[12px] leading-snug text-ares-text">
+                  <AresWarningIcon className="mt-0.5 h-4 w-4 shrink-0 text-ares-text/90" />
+                  <span>
+                    {isExtendedEvaRoute
+                      ? "Conditional planetary estimate (beyond 10 km MOLA A* EVA circle). Great-circle path without local terrain A* pathfinding."
+                      : "Conditional planetary estimate (outside Jezero and Gale MOLA grids). Great-circle path without local terrain A* pathfinding."}
+                  </span>
                 </div>
               )}
-              <div className="space-y-2">
-                <h3 className="text-[11px] font-semibold tracking-wider text-ares-mute uppercase">
+
+              <div className="border-t border-ares-line/70 pt-3">
+                <h3 className="mb-2 text-[10px] font-semibold tracking-wider text-ares-mute uppercase">
                   Trip
                 </h3>
-                <ul className="space-y-1.5 text-xs leading-relaxed text-ares-text">
+                <ul className="space-y-1.5 text-[12px] leading-snug text-ares-text">
                   <li className="flex items-start gap-2">
-                    <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-ares-accent" />
+                    <HudBullet />
                     <span>
-                      {routeDisclaimers?.some((d) =>
-                        d.includes("No local MOLA grid")
-                      )
-                        ? "Conditional great-circle estimate (no local MOLA A* grid)"
-                        : "Terrain-aware least-cost path over MOLA grid"}
+                      {isExtendedEvaRoute
+                        ? "Conditional great-circle estimate beyond 10 km EVA circle"
+                        : isConditionalRoute
+                          ? "Conditional great-circle estimate, no local MOLA A* grid"
+                          : "Terrain-aware least-cost path over MOLA grid"}
                     </span>
                   </li>
                   {roverSols !== null && (
                     <li className="flex items-start gap-2">
-                      <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-ares-accent" />
+                      <HudBullet />
                       <span>
-                        ≈ {roverSols.toLocaleString("en-US")} sols at rover pace
-                        (~200 m/sol)
+                        About {roverSols.toLocaleString("en-US")} sols at rover
+                        pace (~200 m/sol)
                       </span>
                     </li>
                   )}
                   {crewedHours !== null && crewedDays !== null && (
                     <li className="flex items-start gap-2">
-                      <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-ares-accent" />
+                      <HudBullet />
                       <span>
                         {crewedHours >= 24
-                          ? `≈ ${crewedDays} days for a crewed rover at 10 km/h`
-                          : `≈ ${formatDuration(crewedHours)} (${crewedDays} days) for a crewed rover at 10 km/h`}
+                          ? `About ${crewedDays} days for a crewed rover at 10 km/h`
+                          : `About ${formatDuration(crewedHours)} (${crewedDays} days) for a crewed rover at 10 km/h`}
                       </span>
                     </li>
                   )}
-                  {routeProperties?.max_slope_deg !== null &&
-                    routeProperties?.max_slope_deg !== undefined && (
-                      <li className="flex items-start gap-2">
-                        <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-ares-accent" />
-                        <span>
-                          Max slope: {routeProperties.max_slope_deg.toFixed(1)}°
-                          {routeProperties.elevation_gain_m !== null &&
-                            ` · Elevation +${Math.round(routeProperties.elevation_gain_m)} m / -${Math.round(routeProperties.elevation_loss_m ?? 0)} m`}
-                        </span>
-                      </li>
-                    )}
+                  {isFiniteNumber(routeProperties?.max_slope_deg) && (
+                    <li className="flex items-start gap-2">
+                      <HudBullet />
+                      <span>
+                        Max slope {routeProperties.max_slope_deg.toFixed(1)}°
+                        {isFiniteNumber(routeProperties.elevation_gain_m) &&
+                          ` · elevation +${Math.round(routeProperties.elevation_gain_m)} m / -${Math.round(
+                            isFiniteNumber(routeProperties.elevation_loss_m)
+                              ? routeProperties.elevation_loss_m
+                              : 0
+                          )} m`}
+                      </span>
+                    </li>
+                  )}
                 </ul>
               </div>
 
               {/* HAZARDS Section */}
-              <div className="space-y-2 border-t border-ares-line/70 pt-3.5">
+              <div className="border-t border-ares-line/70 pt-3">
                 <h3
-                  className={`text-[11px] font-semibold tracking-wider uppercase ${
+                  className={`mb-2 text-[10px] font-semibold tracking-wider uppercase ${
                     routeHazards.length === 0
-                      ? "text-emerald-400"
-                      : "text-rose-400"
+                      ? "text-ares-mute"
+                      : "text-ares-accent"
                   }`}
                 >
                   Hazards
                 </h3>
                 {routeHazards.length === 0 ? (
-                  <ul className="space-y-1.5 text-xs text-ares-text">
+                  <ul className="space-y-1.5 text-[12px] leading-snug text-ares-text">
                     <li className="flex items-start gap-2">
-                      <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-emerald-400" />
+                      <HudBullet />
                       <span>No known hazard zones on this path</span>
                     </li>
                   </ul>
                 ) : (
-                  <ul className="space-y-1.5 text-xs text-ares-text">
+                  <ul className="space-y-1.5 text-[12px] leading-snug text-ares-text">
                     {routeHazards.map((hz, i) => (
                       <li key={i} className="flex items-start gap-2">
-                        <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-rose-400" />
+                        <HudBullet variant="accent" />
                         <span>{hz}</span>
                       </li>
                     ))}
                   </ul>
                 )}
+                {activeDisclaimers[0] && (
+                  <p className="mt-2.5 text-[11px] leading-snug text-ares-mute">
+                    {activeDisclaimers[0]}
+                  </p>
+                )}
               </div>
             </>
           ) : pointA && pointB && isRouteLoading ? (
-            <div className="rounded-xl border border-ares-accent/40 bg-ares-accent/10 px-3.5 py-3 text-xs text-ares-text">
-              Calculating terrain-aware route…
+            <div className="flex items-start gap-2.5 rounded-none border border-ares-accent/85 bg-[#1c0c06]/65 px-3.5 py-2.5 text-[12px] leading-snug text-ares-text">
+              <AresRouteIcon className="mt-0.5 h-4 w-4 shrink-0 animate-pulse text-ares-accent" />
+              <span>Calculating terrain-aware route…</span>
             </div>
           ) : (
-            <div className="rounded-xl border border-ares-accent/40 bg-ares-accent/10 px-3.5 py-3 text-xs text-ares-text">
-              Click any marker or arbitrary point on the Mars map to set{" "}
-              <strong>Point {pickingSlot ?? (!pointA ? "A" : "B")}</strong>.
+            <div className="flex items-start gap-2.5 rounded-none border border-ares-accent/85 bg-[#1c0c06]/65 px-3.5 py-2.5 text-[12px] leading-snug text-ares-text">
+              <AresPinIcon className="mt-0.5 h-4 w-4 shrink-0 text-ares-text/85" />
+              <span>
+                Click any marker or arbitrary point on the map to set Point{" "}
+                {activeSlot}.
+              </span>
             </div>
           )}
 
           {/* Quick Preset Routes inside MOLA Grids (Jezero & Gale) */}
           {onSelectPresetRoute &&
             (routeError || isUnreachable || pickingSlot || !pointA || !pointB) && (
-              <div className="space-y-2 border-t border-ares-line/70 pt-3">
-                <h3 className="text-[11px] font-semibold tracking-wider text-ares-mute uppercase">
+              <div className="border-t border-ares-line/70 pt-3">
+                <h3 className="mb-2 text-[10px] font-semibold tracking-wider text-ares-mute uppercase">
                   Preset Routes (MOLA Grid)
                 </h3>
-                <div className="grid grid-cols-2 gap-1.5">
-                  <button
-                    type="button"
-                    onClick={() => onSelectPresetRoute("jezero", "demo")}
-                    className="cursor-pointer rounded-lg border border-ares-accent/50 bg-ares-accent/15 px-2.5 py-1.5 text-[11px] font-semibold text-white transition-colors hover:bg-ares-accent/25"
-                  >
-                    Jezero Demo
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => onSelectPresetRoute("gale", "demo")}
-                    className="cursor-pointer rounded-lg border border-ares-accent/50 bg-ares-accent/15 px-2.5 py-1.5 text-[11px] font-semibold text-white transition-colors hover:bg-ares-accent/25"
-                  >
-                    Gale Demo
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => onSelectPresetRoute("jezero", "from_base")}
-                    className="cursor-pointer rounded-lg border border-ares-line bg-ares-raised/80 px-2.5 py-1.5 text-[11px] font-medium text-ares-text transition-colors hover:border-ares-accent/60 hover:text-white"
-                  >
-                    Pick in Jezero
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => onSelectPresetRoute("gale", "from_base")}
-                    className="cursor-pointer rounded-lg border border-ares-line bg-ares-raised/80 px-2.5 py-1.5 text-[11px] font-medium text-ares-text transition-colors hover:border-ares-accent/60 hover:text-white"
-                  >
-                    Pick in Gale
-                  </button>
+                <div className="grid grid-cols-2 gap-2">
+                  {presetButtons.map((preset) => (
+                    <button
+                      key={`${preset.id}-${preset.mode}`}
+                      type="button"
+                      onClick={() => onSelectPresetRoute(preset.id, preset.mode)}
+                      className="cursor-pointer rounded-none border border-ares-line/90 bg-[#170b07]/85 px-2.5 py-2 text-[11.5px] font-semibold text-ares-text transition-colors hover:border-ares-accent/70 hover:text-white"
+                    >
+                      {preset.label}
+                    </button>
+                  ))}
                 </div>
               </div>
             )}
 
           {/* Disclaimers */}
-          <ul className="space-y-1 border-t border-ares-line/70 pt-3 text-[10.5px] leading-relaxed text-ares-mute">
-            {(routeDisclaimers?.length
-              ? routeDisclaimers
-              : DEFAULT_ROUTE_DISCLAIMERS
-            ).map((disclaimer, idx) => (
-              <li key={idx} className="flex items-start gap-1.5">
-                <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-ares-mute/70" />
-                <span>{disclaimer}</span>
-              </li>
-            ))}
-          </ul>
+          {trailingDisclaimers.length > 0 && (
+            <ul className="space-y-1.5 border-t border-ares-line/70 pt-3 text-[11px] leading-snug text-ares-mute">
+              {trailingDisclaimers.map((disclaimer, idx) => (
+                <li key={idx} className="flex items-start gap-2">
+                  <HudBullet />
+                  <span>{disclaimer}</span>
+                </li>
+              ))}
+            </ul>
+          )}
 
           {/* Actions: New route + Clear */}
-          <div className="grid grid-cols-2 gap-2.5 pt-1">
+          <div className="grid grid-cols-2 gap-2 pt-1">
             <button
               type="button"
               onClick={onStartNewRoute}
-              className="flex cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-ares-accent/60 bg-gradient-to-r from-[#5a2611] via-[#7c3214] to-[#5a2611] py-2.5 text-xs font-semibold text-white transition-all hover:border-ares-accent hover:brightness-110"
+              className="flex cursor-pointer items-center justify-center gap-1.5 rounded-none border border-ares-accent/75 bg-ares-accent/15 py-2 text-xs font-semibold text-white transition-colors hover:bg-ares-accent/25"
             >
               <NavigationArrowIcon weight="duotone" className="h-3.5 w-3.5" />
               <span>New route</span>
@@ -590,7 +700,7 @@ export default function LocationCard({
             <button
               type="button"
               onClick={onClearRoute}
-              className="flex cursor-pointer items-center justify-center gap-1.5 rounded-xl border border-ares-line bg-ares-raised/90 py-2.5 text-xs font-semibold text-ares-text transition-all hover:border-rose-400/60 hover:text-rose-300"
+              className="flex cursor-pointer items-center justify-center gap-1.5 rounded-none border border-ares-line/90 bg-[#170b07]/85 py-2 text-xs font-semibold text-ares-text transition-colors hover:border-rose-400/60 hover:text-rose-300"
             >
               <ArrowCounterClockwiseIcon
                 weight="bold"
@@ -600,7 +710,7 @@ export default function LocationCard({
             </button>
           </div>
         </div>
-      </aside>
+      </HudSidePanel>
     );
   }
 
@@ -619,22 +729,53 @@ export default function LocationCard({
       ? backendScore.properties.score
       : null;
 
-  const activeElevation =
-    backendScore?.properties.elevation_m !== undefined &&
-    backendScore?.properties.elevation_m !== null
-      ? backendScore.properties.elevation_m
-      : fallbackMetrics.elevation_m;
+  const activeElevation = isFiniteNumber(backendScore?.properties?.elevation_m)
+    ? backendScore.properties.elevation_m
+    : fallbackMetrics.elevation_m;
 
-  const verdict = backendScore
-    ? getVerdictLabel(activeScore, backendScore.properties.excluded)
-    : getVerdictLabel(activeScore);
+  const isPendingScore =
+    isScoringLoading && activeScore === null && !scoreError;
+  const verdict = isPendingScore
+    ? "Calculating suitability score…"
+    : backendScore?.properties
+      ? getVerdictLabel(activeScore, backendScore.properties.excluded)
+      : getVerdictLabel(activeScore);
 
-  const verdictColor = getScoreAccent(activeScore);
+  const verdictColor = isPendingScore
+    ? "#b5a394"
+    : getScoreAccent(activeScore);
+  const isExtendedEvaEstimate = Boolean(
+    backendScore?.meta?.data_flags?.includes("extended_eva_conditional_estimate")
+  );
+  const isGlobalConditional = Boolean(
+    backendScore?.meta?.preset_id === "global" ||
+      backendScore?.meta?.data_flags?.includes("global_conditional_estimate")
+  );
+  const exclusionSummary =
+    backendScore?.properties?.excluded &&
+    (backendScore.properties.exclusion_reasons?.length ?? 0) > 0
+      ? backendScore.properties.exclusion_reasons
+          .map(formatExclusionReason)
+          .join(" · ")
+      : null;
   const insights = buildBackendInsights(backendScore, fallbackMetrics);
-  const kindLabel =
-    feature.properties.dataset_id === "ares_surface_probe"
-      ? "Surface Point"
-      : KIND_LABELS[feature.properties.kind] ?? "Selected Location";
+  const isSurfaceProbe = feature.properties.dataset_id === "ares_surface_probe";
+  const kindLabel = isSurfaceProbe
+    ? "Surface Point"
+    : KIND_LABELS[feature.properties.kind] ?? "Selected Location";
+  const headingTitle = isSurfaceProbe ? "Surface Point" : feature.properties.name;
+
+  const comparisonSuffix = " (comparison only)";
+  const hasComparisonSuffix = verdict.endsWith(comparisonSuffix);
+  const verdictMain = hasComparisonSuffix
+    ? verdict.slice(0, -comparisonSuffix.length)
+    : verdict;
+  const verdictSub = hasComparisonSuffix ? "(comparison only)" : null;
+
+  const scoreNoteText = isGlobalConditional
+    ? "Conditional planetary estimate, outside the Jezero and Gale MOLA grids."
+    : backendScore?.meta.label ??
+      "Conditional heuristic EVA suitability index (0–100)";
 
   const missionSubtitle = feature.properties.mission
     ? `${feature.properties.mission}${
@@ -645,50 +786,50 @@ export default function LocationCard({
     : null;
 
   return (
-    <aside
-      aria-label="Selected Location Details"
-      className="pointer-events-auto fixed top-[88px] right-5 z-[1000] flex max-h-[calc(100vh-186px)] w-[372px] max-w-[calc(100vw-24px)] flex-col overflow-hidden rounded-2xl border border-[#f06423]/60 bg-[#100806]/94 shadow-[0_22px_60px_rgba(0,0,0,0.85),0_0_28px_rgba(240,100,35,0.22)] backdrop-blur-xl"
-    >
+    <HudSidePanel ariaLabel="Selected Location Details">
       {/* Card Header */}
-      <div className="flex items-start justify-between gap-3 px-5 pt-4 pb-3">
+      <div className="flex items-start justify-between gap-3 px-4 pt-3.5 pb-2.5">
         <div className="min-w-0">
-          <div className="flex items-center gap-1.5 text-[11px] font-semibold tracking-wider text-ares-accent-soft uppercase">
-            <MapPinIcon weight="duotone" className="h-3.5 w-3.5 shrink-0" />
+          <div className="flex flex-wrap items-center gap-x-1.5 gap-y-0.5 text-[10px] font-semibold tracking-wider text-ares-accent-soft uppercase">
+            <AresPinIcon className="h-3.5 w-3.5 shrink-0" />
             <span>{kindLabel}</span>
             {isScoringLoading && !scoreError && (
-              <span className="ml-1 font-mono text-[10px] font-normal text-ares-mute lowercase">
-                · scoring…
+              <span className="text-[10px] font-semibold text-ares-mute">
+                · SCORING…
               </span>
             )}
             {!isScoringLoading &&
               !scoreError &&
-              (backendScore?.meta.preset_id === "global" ||
-                backendScore?.meta.data_flags?.includes(
-                  "global_conditional_estimate"
-                )) && (
+              (isGlobalConditional || isExtendedEvaEstimate) && (
                 <span
-                  title="Outside Jezero and Gale MOLA grids — evaluated from planetary datasets"
-                  className="ml-1 font-mono text-[10px] font-normal text-amber-300 lowercase"
+                  title={
+                    isExtendedEvaEstimate
+                      ? "Beyond seeded 10 km demo EVA circle — evaluated from real MOLA grid terrain"
+                      : "Outside Jezero and Gale MOLA grids — evaluated from planetary datasets"
+                  }
+                  className="text-[10px] font-semibold tracking-wider text-amber-300/95 uppercase"
                 >
-                  · conditional estimate
+                  {isExtendedEvaEstimate
+                    ? "· >10 KM EVA ESTIMATE"
+                    : "· CONDITIONAL ESTIMATE"}
                 </span>
               )}
             {scoreError && (
               <span
                 title={scoreError}
-                className="ml-1 font-mono text-[10px] font-normal text-amber-400 lowercase"
+                className="text-[10px] font-semibold text-amber-400"
               >
-                · score unavailable
+                · SCORE UNAVAILABLE
               </span>
             )}
           </div>
-          <h2 className="mt-1 truncate text-xl leading-tight font-bold text-ares-text">
-            {feature.properties.name}
+          <h2 className="mt-0.5 truncate text-[20px] leading-tight font-bold text-ares-text">
+            {headingTitle}
           </h2>
           {missionSubtitle && (
             <p className="mt-0.5 text-xs text-ares-mute">{missionSubtitle}</p>
           )}
-          <p className="mt-0.5 font-mono text-xs text-ares-mute tabular-nums">
+          <p className="mt-0.5 font-mono text-[11.5px] text-ares-mute tabular-nums">
             {formatCoord(lat, lon)}
           </p>
         </div>
@@ -697,21 +838,21 @@ export default function LocationCard({
           type="button"
           onClick={onClose}
           aria-label="Close location panel"
-          className="flex h-7 w-7 shrink-0 cursor-pointer items-center justify-center rounded-lg border border-ares-line bg-ares-raised/80 text-ares-mute transition-colors hover:border-ares-accent/50 hover:text-ares-text"
+          className="-mr-1 shrink-0 cursor-pointer p-1 text-ares-mute transition-colors hover:text-ares-text"
         >
           <XIcon weight="bold" className="h-4 w-4" />
         </button>
       </div>
 
       {/* Scrollable Card Body */}
-      <div className="min-h-0 flex-1 space-y-4 overflow-y-auto px-5 pb-5">
+      <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-4 pb-4">
         {/* NASA Viking Mosaic Banner */}
-        <div className="relative h-24 w-full overflow-hidden rounded-xl border border-ares-line bg-ares-raised">
+        <div className="relative h-[84px] w-full overflow-hidden rounded-none border border-ares-line bg-ares-raised">
           {showPreview ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
               src={preview.url}
-              alt={`Orbital view of ${feature.properties.name}`}
+              alt={`Orbital view of ${headingTitle}`}
               onError={() => setFailedTileUrl(preview.url)}
               className="h-full w-full object-cover"
               style={{
@@ -725,24 +866,36 @@ export default function LocationCard({
           )}
           <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-ares-panel/85 via-transparent to-transparent" />
           <span className="pointer-events-none absolute right-2.5 bottom-1.5 text-[10px] text-ares-mute">
-            NASA Viking MDIM 2.1
+            Terrain image · NASA Viking MDIM 2.1
           </span>
         </div>
 
         {/* Score Ring (0-100) + Verdict */}
-        <div className="flex items-center gap-4 border-b border-ares-line/80 pb-4">
+        <div className="flex items-center gap-3.5 border-b border-ares-line/80 pb-3">
           <ScoreRing key={feature.properties.id} score={activeScore} />
           <div className="min-w-0">
             <div
-              className="text-base leading-snug font-semibold"
+              className="text-[16.5px] leading-tight font-bold"
               style={{ color: verdictColor }}
             >
-              {verdict}
+              {verdictMain}
             </div>
-            <p className="mt-0.5 text-[11px] leading-snug text-ares-mute">
-              {backendScore?.meta.label ??
-                "Conditional heuristic EVA suitability index (0–100)"}
+            {verdictSub && (
+              <div className="mt-0.5 text-[13px] leading-tight font-semibold text-ares-text">
+                {verdictSub}
+              </div>
+            )}
+            <p className="mt-1 text-[11px] leading-snug text-ares-mute">
+              {scoreNoteText.replace(" (0–100)", "")}
+              {scoreNoteText.includes("(0–100)") && (
+                <span className="whitespace-nowrap"> (0–100)</span>
+              )}
             </p>
+            {exclusionSummary && (
+              <p className="mt-1 text-[10.5px] leading-snug text-rose-300/90">
+                {exclusionSummary}
+              </p>
+            )}
             {scoreError && activeScore === null && (
               <p className="mt-1 text-[10.5px] leading-snug text-amber-300/90">
                 {scoreError}
@@ -752,22 +905,15 @@ export default function LocationCard({
         </div>
 
         {/* Advantages & Risks (2 clean columns) */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-2 gap-3.5 border-b border-ares-line/70 pb-3">
           <div>
-            <h4 className="mb-2 flex items-center gap-1.5 text-[11px] font-semibold tracking-wider text-emerald-400 uppercase">
-              <CheckCircleIcon
-                weight="duotone"
-                className="h-3.5 w-3.5 shrink-0"
-              />
-              <span>Advantages</span>
+            <h4 className="mb-1.5 text-[10px] font-semibold tracking-wider text-ares-mute uppercase">
+              Advantages
             </h4>
-            <ul className="space-y-1.5 text-xs leading-snug text-ares-text">
+            <ul className="space-y-1.5 text-[11.5px] leading-snug text-ares-text">
               {insights.pros.map((item, idx) => (
-                <li key={idx} className="flex items-start gap-1.5">
-                  <CheckIcon
-                    weight="bold"
-                    className="mt-0.5 h-3 w-3 shrink-0 text-emerald-400"
-                  />
+                <li key={idx} className="flex items-start gap-2">
+                  <HudBullet />
                   <span>{item}</span>
                 </li>
               ))}
@@ -775,20 +921,13 @@ export default function LocationCard({
           </div>
 
           <div>
-            <h4 className="mb-2 flex items-center gap-1.5 text-[11px] font-semibold tracking-wider text-rose-400 uppercase">
-              <WarningIcon
-                weight="duotone"
-                className="h-3.5 w-3.5 shrink-0"
-              />
-              <span>Risks</span>
+            <h4 className="mb-1.5 text-[10px] font-semibold tracking-wider text-ares-accent uppercase">
+              Risks
             </h4>
-            <ul className="space-y-1.5 text-xs leading-snug text-ares-text">
+            <ul className="space-y-1.5 text-[11.5px] leading-snug text-ares-text">
               {insights.risks.map((item, idx) => (
-                <li key={idx} className="flex items-start gap-1.5">
-                  <WarningIcon
-                    weight="duotone"
-                    className="mt-0.5 h-3 w-3 shrink-0 text-rose-400"
-                  />
+                <li key={idx} className="flex items-start gap-2">
+                  <HudBullet variant="accent" />
                   <span>{item}</span>
                 </li>
               ))}
@@ -797,16 +936,15 @@ export default function LocationCard({
         </div>
 
         {/* Resources */}
-        <div className="border-t border-ares-line/70 pt-3.5">
-          <h4 className="mb-2 flex items-center gap-1.5 text-[11px] font-semibold tracking-wider text-amber-400 uppercase">
-            <SparkleIcon weight="duotone" className="h-3.5 w-3.5 shrink-0" />
-            <span>Resources</span>
+        <div className="border-b border-ares-line/70 pb-3">
+          <h4 className="mb-2 text-[10px] font-semibold tracking-wider text-ares-mute uppercase">
+            Resources
           </h4>
           <div className="flex flex-wrap gap-2">
             {insights.resources.map((res, idx) => (
               <span
                 key={idx}
-                className="inline-flex items-center gap-1.5 rounded-lg border border-ares-line bg-ares-raised px-2.5 py-1 text-[11px] text-ares-text"
+                className="inline-flex items-center gap-1.5 rounded-none border border-ares-line bg-ares-raised/65 px-2.5 py-1 text-[11px] text-ares-text"
               >
                 <ResourceIcon label={res} />
                 {res}
@@ -815,71 +953,77 @@ export default function LocationCard({
           </div>
         </div>
 
-        {/* Location Features (as in Photo 1) */}
-        <div className="border-t border-ares-line/70 pt-3.5">
-          <h4 className="mb-2 text-[11px] font-semibold tracking-wider text-ares-mute uppercase">
-            Location Features
-          </h4>
-          <ul className="space-y-1.5 text-xs leading-snug text-ares-text">
-            <li className="flex items-start gap-2">
-              <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-ares-accent-soft" />
-              <span>{getLatitudeZoneLabel(lat)}</span>
-            </li>
-            {activeElevation !== null && (
-              <li className="flex items-start gap-2">
-                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-ares-accent-soft" />
-                <span>
-                  Elevation: {activeElevation > 0 ? "+" : ""}
-                  {Math.round(activeElevation).toLocaleString("en-US")} m (MOLA)
-                </span>
-              </li>
-            )}
-            {nearestLandingSite && (
-              <li className="flex items-start gap-2">
-                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 rounded-full bg-ares-accent-soft" />
-                <span>
-                  Nearest landing site: {nearestLandingSite.name},{" "}
-                  {formatDistance(nearestLandingSite.km, distanceUnit)}
-                </span>
-              </li>
-            )}
-          </ul>
-        </div>
-
-        {/* Action Buttons: Start route from here + Save Location */}
-        <div className="space-y-2 pt-1">
+        {/* Primary Action Buttons */}
+        <div className="space-y-1.5 pt-0.5">
           <button
             type="button"
             onClick={() => onStartRouteFromHere(feature)}
-            className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl border border-ares-accent bg-ares-accent py-2.5 text-xs font-bold text-[#140c07] shadow-[0_0_20px_rgba(240,100,35,0.35)] transition-all hover:brightness-110"
+            className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-none bg-ares-accent py-2 text-xs font-bold text-[#140c07] shadow-[0_0_20px_rgba(240,100,35,0.3)] transition-all hover:brightness-110"
+            style={{
+              clipPath:
+                "polygon(10px 0, 100% 0, 100% 100%, 0 100%, 0 10px)",
+            }}
           >
             <NavigationArrowIcon weight="fill" className="h-3.5 w-3.5" />
-            <span>Start route from here</span>
+            <span>Route from here</span>
           </button>
 
           <button
             type="button"
             onClick={() => onToggleSave(feature.properties.id)}
-            className={`flex w-full cursor-pointer items-center justify-center gap-2 rounded-xl border py-2 text-xs font-semibold transition-all duration-150 ${
+            className={`flex w-full cursor-pointer items-center justify-center gap-2 rounded-none border py-1.5 text-xs font-semibold transition-all duration-150 ${
               isSaved
                 ? "border-ares-accent/80 bg-ares-accent/20 text-white"
-                : "border-ares-line bg-ares-raised/70 text-ares-text hover:border-ares-accent/60"
+                : "border-ares-line bg-ares-raised/65 text-ares-text hover:border-ares-accent/60"
             }`}
           >
             <BookmarkSimpleIcon
               weight={isSaved ? "fill" : "duotone"}
               className="h-3.5 w-3.5"
             />
-            <span>{isSaved ? "Location Saved" : "Save Location"}</span>
+            <span>{isSaved ? "Location saved" : "Save location"}</span>
           </button>
+        </div>
 
-          <ul className="space-y-1 pt-1.5 text-[10px] leading-relaxed text-ares-mute">
+        {/* Location Features & Disclaimers (below primary actions for clean fold fit) */}
+        <div className="space-y-3 border-t border-ares-line/60 pt-3">
+          <div>
+            <h4 className="mb-1.5 text-[10.5px] font-semibold tracking-wider text-ares-mute uppercase">
+              Location Features
+            </h4>
+            <ul className="space-y-1 text-[11.5px] leading-snug text-ares-text">
+              <li className="flex items-start gap-2">
+                <span className="mt-1.5 h-1.5 w-1.5 shrink-0 bg-ares-accent-soft" />
+                <span>{getLatitudeZoneLabel(lat)}</span>
+              </li>
+              {activeElevation !== null && (
+                <li className="flex items-start gap-2">
+                  <span className="mt-1.5 h-1.5 w-1.5 shrink-0 bg-ares-accent-soft" />
+                  <span>
+                    Elevation: {activeElevation > 0 ? "+" : ""}
+                    {Math.round(activeElevation).toLocaleString("en-US")} m (MOLA)
+                  </span>
+                </li>
+              )}
+              {nearestLandingSite && (
+                <li className="flex items-start gap-2">
+                  <span className="mt-1.5 h-1.5 w-1.5 shrink-0 bg-ares-accent-soft" />
+                  <span>
+                    Nearest landing site: {nearestLandingSite.name},{" "}
+                    {formatDistance(nearestLandingSite.km, distanceUnit)}
+                  </span>
+                </li>
+              )}
+            </ul>
+          </div>
+
+          <ul className="space-y-1 text-[10px] leading-relaxed text-ares-mute">
             {(backendScore?.meta.disclaimers?.length
               ? backendScore.meta.disclaimers
               : DEFAULT_DISCLAIMERS
             ).map((disclaimer, idx) => (
               <li key={idx} className="flex items-start gap-1.5">
-                <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-ares-mute/70" />
+                <span className="mt-1.5 h-1 w-1 shrink-0 bg-ares-mute/70" />
                 <span>{disclaimer}</span>
               </li>
             ))}
@@ -901,6 +1045,6 @@ export default function LocationCard({
             )}
         </div>
       </div>
-    </aside>
+    </HudSidePanel>
   );
 }

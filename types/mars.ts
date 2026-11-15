@@ -67,6 +67,19 @@ export interface MarsGeoJSONFeature {
   properties: MarsFeatureProperties;
 }
 
+export interface SavedLocationEntry {
+  id: string;
+  savedAt: string;
+  score: number | null;
+  feature?: MarsGeoJSONFeature;
+}
+
+export interface SavedLocationItem {
+  feature: MarsGeoJSONFeature;
+  score: number | null;
+  savedAt: string;
+}
+
 export interface MarsGeoJSONCollection {
   type: "FeatureCollection";
   crs_note?: string;

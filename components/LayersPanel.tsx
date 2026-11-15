@@ -1,23 +1,22 @@
 "use client";
 
 import React, { useState } from "react";
-import type { IconWeight } from "@phosphor-icons/react";
+import { CaretDownIcon, CaretUpIcon } from "@phosphor-icons/react/ssr";
 import {
-  CaretDownIcon,
-  CaretUpIcon,
-  CrosshairIcon,
-  DropIcon,
-  FireIcon,
-  FlagIcon,
-  GlobeIcon,
-  MoonIcon,
-  MountainsIcon,
-  PulseIcon,
-  StackIcon,
-  SunIcon,
-  WarningIcon,
-  WindIcon,
-} from "@phosphor-icons/react/ssr";
+  type AresIconProps,
+  AresFlameIcon,
+  AresFlagIcon,
+  AresFlaskIcon,
+  AresGlobeIcon,
+  AresLayersIcon,
+  AresMoonIcon,
+  AresMountainsIcon,
+  AresRoughnessIcon,
+  AresSunIcon,
+  AresWarningIcon,
+  AresWaterIcon,
+  AresWindIcon,
+} from "@/components/AresIcons";
 import { MarsFeatureKind, MissionPreset } from "@/types/mars";
 import { MARS_BASEMAP_LAYERS, MarsBasemapLayer } from "@/lib/mars-layers";
 
@@ -34,31 +33,31 @@ export interface LayersPanelProps {
 const SURVIVAL_ROWS: {
   key: MarsFeatureKind;
   label: string;
-  Icon: React.ComponentType<{ className?: string; weight?: IconWeight }>;
+  Icon: React.ComponentType<AresIconProps>;
   iconClass: string;
 }[] = [
   {
     key: "ice",
     label: "Water & Ice Evidence",
-    Icon: DropIcon,
+    Icon: AresWaterIcon,
     iconClass: "text-[#f2dfd3]",
   },
   {
     key: "hazard",
     label: "Hazard Zones",
-    Icon: WarningIcon,
+    Icon: AresWarningIcon,
     iconClass: "text-[#ff3d1f]",
   },
   {
     key: "science_target",
     label: "Scientific Sites",
-    Icon: CrosshairIcon,
+    Icon: AresFlaskIcon,
     iconClass: "text-[#f2dfd3]",
   },
   {
     key: "landing_site",
     label: "Landing Sites",
-    Icon: FlagIcon,
+    Icon: AresFlagIcon,
     iconClass: "text-[#f2dfd3]",
   },
 ];
@@ -66,23 +65,23 @@ const SURVIVAL_ROWS: {
 function getBasemapIcon(layer: MarsBasemapLayer) {
   switch (layer.key) {
     case "viking":
-      return GlobeIcon;
+      return AresGlobeIcon;
     case "mola":
-      return MountainsIcon;
+      return AresMountainsIcon;
     case "hrsc":
-      return StackIcon;
+      return AresLayersIcon;
     case "themis-day":
-      return SunIcon;
+      return AresSunIcon;
     case "themis-night":
-      return MoonIcon;
+      return AresMoonIcon;
     case "roughness":
-      return PulseIcon;
+      return AresRoughnessIcon;
     case "thermal":
-      return FireIcon;
+      return AresFlameIcon;
     case "dust":
-      return WindIcon;
+      return AresWindIcon;
     default:
-      return StackIcon;
+      return AresLayersIcon;
   }
 }
 
@@ -90,20 +89,33 @@ function HudToggle({ checked }: { checked: boolean }) {
   return (
     <span
       aria-hidden="true"
-      className={`relative inline-flex h-[19px] w-[36px] shrink-0 items-center rounded-full border transition-all duration-150 ${
+      className={`relative inline-flex h-[18px] w-[34px] shrink-0 items-center rounded-none border transition-all duration-150 ${
         checked
-          ? "border-[#ff8a47]/80 bg-gradient-to-r from-[#872909] to-[#d94d16] shadow-[0_0_12px_rgba(240,100,35,0.45)]"
-          : "border-[#4b2d20]/70 bg-[#1c110d]"
+          ? "border-[#ff8a47]/85 bg-gradient-to-r from-[#872909] to-[#d94d16] shadow-[0_0_10px_rgba(240,100,35,0.4)]"
+          : "border-[#5a3525]/80 bg-[#1c110d]"
       }`}
     >
       <span
-        className={`h-[13px] w-[13px] rounded-full transition-transform duration-150 ${
+        className={`h-[12px] w-[14px] rounded-none transition-transform duration-150 ${
           checked
-            ? "translate-x-[19px] border border-[#ffe1cc] bg-[#ff6924] shadow-[0_0_8px_rgba(255,140,74,0.9)]"
-            : "translate-x-[2px] bg-[#6b5347]"
+            ? "translate-x-[17px] border border-[#ffe1cc] bg-[#ff6924] shadow-[0_0_6px_rgba(255,140,74,0.85)]"
+            : "translate-x-[2px] bg-[#785e51]"
         }`}
       />
     </span>
+  );
+}
+
+function HudRadio({ checked }: { checked: boolean }) {
+  return (
+    <span
+      aria-hidden="true"
+      className={`inline-flex h-3.5 w-3.5 shrink-0 items-center justify-center rounded-full border transition-all duration-150 ${
+        checked
+          ? "border-[#ff6a2b] bg-[#ff5d1f] shadow-[0_0_10px_rgba(255,93,31,0.7)]"
+          : "border-[#8d7468]/75 bg-transparent"
+      }`}
+    />
   );
 }
 
@@ -121,16 +133,27 @@ export default function LayersPanel({
   return (
     <aside
       aria-label="Map Layers"
-      className="pointer-events-auto fixed left-3 top-[86px] z-30 flex max-h-[calc(100vh-196px)] w-[256px] flex-col overflow-hidden rounded-2xl border border-[#f06423]/55 bg-[#100806]/92 shadow-[0_20px_54px_rgba(0,0,0,0.85),-3px_0_20px_rgba(240,100,35,0.16)] backdrop-blur-xl sm:left-4"
+      className="pointer-events-auto fixed left-3 top-[86px] z-30 flex max-h-[calc(100vh-196px)] w-[256px] flex-col bg-[#f06423]/55 p-[1px] shadow-[0_20px_54px_rgba(0,0,0,0.85),-3px_0_20px_rgba(240,100,35,0.16)] backdrop-blur-xl sm:left-4"
+      style={{
+        clipPath:
+          "polygon(14px 0, 100% 0, 100% calc(100% - 14px), calc(100% - 14px) 100%, 0 100%, 0 14px)",
+      }}
     >
-      {/* Header */}
+      <div
+        className="flex min-h-0 max-h-[calc(100vh-198px)] flex-1 flex-col overflow-hidden bg-[#100806]/92"
+        style={{
+          clipPath:
+            "polygon(13.5px 0, 100% 0, 100% calc(100% - 13.5px), calc(100% - 13.5px) 100%, 0 100%, 0 13.5px)",
+        }}
+      >
+        {/* Header */}
       <button
         type="button"
         onClick={() => setCollapsed((prev) => !prev)}
         className="flex w-full cursor-pointer items-center justify-between px-4 py-3.5 text-left transition-colors hover:bg-[#1a0d08]/70 focus:outline-none"
       >
         <span className="flex items-center gap-2.5">
-          <StackIcon weight="duotone" className="h-4 w-4 text-[#ff571a]" />
+          <AresLayersIcon className="h-4 w-4 text-[#ff571a]" />
           <span className="text-[15px] font-semibold text-[#ff6824]">
             Layers
           </span>
@@ -163,7 +186,7 @@ export default function LayersPanel({
                     key={preset.id}
                     type="button"
                     onClick={() => onSelectPreset(preset.id)}
-                    className={`flex w-full cursor-pointer items-center justify-between gap-2 rounded-lg border px-2.5 py-1.5 text-left text-[12px] font-medium transition-colors ${
+                    className={`flex w-full cursor-pointer items-center justify-between gap-2 rounded-none border px-2.5 py-1.5 text-left text-[12px] font-medium transition-colors ${
                       isActive
                         ? "border-[#ff6924] bg-[#ff6924]/18 text-white"
                         : "border-[#542613]/70 bg-[#180c07]/80 text-[#d8c4b8] hover:border-[#f06423]/60 hover:text-white"
@@ -179,7 +202,7 @@ export default function LayersPanel({
               <button
                 type="button"
                 onClick={() => onSelectPreset(null)}
-                className={`flex w-full cursor-pointer items-center justify-between gap-2 rounded-lg border px-2.5 py-1.5 text-left text-[12px] font-medium transition-colors ${
+                className={`flex w-full cursor-pointer items-center justify-between gap-2 rounded-none border px-2.5 py-1.5 text-left text-[12px] font-medium transition-colors ${
                   activePresetId === null
                     ? "border-[#ff6924] bg-[#ff6924]/18 text-white"
                     : "border-[#542613]/70 bg-[#180c07]/80 text-[#d8c4b8] hover:border-[#f06423]/60 hover:text-white"
@@ -213,10 +236,7 @@ export default function LayersPanel({
                     className="flex w-full cursor-pointer items-center justify-between gap-2 text-left transition-opacity hover:opacity-95 focus:outline-none"
                   >
                     <span className="flex min-w-0 items-center gap-2.5">
-                      <Icon
-                        weight="duotone"
-                        className={`h-4 w-4 shrink-0 ${iconClass}`}
-                      />
+                      <Icon className={`h-4 w-4 shrink-0 ${iconClass}`} />
                       <span className="truncate text-[12.5px] font-medium text-[#e7d4c8]">
                         {label}
                       </span>
@@ -256,7 +276,6 @@ export default function LayersPanel({
                   >
                     <span className="flex min-w-0 items-center gap-2.5">
                       <Icon
-                        weight="duotone"
                         className={`h-4 w-4 shrink-0 ${
                           selected ? "text-[#ff6a2b]" : "text-[#c2a89c]"
                         }`}
@@ -269,7 +288,7 @@ export default function LayersPanel({
                         {layer.name}
                       </span>
                     </span>
-                    <HudToggle checked={selected} />
+                    <HudRadio checked={selected} />
                   </button>
                 );
               })}
@@ -277,6 +296,7 @@ export default function LayersPanel({
           </div>
         </div>
       )}
+      </div>
     </aside>
   );
 }

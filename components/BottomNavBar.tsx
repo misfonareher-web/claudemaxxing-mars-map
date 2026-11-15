@@ -4,9 +4,9 @@ import {
   CaretDoubleRightIcon,
   ClockIcon,
   PaperPlaneTiltIcon,
-  PathIcon,
   StopIcon,
 } from "@phosphor-icons/react/ssr";
+import { AresRouteIcon } from "@/components/AresIcons";
 import type { BackendRouteProperties, MarsGeoJSONFeature } from "@/types/mars";
 import {
   type DistanceUnit,
@@ -57,104 +57,119 @@ export default function BottomNavBar({
         : "Select Destination";
 
   return (
-    <div className="pointer-events-none fixed right-6 bottom-4 z-[1000] flex items-end">
-      <div className="pointer-events-auto relative flex items-center">
-        {/* Top/bottom decorative HUD frame rule */}
-        <div className="pointer-events-none absolute -top-[3px] right-4 left-6 h-[1.5px] bg-gradient-to-r from-ares-accent/40 via-ares-accent/90 to-ares-accent" />
-        <div className="pointer-events-none absolute right-4 -bottom-[3px] left-6 h-[1.5px] bg-gradient-to-r from-ares-accent/40 via-ares-accent/90 to-ares-accent" />
-
-        {/* Left Trajectory Info Box */}
+    <div className="pointer-events-none fixed right-3 bottom-3 z-[1000] flex items-end sm:right-5">
+      <div className="pointer-events-auto relative flex items-center drop-shadow-[0_14px_34px_rgba(0,0,0,0.88)]">
+        {/* Left Trajectory Info Box (top-left chamfer + nested right notch) */}
         <div
-          className="relative flex h-[66px] min-w-[290px] items-center gap-4 border border-r-0 border-ares-accent/65 bg-gradient-to-r from-[#130905]/95 via-[#1c0d07]/95 to-[#241008]/95 pr-9 pl-5 shadow-[0_14px_40px_rgba(0,0,0,0.9),inset_0_0_24px_rgba(255,95,30,0.08)] backdrop-blur-xl"
+          className="h-[64px] min-w-[286px] bg-[#f06423]/60 p-[1px] backdrop-blur-xl"
           style={{
-            borderTopLeftRadius: "16px",
-            borderBottomLeftRadius: "16px",
             clipPath:
-              "polygon(0 0, 100% 0, calc(100% - 16px) 50%, 100% 100%, 0 100%)",
+              "polygon(14px 0, 100% 0, calc(100% - 16px) 50%, 100% 100%, 0 100%, 0 14px)",
           }}
         >
-          {/* Route Icon */}
-          <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-xl border border-ares-accent/35 bg-ares-accent/10">
-            <PathIcon
-              weight="duotone"
-              className={`h-5 w-5 text-ares-accent drop-shadow-[0_0_8px_rgba(255,107,43,0.75)] ${
-                isRouteLoading ? "animate-pulse" : ""
-              }`}
-            />
-          </div>
-
-          {/* Destination & Distance/Time */}
-          <div className="min-w-[190px] max-w-[300px]">
-            <div
-              className={`truncate text-xs font-medium tracking-wide ${
-                isUnreachable ? "text-rose-300" : "text-ares-mute"
-              }`}
-            >
-              {destinationTitle}
+          <div
+            className="flex h-full w-full items-center gap-3.5 bg-gradient-to-r from-[#130905]/95 via-[#1c0d07]/95 to-[#241008]/95 pr-8 pl-4 shadow-[inset_0_0_24px_rgba(255,95,30,0.08)]"
+            style={{
+              clipPath:
+                "polygon(13.5px 0, calc(100% - 1px) 0, calc(100% - 16px) 50%, calc(100% - 1px) 100%, 0 100%, 0 13.5px)",
+            }}
+          >
+            {/* Route Icon */}
+            <div className="relative flex h-10 w-10 shrink-0 items-center justify-center rounded-none border border-ares-accent/35 bg-ares-accent/10">
+              <AresRouteIcon
+                className={`h-5 w-5 text-ares-accent drop-shadow-[0_0_8px_rgba(255,107,43,0.75)] ${
+                  isRouteLoading ? "animate-pulse" : ""
+                }`}
+              />
             </div>
 
-            <div className="mt-1 flex items-center gap-3">
-              <span className="text-[19px] leading-none font-bold tracking-tight text-white">
-                {effectiveDistanceKm !== null
-                  ? formatDistance(effectiveDistanceKm, distanceUnit)
-                  : "—"}
-              </span>
+            {/* Destination & Distance/Time */}
+            <div className="min-w-[184px] max-w-[290px]">
+              <div
+                className={`truncate text-xs font-medium tracking-wide ${
+                  isUnreachable ? "text-rose-300" : "text-ares-mute"
+                }`}
+              >
+                {destinationTitle}
+              </div>
 
-              {effectiveHours !== null && effectiveHours > 0 && (
-                <>
-                  <span className="h-3.5 w-px bg-ares-line/70" />
-                  <span className="flex items-center gap-1.5 text-xs font-medium text-[#d5b59c]">
-                    <ClockIcon
-                      weight="duotone"
-                      className="h-3.5 w-3.5 text-ares-accent"
-                    />
-                    <span>~ {formatDuration(effectiveHours)}</span>
-                  </span>
-                </>
-              )}
+              <div className="mt-1 flex items-center gap-3">
+                <span className="text-[19px] leading-none font-bold tracking-tight text-white tabular-nums">
+                  {effectiveDistanceKm !== null
+                    ? formatDistance(effectiveDistanceKm, distanceUnit)
+                    : isRouteLoading && hasTwoPoints
+                      ? "Computing…"
+                      : "—"}
+                </span>
+
+                {effectiveHours !== null && effectiveHours > 0 && (
+                  <>
+                    <span className="h-3.5 w-px bg-ares-line/70" />
+                    <span className="flex items-center gap-1.5 text-xs font-medium text-[#d5b59c] tabular-nums">
+                      <ClockIcon
+                        weight="duotone"
+                        className="h-3.5 w-3.5 text-ares-accent"
+                      />
+                      <span>~ {formatDuration(effectiveHours)}</span>
+                    </span>
+                  </>
+                )}
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Right Hexagonal Button: "Start Navigation" or "End Navigation" when 2 points are chosen */}
+        {/* Right Chevron CTA Button: nested cleanly alongside the left notch with a uniform seam */}
         <button
           type="button"
           onClick={hasTwoPoints ? onEndNavigation : onStartNavigation}
-          className={`group relative -ml-3 flex h-[66px] cursor-pointer items-center gap-3.5 border-2 px-8 text-[15px] font-semibold text-white transition-all duration-200 hover:brightness-115 ${
+          className={`group relative -ml-[11px] h-[64px] shrink-0 cursor-pointer p-[1px] transition-all duration-200 hover:brightness-115 focus:outline-none focus-visible:brightness-125 ${
             hasTwoPoints
-              ? "border-rose-500/90 bg-gradient-to-r from-[#4b1111] via-[#7c1919] to-[#a32222] shadow-[0_0_32px_rgba(244,63,94,0.45),inset_0_1px_12px_rgba(255,160,160,0.28)]"
-              : "border-[#ff7b3a] bg-gradient-to-r from-[#58210c] via-[#8b3413] to-[#b54418] shadow-[0_0_32px_rgba(255,107,43,0.45),inset_0_1px_12px_rgba(255,190,140,0.3)]"
+              ? "bg-gradient-to-r from-rose-400/95 via-rose-500 to-rose-400/90"
+              : "bg-gradient-to-r from-[#ff7b3a] via-[#ff8f52] to-[#ff6b2b]"
           }`}
           style={{
             clipPath:
               "polygon(16px 0, calc(100% - 16px) 0, 100% 50%, calc(100% - 16px) 100%, 16px 100%, 0 50%)",
           }}
         >
-          {hasTwoPoints ? (
-            <>
-              <StopIcon
-                weight="fill"
-                className="h-4 w-4 text-white drop-shadow-[0_0_6px_rgba(255,255,255,0.6)]"
-              />
-              <span className="tracking-wide whitespace-nowrap">
-                End Navigation
-              </span>
-            </>
-          ) : (
-            <>
-              <PaperPlaneTiltIcon
-                weight="fill"
-                className="h-4 w-4 text-white drop-shadow-[0_0_6px_rgba(255,255,255,0.6)] transition-transform group-hover:translate-x-0.5"
-              />
-              <span className="tracking-wide whitespace-nowrap">
-                Start Navigation
-              </span>
-              <CaretDoubleRightIcon
-                weight="bold"
-                className="h-5 w-5 text-[#ffae78] transition-transform group-hover:translate-x-1"
-              />
-            </>
-          )}
+          <span
+            className={`flex h-full w-full items-center gap-3 px-8 text-[15px] font-semibold text-white ${
+              hasTwoPoints
+                ? "bg-gradient-to-r from-[#4b1111] via-[#7c1919] to-[#a32222] shadow-[inset_0_1px_12px_rgba(255,160,160,0.24)]"
+                : "bg-gradient-to-r from-[#58210c] via-[#8b3413] to-[#b54418] shadow-[inset_0_1px_12px_rgba(255,190,140,0.26)]"
+            }`}
+            style={{
+              clipPath:
+                "polygon(16px 0, calc(100% - 16px) 0, calc(100% - 0.5px) 50%, calc(100% - 16px) 100%, 16px 100%, 0.5px 50%)",
+            }}
+          >
+            {hasTwoPoints ? (
+              <>
+                <StopIcon
+                  weight="fill"
+                  className="h-4 w-4 shrink-0 text-white drop-shadow-[0_0_6px_rgba(255,255,255,0.6)]"
+                />
+                <span className="tracking-wide whitespace-nowrap">
+                  End Navigation
+                </span>
+              </>
+            ) : (
+              <>
+                <PaperPlaneTiltIcon
+                  weight="fill"
+                  className="h-4 w-4 shrink-0 text-white drop-shadow-[0_0_6px_rgba(255,255,255,0.6)] transition-transform group-hover:translate-x-0.5"
+                />
+                <span className="tracking-wide whitespace-nowrap">
+                  Start Navigation
+                </span>
+                <CaretDoubleRightIcon
+                  weight="bold"
+                  className="h-5 w-5 shrink-0 text-[#ffae78] transition-transform group-hover:translate-x-1"
+                />
+              </>
+            )}
+          </span>
         </button>
       </div>
     </div>

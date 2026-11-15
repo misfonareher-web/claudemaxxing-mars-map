@@ -2,13 +2,13 @@
 
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
 import Image from "next/image";
+import { ClockIcon } from "@phosphor-icons/react/ssr";
 import {
-  ClockIcon,
-  GearSixIcon,
-  MapPinIcon,
-  SunIcon,
-  UserIcon,
-} from "@phosphor-icons/react/ssr";
+  AresGearIcon,
+  AresPinIcon,
+  AresSunIcon,
+  AresUserIcon,
+} from "@/components/AresIcons";
 import { AppTab } from "@/types/mars";
 import { getMarsClock } from "@/lib/mars-time";
 
@@ -63,19 +63,41 @@ export default function Header({
       ? Math.round(solNumber)
       : 112;
 
+  const telemetryItems = [
+    { label: "MARS SOL", value: String(displaySol), icon: null },
+    {
+      label: "AVG. TEMP",
+      value: displayTemp,
+      icon: (
+        <AresSunIcon className="h-[19px] w-[19px] shrink-0 text-[#ff5514]" />
+      ),
+    },
+    {
+      label: "MARTIAN TIME",
+      value: mtcTime,
+      icon: (
+        <ClockIcon
+          weight="duotone"
+          className="h-[19px] w-[19px] shrink-0 text-[#ff5514]"
+        />
+      ),
+    },
+  ];
+
   // Responsive layout coordinates for the unified seamless HUD chassis
   const showTelemetry = width >= 1024;
   const showBrandSubtitle = width >= 640;
 
-  const leftEnd = width >= 640 ? 286 : 168;
+  const leftEnd = width >= 1200 ? 314 : width >= 640 ? 294 : 186;
   const leftBevelX = leftEnd - 28;
-  const rightW = showTelemetry ? (width >= 1320 ? 416 : 386) : 0;
+  const rightW = showTelemetry ? (width >= 1320 ? 420 : 396) : 0;
   const rightStart = showTelemetry ? width - rightW : width;
 
-  const tabsW = width >= 640 ? 316 : 210;
-  const minTabsLeft = leftEnd + 24;
+  const tabsW =
+    width >= 1200 ? 316 : width >= 1024 ? 268 : width >= 640 ? 300 : 210;
+  const minTabsLeft = leftEnd + 22;
   const maxTabsLeft = showTelemetry
-    ? rightStart - tabsW - 24
+    ? rightStart - tabsW - 44
     : width - tabsW - 12;
   const idealTabsLeft = Math.round(width / 2 - tabsW / 2);
   const tabsLeft = Math.max(
@@ -240,21 +262,21 @@ export default function Header({
 
       {/* LEFT BRAND ZONE */}
       <div
-        className="pointer-events-auto absolute left-0 top-0 flex h-[68px] items-center gap-3.5 pl-5 pr-6 sm:pl-7"
+        className="pointer-events-auto absolute left-0 top-0 flex h-[68px] items-center gap-2.5 pl-4 pr-3 sm:gap-3 sm:pl-6 sm:pr-4"
         style={{ width: leftBevelX }}
       >
         <Image
           src="/ares-logo.webp"
-          alt="ARES Logo"
+          alt="AREOPATH Logo"
           width={44}
           height={32}
           priority
-          className="h-8 w-auto shrink-0 object-contain drop-shadow-[0_0_12px_rgba(255,82,24,0.75)]"
+          className="h-7 w-auto shrink-0 object-contain sm:h-8 drop-shadow-[0_0_12px_rgba(255,82,24,0.75)]"
         />
         <div className="h-8 w-px shrink-0 bg-[#6e2f16]/65" />
         <div className="flex min-w-0 flex-col justify-center">
-          <span className="text-[21px] font-bold leading-none tracking-[0.07em] text-[#ff561a] drop-shadow-[0_0_10px_rgba(255,86,26,0.4)]">
-            ARES
+          <span className="whitespace-nowrap text-[17px] font-bold leading-none tracking-[0.06em] text-[#ff561a] drop-shadow-[0_0_10px_rgba(255,86,26,0.4)] sm:text-[20px]">
+            AREOPATH
           </span>
           {showBrandSubtitle && (
             <span className="mt-1 truncate text-[12px] font-medium leading-none tracking-[0.01em] text-[#c2a89c]">
@@ -273,11 +295,10 @@ export default function Header({
         <button
           type="button"
           onClick={() => onTabChange("map")}
-          className="group flex h-full w-1/2 cursor-pointer items-center justify-center gap-2 focus:outline-none"
+          className="group flex h-full w-1/2 cursor-pointer items-center justify-center gap-2 sm:gap-2.5 focus:outline-none"
         >
-          <MapPinIcon
-            weight="duotone"
-            className={`h-[18px] w-[18px] transition-colors ${
+          <AresPinIcon
+            className={`h-5 w-5 shrink-0 transition-colors sm:h-6 sm:w-6 ${
               activeTab === "map"
                 ? "text-[#ff5d1f] drop-shadow-[0_0_10px_rgba(255,93,31,0.85)]"
                 : "text-[#9c8176] group-hover:text-[#d9bfb2]"
@@ -297,11 +318,10 @@ export default function Header({
         <button
           type="button"
           onClick={() => onTabChange("settings")}
-          className="group flex h-full w-1/2 cursor-pointer items-center justify-center gap-2 focus:outline-none"
+          className="group flex h-full w-1/2 cursor-pointer items-center justify-center gap-2 sm:gap-2.5 focus:outline-none"
         >
-          <GearSixIcon
-            weight="duotone"
-            className={`h-[18px] w-[18px] transition-colors ${
+          <AresGearIcon
+            className={`h-5 w-5 shrink-0 transition-colors sm:h-6 sm:w-6 ${
               activeTab === "settings"
                 ? "text-[#ff5d1f] drop-shadow-[0_0_10px_rgba(255,93,31,0.85)]"
                 : "text-[#9c8176] group-hover:text-[#d9bfb2]"
@@ -322,60 +342,31 @@ export default function Header({
       {/* RIGHT TELEMETRY CAPSULE (Mars planet removed per request) */}
       {showTelemetry && (
         <div
-          className="pointer-events-auto absolute right-0 top-[10px] flex h-[56px] items-center justify-between gap-3 pl-5 pr-4 xl:gap-4 xl:pl-6 xl:pr-5"
+          className="pointer-events-auto absolute right-0 top-[10px] flex h-[56px] items-center justify-between gap-3 pl-6 pr-4 xl:gap-4 xl:pl-7 xl:pr-5"
           style={{ width: rightW - 8 }}
         >
-          <div className="flex flex-col leading-tight">
-            <span className="text-[11px] font-medium text-[#a38b7f]">
-              Mars Sol
-            </span>
-            <span className="mt-0.5 font-mono text-[15px] font-semibold tabular-nums text-[#f7efe8]">
-              {displaySol}
-            </span>
-          </div>
-
-          <div className="h-7 w-px bg-[#6e2d15]/60" />
-
-          <div className="flex items-center gap-2">
-            <SunIcon
-              weight="duotone"
-              className="h-5 w-5 shrink-0 text-[#ff5514]"
-            />
-            <div className="flex flex-col leading-tight">
-              <span className="font-mono text-[15px] font-semibold tabular-nums text-[#f7efe8]">
-                {displayTemp}
-              </span>
-              <span className="mt-0.5 text-[11px] font-medium text-[#a38b7f]">
-                Avg. Temp.
-              </span>
+          {telemetryItems.map((item) => (
+            <div key={item.label} className="flex shrink-0 items-center gap-2">
+              {item.icon}
+              <div className="flex flex-col leading-none">
+                <span className="whitespace-nowrap text-[10px] font-semibold uppercase tracking-[0.07em] text-[#a38b7f]">
+                  {item.label}
+                </span>
+                <span className="mt-1 whitespace-nowrap font-mono text-[15px] font-bold tabular-nums text-[#f7efe8]">
+                  {item.value}
+                </span>
+              </div>
             </div>
-          </div>
-
-          <div className="h-7 w-px bg-[#6e2d15]/60" />
-
-          <div className="flex items-center gap-2">
-            <ClockIcon
-              weight="duotone"
-              className="h-5 w-5 shrink-0 text-[#ff5514]"
-            />
-            <div className="flex flex-col leading-tight">
-              <span className="font-mono text-[15px] font-semibold tabular-nums text-[#f7efe8]">
-                {mtcTime}
-              </span>
-              <span className="mt-0.5 text-[11px] font-medium text-[#a38b7f]">
-                Martian Time
-              </span>
-            </div>
-          </div>
+          ))}
 
           <button
             type="button"
             onClick={() => onTabChange("settings")}
             title="Open Mission Settings"
             aria-label="Open Mission Settings"
-            className="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full border border-[#943a18]/80 bg-[#1a0d08]/95 text-[#c7a394] transition-colors hover:border-[#ff5d1f] hover:text-white"
+            className="flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-none border border-[#943a18]/80 bg-[#1a0d08]/95 text-[#c7a394] transition-colors hover:border-[#ff5d1f] hover:text-white"
           >
-            <UserIcon weight="duotone" className="h-5 w-5" />
+            <AresUserIcon className="h-5 w-5" />
           </button>
         </div>
       )}
