@@ -57,34 +57,64 @@ export default function ScoreBreakdown({
   backendScore,
   allFeatures,
 }: ScoreBreakdownProps) {
-  const { factors, score, excluded, hazard_ids } = backendScore.properties;
+  const {
+    factors,
+    score,
+    excluded,
+    hazard_ids,
+    pre_hazard_score,
+    hazard_multiplier,
+    hazard_penalties,
+  } = backendScore.properties;
   if (!factors || typeof score !== "number") return null;
 
   const rows = FACTOR_ORDER.filter((k) => factors[k]).map((k) => ({
     key: k,
     ...factors[k],
   }));
-  const preHazard = rows.reduce((sum, r) => sum + (r.contribution ?? 0), 0);
+  const summedPre = rows.reduce((sum, r) => sum + (r.contribution ?? 0), 0);
+  const preHazard =
+    typeof pre_hazard_score === "number" ? pre_hazard_score : summedPre;
 
-  const hazards = (hazard_ids ?? []).map((id) => {
+  const hazardName = (id: string) => {
     const feat = allFeatures.find(
       (f) => f.properties.kind === "hazard" && f.properties.id === id
     );
-    const severity = feat?.properties.severity ?? 1;
-    const rawName = feat?.properties.name ?? id.replace(/^hz-/, "");
-    return {
-      id,
-      name: rawName.replace(/\s*\(.*\)\s*$/, ""),
-      multiplier: Math.max(0, 1 - PENALTY_PER_SEVERITY * severity),
-    };
-  });
-  const multiplier = hazards.reduce((m, h) => m * h.multiplier, 1);
+    return (feat?.properties.name ?? id.replace(/^hz-/, "")).replace(
+      /\s*\(.*\)\s*$/,
+      ""
+    );
+  };
+
+  // Prefer the backend's own penalty list; otherwise rebuild it from the
+  // hazard layer (severity -> 1 - penalty_per_severity x severity).
+  const hazards = hazard_penalties
+    ? hazard_penalties.map((h) => ({
+        id: h.id,
+        name: hazardName(h.id),
+        multiplier: h.factor,
+      }))
+    : (hazard_ids ?? []).map((id) => {
+        const feat = allFeatures.find(
+          (f) => f.properties.kind === "hazard" && f.properties.id === id
+        );
+        const severity = feat?.properties.severity ?? 1;
+        return {
+          id,
+          name: hazardName(id),
+          multiplier: Math.max(0, 1 - PENALTY_PER_SEVERITY * severity),
+        };
+      });
+  const multiplier =
+    typeof hazard_multiplier === "number"
+      ? hazard_multiplier
+      : hazards.reduce((m, h) => m * h.multiplier, 1);
   const penaltyNames = hazards
     .filter((h) => h.multiplier < 1)
     .map((h) => h.name)
     .join(", ");
   // Coarse display cells average several native cells; a hazard may cover
-  // only part of the cell, so pre × M can differ from the API score.
+  // only part of the cell, so pre x M is then only an estimate of the score.
   const partial =
     !excluded && Math.abs(Math.round(preHazard * multiplier) - score) > 1;
 
@@ -150,8 +180,9 @@ export default function ScoreBreakdown({
         ) : (
           <>
             {preHazard.toFixed(1)} × {multiplier.toFixed(2)}
-            {penaltyNames ? ` (${penaltyNames})` : " (no hazard penalty)"} ={" "}
-            {score}
+            {penaltyNames ? ` (${penaltyNames})` : " (no hazard penalty)"}{" "}
+            {partial ? "≈" : "="} {partial ? Math.round(preHazard * multiplier) : score}
+            {partial && <> · API score {score}</>}
           </>
         )}
       </p>
@@ -160,7 +191,7 @@ export default function ScoreBreakdown({
         round(pre-hazard × hazard multiplier). Context factors are shown but
         weighted 0.
         {partial &&
-          " This display cell averages several grid cells and a hazard covers only part of it, so the product differs slightly from the score."}
+          " This display cell averages several grid cells and a hazard covers only part of it, so the product is only an estimate; the API score is the cell average."}
       </p>
       <a
         href={CLASSROOM_WORKSHEET_URL}

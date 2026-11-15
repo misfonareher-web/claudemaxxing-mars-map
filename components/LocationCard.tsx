@@ -772,7 +772,12 @@ export default function LocationCard({
   // ============================================================================
   if (!feature) return null;
 
-  const fallbackMetrics = getSurvivalMetrics(feature);
+  const baseMetrics = getSurvivalMetrics(feature);
+  // Arbitrary map clicks have no curated evidence: show only backend-derived insights.
+  const fallbackMetrics =
+    feature.properties.dataset_id === "ares_surface_probe"
+      ? { ...baseMetrics, pros: [], risks: [], resources: [] }
+      : baseMetrics;
   const [lon, lat] = getCentroid(feature);
   const preview = getVikingTilePreview(lon, lat, 6);
   const showPreview = failedTileUrl !== preview.url;

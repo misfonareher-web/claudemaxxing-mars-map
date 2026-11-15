@@ -109,6 +109,8 @@ export default function MarsExplorer({
     null
   );
 
+  // Bumped when the same preset route is re-requested so the fetch effect re-runs.
+  const [routeRequestNonce, setRouteRequestNonce] = useState(0);
   const [flyToTarget, setFlyToTarget] = useState<{
     center: [number, number]; // [lon, lat]
     zoom: number;
@@ -436,6 +438,7 @@ export default function MarsExplorer({
     activeRoutePresetId,
     scoringProfile,
     currentRouteKey,
+    routeRequestNonce,
   ]);
 
   const handleToggleSave = useCallback(
@@ -646,6 +649,7 @@ export default function MarsExplorer({
       setManualPresetId(preset.id);
       setRouteErrorState(null);
       setRouteCache(null);
+      setRouteRequestNonce((n) => n + 1);
       setPickingPresetsOpen(false);
       setMobileSheetExpanded(false);
       setMobileLayersOpen(false);
@@ -695,7 +699,7 @@ export default function MarsExplorer({
         setRouteCache(null);
         setRouteErrorState(null);
         setFlyToTarget((prev) => ({
-          center: [15, 70],
+          center: [70, 15], // [lon, lat]
           zoom: 2.25,
           seq: (prev?.seq ?? 0) + 1,
         }));
@@ -805,7 +809,7 @@ export default function MarsExplorer({
     setSelectedFeature(null);
     handleClearRoute();
     setFlyToTarget((prev) => ({
-      center: [15, 70],
+      center: [70, 15], // [lon, lat]
       zoom: 2.25,
       seq: (prev?.seq ?? 0) + 1,
     }));

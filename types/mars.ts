@@ -243,6 +243,10 @@ export interface BackendPointScoreResponse {
     excluded: boolean;
     exclusion_reasons: string[];
     factors: Record<ScoringFactorKey, ScoringFactorBreakdown>;
+    /** Present on newer backends; the UI reconstructs them when missing. */
+    pre_hazard_score?: number | null;
+    hazard_multiplier?: number | null;
+    hazard_penalties?: { id: string; severity: number; factor: number }[];
     hazard_ids: string[];
     data_flags: string[];
   };
