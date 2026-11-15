@@ -324,6 +324,31 @@
         "approximate scoring penalty"
       ],
       "access_date": "2026-11-14"
+    },
+    {
+      "dataset_id": "msl_rad_surface_dose",
+      "title": "MSL RAD surface radiation dose, Gale (Hassler et al. 2014, Table 1)",
+      "mission": "Mars Science Laboratory / Curiosity",
+      "instrument": "RAD (Radiation Assessment Detector)",
+      "data_type": "context",
+      "source_url": "https://doi.org/10.1126/science.1244797",
+      "temporal_coverage": "7 August 2012 - 1 June 2013 (~300 sols, near the maximum of solar cycle 24)",
+      "spatial_coverage": "Curiosity rover, Gale crater (single site, about -4.4 km MOLA)",
+      "resolution": "One published mission-average value (GCR only)",
+      "units": "mSv/day (dose equivalent); mGy/day (absorbed dose)",
+      "format": "Published table values transcribed by hand (no instrument data ingested)",
+      "processing": "Hassler et al. (2014), Science 343(6169):1244797, Table 1 (Science Express version, 9 Dec 2013): surface dose equivalent rate 0.64 +/- 0.12 mSv/day, absorbed dose rate 0.21 +/- 0.04 mGy/day, <Q> 3.05 +/- 0.26; cruise 1.84 +/- 0.30 mSv/day. The SwRI press release (https://swri.org/node/9079) quotes 0.67 mSv/day for the same period; the card uses the paper value.",
+      "limitations": [
+        "Historical average at Gale crater only; no RAD measurement exists for Jezero.",
+        "Galactic cosmic rays near solar maximum; dose varies with the solar cycle, atmospheric column (diurnal and seasonal pressure) and solar particle events.",
+        "Context only: not a dose limit, not a safety threshold, not used in the score or in routes."
+      ],
+      "license": "Citation only (peer-reviewed article)",
+      "synthetic": false,
+      "used_for": [
+        "radiation context card"
+      ],
+      "access_date": "2026-11-14"
     }
   ]
 }
