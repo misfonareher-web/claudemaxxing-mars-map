@@ -31,7 +31,7 @@ def old_score(root, preset, cfg, weights, state):
         mask = geo.contains(state['x'], state['y'], feature['geometry'])
         if p['severity'] >= cfg['hazard_rules']['exclude_severity_at_least']:
             excluded |= mask
-        else:
+        elif p.get('hazard_kind') not in cfg['hazard_rules']['score_exempt_kinds']:
             score *= np.where(mask, max(0, 1 - cfg['hazard_rules']['penalty_per_severity'] * p['severity']), 1)
     nodata = ~np.isfinite(state['arrays']['slope_deg']) | ~np.isfinite(state['arrays']['elevation_m'])
     return np.where(nodata | (denominator == 0), np.nan, np.where(excluded, 0, score))

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "methodology_version": "0.2.0",
+  "methodology_version": "0.2.1",
   "active_profile": "balanced",
   "score_grid": {"max_cells": 6000},
   "profiles": {
@@ -18,6 +18,6 @@
     "science": {"decay_km": 3.0},
     "base_distance": {"use_preset_eva_max_radius": true}
   },
-  "hazard_rules": {"exclude_severity_at_least": 3, "penalty_per_severity": 0.15},
+  "hazard_rules": {"exclude_severity_at_least": 3, "penalty_per_severity": 0.15, "score_exempt_kinds": ["steep_slope"]},
   "route": {"score_cost_factor": 2.0}
 }

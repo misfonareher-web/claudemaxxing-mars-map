@@ -75,7 +75,7 @@ function scoreCachePruneSql(int $maxRows=SCORE_CACHE_MAX_ROWS): array {
 function pruneScoreCache(PDO $c,int $maxRows=SCORE_CACHE_MAX_ROWS): void { foreach(scoreCachePruneSql($maxRows) as $sql) $c->exec($sql); }
 function dispatch(string $method,string $path,array $q): array {
  if($method==='GET') switch($path) {
- case '/api/health': return ['status'=>'ok','db'=>db()!==null,'python'=>is_executable('/usr/bin/python3'),'version'=>'0.1.0'];
+ case '/api/health': return ['status'=>'ok','db'=>db()!==null,'python'=>is_executable('/usr/bin/python3'),'version'=>'0.2.1'];
  case '/api/presets': return readJson(root().'/config/mission_presets.json');
  case '/api/layers': return readJson(root().'/config/layers.json');
  case '/api/features': return features($q);

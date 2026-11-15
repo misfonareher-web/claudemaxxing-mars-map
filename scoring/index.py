@@ -62,18 +62,22 @@ def compute(root, preset, config, weights):
     beyond = values['base_distance'] > preset['eva_max_radius_km']
     excluded |= beyond
     hazards = []
+    # Kinds already scored by a factor subscore (steep_slope duplicates the slope ramp) get no soft penalty.
+    exempt = set(config['hazard_rules'].get('score_exempt_kinds', []))
     for feature in vectors['hazards']:
         mask = geo.contains(x, y, feature['geometry'])
         p = feature['properties']
         hard = p['severity'] >= config['hazard_rules']['exclude_severity_at_least']
         if hard:
             excluded |= mask
-        else:
+        elif p.get('hazard_kind') not in exempt:
             factor = max(0, 1-config['hazard_rules']['penalty_per_severity']*p['severity'])
             score *= np.where(mask, factor, 1)
             hazard_multiplier *= np.where(mask, factor, 1)
             hazard_penalties.append((dict(id=p['id'], severity=p['severity'], factor=factor), mask))
         hazards.append((p['id'], mask, hard))
+    # Scale contributions by the soft-hazard multiplier so they sum to the score.
+    contributions = {f: c*hazard_multiplier for f, c in contributions.items()}
     # Required terrain nodata cannot establish traversability.
     nodata = ~np.isfinite(arrays['slope_deg']) | ~np.isfinite(arrays['elevation_m'])
     score = np.where(nodata | (denominator == 0), np.nan, np.where(excluded, 0, score))

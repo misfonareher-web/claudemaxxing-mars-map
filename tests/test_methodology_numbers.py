@@ -13,10 +13,10 @@ def numbers():
 @pytest.mark.parametrize('preset,total,counts,correlation,means,plane', [
     ('jezero', 4118, {'hz-jezero-slope-2': (637, 1029),
                      'hz-jezero-seitah': (18, 42)},
-     .992, (23.609, 24.289), 66.211),
+     .992, (24.289, 24.289), 66.211),
     ('gale', 2704, {'hz-gale-slope-2': (1366, 1519),
                    'hz-gale-bagnold-dunes': (271, 359)},
-     .993, (24.145, 25.972), 65.645),
+     .993, (25.972, 25.972), 65.645),
 ])
 def test_preset_disclosures(numbers, preset, total, counts, correlation, means, plane):
     actual = numbers['presets'][preset]
