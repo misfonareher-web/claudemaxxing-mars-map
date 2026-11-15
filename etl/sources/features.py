@@ -100,7 +100,9 @@ def build(presets,slopes,thresholds,ice_grids):
    polygons=slope_polygons(mask,west,north,dx,dy)
    if polygons:
     f=feature(f'hz-{id}-slope-{severity}','hazard','Coarse MOLA slope',[0,0],[id],hazard_kind='steep_slope',severity=severity,derived=True);f['geometry']=dict(type='MultiPolygon',coordinates=polygons);f['properties'].update(dataset_id='mola_megdr',caveat=DISCLAIMER,source_ref='https://pds-geosciences.wustl.edu/missions/mgs/mola.html');hazards.append(f)
-  f=feature('ice-'+id+'-neutrons','ice','Regional neutron suppression context',[b['lon'],b['lat']],[id],ice_metric='relative neutron suppression',ice_value=float(np.mean(ice_grids[id])),depth_estimate_m=None);f['properties'].update(dataset_id='ody_ns_epithermal',caveat=ICE+' Coarse hydrogen-sensitive evidence; not proof of ice.',source_ref='https://pds-geosciences.wustl.edu/missions/odyssey/grsspecial.html');frozen.append(f)
+  finite_ice=np.where(np.isfinite(ice_grids[id]),ice_grids[id],np.nan)
+  ice_mean=float(np.nanmean(finite_ice)) if np.any(np.isfinite(finite_ice)) else float('nan')
+  f=feature('ice-'+id+'-neutrons','ice','Regional neutron suppression context',[b['lon'],b['lat']],[id],ice_metric='relative neutron suppression',ice_value=ice_mean,depth_estimate_m=None);f['properties'].update(dataset_id='ody_ns_epithermal',caveat=ICE+' Coarse hydrogen-sensitive evidence; not proof of ice.',source_ref='https://pds-geosciences.wustl.edu/missions/odyssey/grsspecial.html');frozen.append(f)
  for id,name,geom,metric,depth,src,conf,cav in catalog.ICE_CONTEXT:
   f=feature(id,'ice',name,[0,0],[],ice_metric=metric,ice_value=None,depth_estimate_m=depth);f['geometry']=geom
   f['properties'].update(dataset_id='ice_literature',confidence=conf,source_ref=src,caveat=ICE+' '+cav);frozen.append(f)

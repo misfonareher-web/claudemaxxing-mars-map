@@ -1,0 +1,177 @@
+# Mission catalog and ice robustness report
+
+Base: team/data 95687edf765bcf12b0bc0775c3782e2a133513f2.
+Research performed 2026-11-15. Only fetched official sources were used for the changed claims.
+
+## Exact mission records
+
+`landing_date` holds MRO orbit insertion; `landing_site_id` is null for the orbiter.
+Zhurong's status refers to the rover, not the Tianwen-1 orbiter. A null end date
+means no verified end date, not a claim that the rover is active.
+
+```json
+[
+  {
+    "id": "mars-reconnaissance-orbiter",
+    "name": "Mars Reconnaissance Orbiter (MRO)",
+    "agency": "NASA",
+    "mission_type": "orbiter",
+    "launch_date": "2005-08-12",
+    "landing_date": "2006-03-10",
+    "end_date": null,
+    "status": "active",
+    "landing_site_id": null,
+    "instruments": [
+      "HiRISE",
+      "CTX",
+      "CRISM",
+      "MARCI",
+      "SHARAD",
+      "MCS",
+      "accelerometers"
+    ],
+    "key_results": [
+      {
+        "text": "Studied the Martian atmosphere and terrain from orbit since 2006; relays data for other Mars missions.",
+        "source_url": "https://www.jpl.nasa.gov/missions/mars-reconnaissance-orbiter-mro/"
+      }
+    ],
+    "source_url": "https://www.jpl.nasa.gov/missions/mars-reconnaissance-orbiter-mro/",
+    "dataset_id": "mission_history"
+  },
+  {
+    "id": "tianwen-1-zhurong",
+    "name": "Tianwen-1 / Zhurong",
+    "agency": "CNSA",
+    "mission_type": "rover",
+    "launch_date": "2020-07-23",
+    "landing_date": "2021-05-14",
+    "end_date": null,
+    "status": "status not confirmed",
+    "landing_site_id": "ls-zhurong",
+    "instruments": [
+      "NaTeCam",
+      "MarSCoDe",
+      "RoPeR radar",
+      "MCS"
+    ],
+    "key_results": [
+      {
+        "text": "Zhurong began patrolling Mars on May 22, 2021, after landing in Utopia Planitia.",
+        "source_url": "https://english.www.gov.cn/news/topnews/202207/06/content_WS62c576bdc6d02e533532d46e.html"
+      },
+      {
+        "text": "Switched to dormant mode on May 18, 2022; current status not confirmed.",
+        "source_url": "https://english.www.gov.cn/news/topnews/202207/06/content_WS62c576bdc6d02e533532d46e.html"
+      }
+    ],
+    "source_url": "https://english.www.gov.cn/news/topnews/202207/06/content_WS62c576bdc6d02e533532d46e.html",
+    "dataset_id": "cnsa_mission_records"
+  }
+]
+```
+
+## Supporting sources and quotations
+
+Quotations below are short verbatim supporting excerpts; longer sentences are
+excerpted to respect quotation limits. Other source details are paraphrased.
+
+### MRO dates and active status
+
+Fetched: https://science.nasa.gov/mission/mars-reconnaissance-orbiter/
+
+> Launch / Orbit Insertion
+> Aug. 12, 2005 / March 10, 2006
+
+> Active Mission
+
+These NASA labels support launch_date, landing_date (orbit insertion), mission_type
+orbiter, active status and the absence of a published end date on this page.
+
+### MRO instruments and result
+
+Fetched: https://www.jpl.nasa.gov/missions/mars-reconnaissance-orbiter-mro/
+
+> has studied the Red Planet's atmosphere and terrain from orbit since 2006
+
+> serves as a key data relay station
+
+These are excerpts from the opening sentence. The page lists HiRISE, CRISM, MARCI,
+CTX, SHARAD, MCS and accelerometers under Instruments, and labels status Current.
+The result and all its source attribution use this JPL page.
+
+### Zhurong results and historical dormancy
+
+Fetched: https://english.www.gov.cn/news/topnews/202207/06/content_WS62c576bdc6d02e533532d46e.html
+
+> The rover Zhurong started patrolling Mars on May 22, 2021.
+
+> on May 18, 2022, Zhurong switched to the dormant mode
+
+The second quotation is an excerpt from the final paragraph. The official State
+Council page, dated July 6, 2022, also identifies the landing area as Utopia Planitia.
+Its prediction of a December restart is a forecast, not confirmation of restart.
+It cannot establish current rover status in 2026. Therefore status is explicitly
+`status not confirmed`, end_date remains null, and the unsupported assertion that
+operations never resumed is removed. Both result URLs point to this fetched page.
+The CNSA dataset attribution remains `cnsa_mission_records`.
+
+### Zhurong retained dates
+
+Fetched: https://www.cnsa.gov.cn/english/n6465719/c6812000/content.html
+
+> its successful launch on July 23
+
+The sentence explicitly gives 2020 as the year (with ordinal formatting on the page).
+
+Fetched: https://www.cnsa.gov.cn/english/n6465652/n6465653/c6812005/content.html
+
+> The capsule successfully landed at 7:18 am on the southern part of the Utopia Planitia
+
+The May 17, 2021 article describes Saturday morning's landing. Interpreted in
+Beijing time, May 15 at 07:18 converts to May 14 at 23:18 UTC, consistent with
+the existing 2021-05-14 landing_date. The government page above independently
+specifies May 15, 2021. Dates were retained, not invented.
+
+## Code and output verification
+
+- Added MRO; missions count is 13. A new byte-level test compares the output
+  generated by etl.build.write_json against the committed missions.json.
+- Updated Zhurong status in both catalog representations and regenerated
+  landing_sites.geojson with the same write_json serializer. Coordinates and
+  their pre-existing DOI attribution are preserved.
+- Extended the mission validator's explicit status allowlist with the neutral
+  status; other validation remains intact.
+- features.build uses np.nanmean after masking nonfinite cells, with an explicit
+  all-missing guard returning NaN. The zero-to-NaN logic in ice.build is unchanged.
+- New tests cover zero bins, normalization (25/100 -> 0.75, 50/100 -> 0.5,
+  100/100 -> 0), mixed NaN values, infinities, warning-free all-NaN means,
+  and means recomputed from committed arrays.
+- Rebuilt all vector products in memory using the committed slope/ice arrays.
+  Only landing_sites changed; science_targets, hazards and ice compare equal.
+- Jezero: 4,118 cells, 0 nonfinite; old and new mean 0.1223212406039238.
+- Gale: 2,704 cells, 0 nonfinite; old and new mean 0.3720560073852539.
+- No committed ice/grid numeric values changed. The mission and landing-site
+  metadata changes described above are the only generated-output changes.
+- python -m etl.validate: Validation: 0 error(s).
+- python -m pytest -q etl/tests: 51 passed, 5 subtests passed.
+- Existing Python environment supplied the required dependencies; no install needed.
+- README.md, config/, data/environment/* were not edited. No push performed.
+
+## Verification limits
+
+The original https://doi.org/10.1038/s41550-021-01519-5 and its Nature article
+could not be fetched (DOI inaccessible; Nature redirected to an inaccessible
+identity endpoint). No changed status/result relies on that paper. Its existing
+landing-coordinate citation and CNSA provenance attribution remain; those
+coordinates and the retained Zhurong instrument abbreviations were not independently
+reverified. https://cast.cn/english/news/7315 timed out and was not used.
+
+No fetched source established a current Zhurong operational status, confirmed
+reactivation, or declared mission end. Thus no such claim is made.
+
+The raw cache is absent, so the full download/ETL pipeline was not run. Output
+regeneration used catalog source and committed grids, not fabricated raw inputs.
+All-missing means intentionally remain NaN as requested; write_json(allow_nan=False)
+will reject them if a future preset has no valid ice cells. The present grids are
+entirely finite. No serializer or missing-data policy change was made.

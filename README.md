@@ -20,7 +20,7 @@ ARES uses NASA measurements and cartographic products plus cited literature and 
 | `config/mission_presets.json` | Presets (Jezero / Perseverance, Gale / Curiosity): bbox, center, zoom, base point, science targets | Region selector, initial view |
 | `data/grids/<preset>/manifest.json` + `*.npy` | float32 grids over the preset bbox (row 0 = north, col 0 = west): `elevation_m`, `slope_deg`, `roughness_m`, `thermal_index` (0–1), `ice_index` (0–1) | Pathfinding (A* on slope/elevation), heatmaps |
 | `data/landing_sites.geojson` | 10 landing sites (Viking 1/2, Pathfinder, Spirit, Opportunity, Phoenix, Curiosity, InSight, Perseverance, Zhurong), each with `source_ref` | Map markers |
-| `data/missions.json` | 12 missions: dates, instruments, key results with source links, `landing_site_id` | Static file for mission info cards (no API endpoint or DB table yet; the frontend reads the file) |
+| `data/missions.json` | 12 missions: dates, instruments, key results with source links, `landing_site_id` | Static file for mission info cards (no API endpoint or DB table; not yet wired into the frontend) |
 | `data/science_targets.geojson` | EVA science targets per preset | Route destinations |
 | `data/hazards.geojson` | MOLA steep-slope zones (severity 2/3; `hazard_kind: steep_slope`) plus two cited sand-dune outlines (severity 2; `hazard_kind: sand_dunes`) | Hazard overlay |
 | `data/ice.geojson` | Regional neutron-spectrometer ice proxy per preset + global ice context (Odyssey GRS, ice scarps, polar cap, Phoenix) | Ice overlay |
