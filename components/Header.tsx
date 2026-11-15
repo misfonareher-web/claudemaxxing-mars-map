@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
-import { ClockIcon } from "@phosphor-icons/react/ssr";
+import { ArrowSquareOutIcon, ClockIcon } from "@phosphor-icons/react/ssr";
 import {
   AresGearIcon,
   AresLogoIcon,
@@ -9,7 +9,11 @@ import {
   AresSunIcon,
 } from "@/components/AresIcons";
 import { AppTab, EnvironmentSummary } from "@/types/mars";
-import { getMarsClock } from "@/lib/mars-time";
+import {
+  MARS_TIME_SOURCE,
+  getEnvironmentWeatherSource,
+  getMarsClock,
+} from "@/lib/mars-time";
 
 export interface HeaderProps {
   activeTab: AppTab;
@@ -55,17 +59,31 @@ export default function Header({
     Number.isFinite(temps?.min) ? `Min ${Math.round(temps!.min)} °C` : null,
     Number.isFinite(temps?.max) ? `Max ${Math.round(temps!.max)} °C` : null,
   ].filter(Boolean).join(" / ");
-  const weatherLabel = environment?.preset_id === "gale"
-    ? "Gale · Curiosity REMS · historical"
-    : "Jezero · Perseverance MEDA · historical";
+  const weatherSource = getEnvironmentWeatherSource(environment?.preset_id);
   const telemetryItems = [
     ...(environment ? [
-      { label: "MARS SOL", value: String(environment.sol_range[1]), icon: null },
-      { label: weatherLabel, value: displayTemp,
-        icon: <AresSunIcon className="h-4 w-4 shrink-0 text-ares-accent xl:h-[18px] xl:w-[18px]" /> },
+      {
+        label: "MARS SOL",
+        value: String(environment.sol_range[1]),
+        icon: null,
+        sourceUrl: weatherSource.url,
+        sourceTitle: `${weatherSource.sourceName} — latest sampled sol (${weatherSource.solsNote})`,
+      },
+      {
+        label: weatherSource.label,
+        value: displayTemp,
+        icon: <AresSunIcon className="h-4 w-4 shrink-0 text-ares-accent xl:h-[18px] xl:w-[18px]" />,
+        sourceUrl: weatherSource.url,
+        sourceTitle: `${weatherSource.sourceName} — historical daily min/max air temperatures`,
+      },
     ] : []),
-    { label: "MARTIAN TIME", value: mtcTime,
-      icon: <ClockIcon weight="duotone" className="h-4 w-4 shrink-0 text-ares-accent xl:h-[18px] xl:w-[18px]" /> },
+    {
+      label: "MARTIAN TIME",
+      value: mtcTime,
+      icon: <ClockIcon weight="duotone" className="h-4 w-4 shrink-0 text-ares-accent xl:h-[18px] xl:w-[18px]" />,
+      sourceUrl: MARS_TIME_SOURCE.url,
+      sourceTitle: `${MARS_TIME_SOURCE.label} — MTC / MSD calculation`,
+    },
   ];
 
   // Responsive layout coordinates for the unified seamless HUD chassis
@@ -89,13 +107,13 @@ export default function Header({
   const rightW = showTelemetry
     ? hasWeather
       ? width >= 1340
-        ? 458
+        ? 492
         : width >= 1200
-          ? 432
-          : 408
+          ? 464
+          : 438
       : width >= 1340
-        ? 176
-        : 166
+        ? 192
+        : 180
     : 0;
   const rightStart = showTelemetry ? width - rightW : width;
 
@@ -355,20 +373,29 @@ export default function Header({
           style={{ left: rightStart + 16, width: Math.max(0, rightW - 34) }}
         >
           {telemetryItems.map((item) => {
-            const isWeather = item.label === weatherLabel;
+            const isWeather = item.label === weatherSource.label;
             return (
               <div key={item.label} className="flex shrink-0 items-center gap-1.5 xl:gap-2">
                 {item.icon}
                 <div className="flex flex-col leading-none">
-                  <span
-                    className={
+                  <a
+                    href={item.sourceUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    title={item.sourceTitle}
+                    aria-label={`${item.label} (${item.sourceTitle})`}
+                    className={`group inline-flex items-center gap-1 whitespace-nowrap font-semibold text-ares-mute transition-colors hover:text-ares-accent ${
                       isWeather
-                        ? "whitespace-nowrap text-[8.5px] font-semibold tracking-[0.02em] text-ares-mute xl:text-[9.5px]"
-                        : "whitespace-nowrap text-[9.5px] font-semibold uppercase tracking-[0.07em] text-ares-mute xl:text-[10px]"
-                    }
+                        ? "text-[8.5px] tracking-[0.02em] xl:text-[9.5px]"
+                        : "text-[9.5px] uppercase tracking-[0.07em] xl:text-[10px]"
+                    }`}
                   >
-                    {item.label}
-                  </span>
+                    <span>{item.label}</span>
+                    <ArrowSquareOutIcon
+                      weight="bold"
+                      className="h-2.5 w-2.5 shrink-0 text-ares-accent-soft opacity-75 transition-opacity group-hover:text-ares-accent group-hover:opacity-100"
+                    />
+                  </a>
                   <span
                     className={`mt-1.5 whitespace-nowrap font-mono font-bold tabular-nums text-ares-text ${
                       isWeather

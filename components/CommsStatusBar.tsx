@@ -1,10 +1,18 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CaretDownIcon, CaretUpIcon } from "@phosphor-icons/react/ssr";
+import {
+  ArrowSquareOutIcon,
+  CaretDownIcon,
+  CaretUpIcon,
+} from "@phosphor-icons/react/ssr";
 import { AresSignalIcon, AresSunIcon } from "@/components/AresIcons";
 import { CommsStatus, EnvironmentSummary, RelaySchedule } from "@/types/mars";
-import { getMarsClock } from "@/lib/mars-time";
+import {
+  MARS_TIME_SOURCE,
+  getEnvironmentWeatherSource,
+  getMarsClock,
+} from "@/lib/mars-time";
 
 interface CommsStatusBarProps {
   commsStatus: CommsStatus;
@@ -88,10 +96,7 @@ export default function CommsStatusBar({
   const middle = Math.floor(durations.length / 2);
   const median = durations.length ? (durations[middle] + durations[Math.floor((durations.length - 1) / 2)]) / 2 : 0;
   const relaySummary = `${site.name}: ${(site.passes.length / sols).toFixed(1)} predicted passes per sol via MRO/TGO/ODY`;
-  const weatherLabel =
-    environment?.preset_id === "gale"
-      ? "Gale · Curiosity REMS · historical"
-      : "Jezero · Perseverance MEDA · historical";
+  const weatherSource = getEnvironmentWeatherSource(environment?.preset_id);
 
   const detailsList = [
     delay,
@@ -115,19 +120,39 @@ export default function CommsStatusBar({
         {/* Compact telemetry block surfaced cleanly on <1024px devices */}
         <div className="mb-3 space-y-1.5 border-b border-[rgba(255,249,235,0.16)] pb-2.5 lg:hidden">
           <div className="flex items-center justify-between gap-2 text-[11px]">
-            <span className="font-semibold tracking-wider text-ares-mute uppercase">
-              Martian Time (MTC)
-            </span>
+            <a
+              href={MARS_TIME_SOURCE.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              title={`${MARS_TIME_SOURCE.label} — MTC / MSD calculation`}
+              className="group inline-flex items-center gap-1 font-semibold tracking-wider text-ares-mute uppercase transition-colors hover:text-ares-accent"
+            >
+              <span>Martian Time (MTC)</span>
+              <ArrowSquareOutIcon
+                weight="bold"
+                className="h-2.5 w-2.5 shrink-0 text-ares-accent-soft opacity-75 group-hover:text-ares-accent group-hover:opacity-100"
+              />
+            </a>
             <span className="font-mono font-bold text-ares-text tabular-nums">
               {mtcTime}
             </span>
           </div>
           {environment ? (
             <div className="flex items-center justify-between gap-2 text-[11px]">
-              <span className="flex min-w-0 items-center gap-1.5 text-ares-mute">
+              <a
+                href={weatherSource.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                title={`${weatherSource.sourceName} — sampled sols & historical air temp`}
+                className="group flex min-w-0 items-center gap-1.5 text-ares-mute transition-colors hover:text-ares-accent"
+              >
                 <AresSunIcon className="h-3.5 w-3.5 shrink-0 text-ares-accent" />
-                <span className="truncate">{weatherLabel}</span>
-              </span>
+                <span className="truncate">{weatherSource.label}</span>
+                <ArrowSquareOutIcon
+                  weight="bold"
+                  className="h-2.5 w-2.5 shrink-0 text-ares-accent-soft opacity-75 group-hover:text-ares-accent group-hover:opacity-100"
+                />
+              </a>
               <span className="shrink-0 font-mono font-semibold text-ares-text tabular-nums">
                 Sol {environment.sol_range[1]}
                 {compactTemp ? ` · ${compactTemp}` : ""}
