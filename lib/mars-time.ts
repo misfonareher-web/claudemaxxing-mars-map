@@ -2,6 +2,33 @@
  * Mars Coordinated Time (MTC) and Mars Sol Date (MSD) calculation
  * based on Allison & McEwen (2000) / NASA GISS Mars24 algorithm.
  */
+export const MARS_TIME_SOURCE = {
+  label: "NASA GISS Mars24 (Allison & McEwen, 2000)",
+  url: "https://www.giss.nasa.gov/tools/mars24/help/algorithm.html",
+} as const;
+
+export function getEnvironmentWeatherSource(presetId?: string | null): {
+  label: string;
+  sourceName: string;
+  solsNote: string;
+  url: string;
+} {
+  if (presetId === "gale") {
+    return {
+      label: "Gale · Curiosity REMS · historical",
+      sourceName: "NASA PDS4 MSL REMS",
+      solsNote: "sampled sols 10–4810",
+      url: "https://atmos.nmsu.edu/PDS/data/PDS4/msl_rems_bundle/",
+    };
+  }
+  return {
+    label: "Jezero · Perseverance MEDA · historical",
+    sourceName: "NASA PDS4 Mars 2020 MEDA",
+    solsNote: "sampled sols 10–1850",
+    url: "https://atmos.nmsu.edu/PDS/data/PDS4/Mars2020/mars2020_meda/",
+  };
+}
+
 export function getMarsClock(date: Date = new Date()): {
   msd: number;
   mtcTime: string;
