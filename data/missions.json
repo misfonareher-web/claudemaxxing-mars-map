@@ -334,6 +334,34 @@
       "dataset_id": "mission_history"
     },
     {
+      "id": "mars-reconnaissance-orbiter",
+      "name": "Mars Reconnaissance Orbiter (MRO)",
+      "agency": "NASA",
+      "mission_type": "orbiter",
+      "launch_date": "2005-08-12",
+      "landing_date": "2006-03-10",
+      "end_date": null,
+      "status": "active",
+      "landing_site_id": null,
+      "instruments": [
+        "HiRISE",
+        "CTX",
+        "CRISM",
+        "MARCI",
+        "SHARAD",
+        "MCS",
+        "accelerometers"
+      ],
+      "key_results": [
+        {
+          "text": "Studied the Martian atmosphere and terrain from orbit since 2006; relays data for other Mars missions.",
+          "source_url": "https://www.jpl.nasa.gov/missions/mars-reconnaissance-orbiter-mro/"
+        }
+      ],
+      "source_url": "https://www.jpl.nasa.gov/missions/mars-reconnaissance-orbiter-mro/",
+      "dataset_id": "mission_history"
+    },
+    {
       "id": "tianwen-1-zhurong",
       "name": "Tianwen-1 / Zhurong",
       "agency": "CNSA",
@@ -341,7 +369,7 @@
       "launch_date": "2020-07-23",
       "landing_date": "2021-05-14",
       "end_date": null,
-      "status": "ended",
+      "status": "status not confirmed",
       "landing_site_id": "ls-zhurong",
       "instruments": [
         "NaTeCam",
@@ -351,15 +379,15 @@
       ],
       "key_results": [
         {
-          "text": "First Chinese rover on Mars, operating in southern Utopia Planitia.",
-          "source_url": "https://doi.org/10.1038/s41550-021-01519-5"
+          "text": "Zhurong began patrolling Mars on May 22, 2021, after landing in Utopia Planitia.",
+          "source_url": "https://english.www.gov.cn/news/topnews/202207/06/content_WS62c576bdc6d02e533532d46e.html"
         },
         {
-          "text": "Entered hibernation in May 2022 and has not resumed operations.",
-          "source_url": "https://doi.org/10.1038/s41550-021-01519-5"
+          "text": "Switched to dormant mode on May 18, 2022; current status not confirmed.",
+          "source_url": "https://english.www.gov.cn/news/topnews/202207/06/content_WS62c576bdc6d02e533532d46e.html"
         }
       ],
-      "source_url": "https://doi.org/10.1038/s41550-021-01519-5",
+      "source_url": "https://english.www.gov.cn/news/topnews/202207/06/content_WS62c576bdc6d02e533532d46e.html",
       "dataset_id": "cnsa_mission_records"
     }
   ]
