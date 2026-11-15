@@ -24,7 +24,7 @@ export function getEnvironmentWeatherSource(presetId?: string | null): {
   return {
     label: "Jezero · Perseverance MEDA · historical",
     sourceName: "NASA PDS4 Mars 2020 MEDA",
-    solsNote: "sampled sols 10–1850",
+    solsNote: "sampled sols 10–1846",
     url: "https://atmos.nmsu.edu/PDS/data/PDS4/Mars2020/mars2020_meda/",
   };
 }
